@@ -18,6 +18,3 @@ jobs:
           node-version: 22
       - run: npm install
       - run: npm run ci
-      - name: Temporary 0.0.2 economics evidence
-        run: node scripts/eval-incremental.mjs
-      - run: npm run eval:incremental
