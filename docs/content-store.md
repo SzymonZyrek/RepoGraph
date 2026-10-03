@@ -23,9 +23,10 @@ A lightweight manifest is keyed by:
 
 - repository identity;
 - resolved commit SHA;
-- configuration identity.
+- configuration identity;
+- optional requested ref alias.
 
-The configuration identity distinguishes graphs built from the same commit with different include/exclude or other ingestion/extraction policies.
+The configuration identity distinguishes graphs built from the same commit with different include/exclude or other ingestion/extraction policies. Including the requested ref keeps two aliases for the same commit from colliding while artifact reuse remains content-addressed and independent of refs.
 
 A manifest records the pinned tree, optional requested ref, and references from content/path/node facts to immutable artifact keys. Manifests do not duplicate artifact payloads.
 
