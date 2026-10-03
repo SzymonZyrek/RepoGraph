@@ -11,6 +11,7 @@ import {
   reverseNeighbors,
   type QueryOptions,
 } from "./query.js";
+import type { JsonValue } from "./model.js";
 import { VERSION } from "./version.js";
 
 export interface CliIO {
@@ -21,6 +22,10 @@ export interface CliIO {
 interface Diagnostic {
   code: string;
   message: string;
+}
+
+function json(value: unknown): string {
+  return canonicalJson(JSON.parse(JSON.stringify(value)) as JsonValue);
 }
 
 const usage = [
@@ -37,7 +42,7 @@ function diagnostic(code: string, message: string): Diagnostic {
 }
 
 function writeDiagnostic(io: CliIO, value: Diagnostic): number {
-  io.stderr(`${canonicalJson(value)}\n`);
+  io.stderr(`${json(value)}\n`);
   return 1;
 }
 
@@ -154,7 +159,7 @@ export function runCli(args: readonly string[], io: CliIO): number {
         command === "neighbors"
           ? neighbors(graph, node, queryOptions(normalized))
           : reverseNeighbors(graph, node, queryOptions(normalized));
-      io.stdout(`${canonicalJson(result)}\n`);
+      io.stdout(`${json(result)}\n`);
       return 0;
     }
 
@@ -178,7 +183,7 @@ export function runCli(args: readonly string[], io: CliIO): number {
         seeds,
         queryOptions(normalized),
       );
-      io.stdout(`${canonicalJson(result)}\n`);
+      io.stdout(`${json(result)}\n`);
       return 0;
     }
 
@@ -202,7 +207,7 @@ export function runCli(args: readonly string[], io: CliIO): number {
         normalized.reverse === true ? "reverse" : "forward",
         queryOptions(normalized),
       );
-      io.stdout(`${canonicalJson(result)}\n`);
+      io.stdout(`${json(result)}\n`);
       return 0;
     }
 
