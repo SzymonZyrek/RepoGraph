@@ -10,6 +10,7 @@ import {
   StoreConflictError,
   artifactKey,
   canonicalJsonUnknown,
+  snapshotManifestKey,
   type ArtifactIdentity,
   type JsonValue,
 } from "../src/index.js";
@@ -103,6 +104,52 @@ test("two commit manifests reuse unchanged content-addressed artifacts", () => {
 
   assert.equal(first?.artifacts[0]?.artifactKey, firstPut.key);
   assert.equal(second?.artifacts[0]?.artifactKey, firstPut.key);
+});
+
+test("snapshot identity distinguishes build configuration without breaking default keys", () => {
+  const base = {
+    repository: "fixture/repo",
+    ref: "refs/heads/main",
+    commit: "same-commit",
+  };
+
+  assert.equal(
+    snapshotManifestKey(base),
+    snapshotManifestKey({ ...base, configurationIdentity: "default" }),
+  );
+  assert.notEqual(
+    snapshotManifestKey(base),
+    snapshotManifestKey({ ...base, configurationIdentity: "policy:strict" }),
+  );
+
+  const root = newRoot();
+  const store = new LocalArtifactStore(root);
+  const put = store.putArtifact(identity, payload);
+
+  const defaultManifest = store.writeManifest({
+    ...base,
+    graphSchemaVersion: GRAPH_SCHEMA_VERSION,
+    artifacts: [{ logicalKey: "src/shared.ts", artifactKey: put.key }],
+  });
+  const strictManifest = store.writeManifest({
+    ...base,
+    configurationIdentity: "policy:strict",
+    graphSchemaVersion: GRAPH_SCHEMA_VERSION,
+    artifacts: [{ logicalKey: "src/shared.ts", artifactKey: put.key }],
+  });
+
+  assert.notEqual(defaultManifest.key, strictManifest.key);
+  assert.equal(
+    store.getManifest(base)?.configurationIdentity,
+    undefined,
+  );
+  assert.equal(
+    store.getManifest({
+      ...base,
+      configurationIdentity: "policy:strict",
+    })?.configurationIdentity,
+    "policy:strict",
+  );
 });
 
 test("store survives process-style restart and exposes hit/miss counters", () => {
