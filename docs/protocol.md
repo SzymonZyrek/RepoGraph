@@ -94,7 +94,7 @@ Protocol failures are machine-readable:
 ```json
 {
   "protocolVersion": "repograph.protocol/v1",
-  "releaseVersion": "0.0.4",
+  "releaseVersion": "<VERSION.txt-derived-release>",
   "ok": false,
   "error": {
     "code": "unsupported-protocol",
