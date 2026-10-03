@@ -28,7 +28,7 @@ A lightweight manifest is keyed by:
 
 The configuration identity distinguishes graphs built from the same commit with different include/exclude or other ingestion/extraction policies. Including the requested ref keeps two aliases for the same commit from colliding while artifact reuse remains content-addressed and independent of refs.
 
-A manifest records the pinned tree, optional requested ref, and references from content/path/node facts to immutable artifact keys. Manifests do not duplicate artifact payloads.
+A manifest records the pinned tree and references from content/path/node facts to immutable artifact keys. Manifests do not duplicate artifact payloads. The local backend refuses to persist a manifest that points at a missing local artifact, and consumers can follow manifest references directly with `readArtifactByKey()`.
 
 ## Local persistence
 
