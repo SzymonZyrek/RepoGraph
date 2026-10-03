@@ -258,3 +258,10 @@ export {
   type RepositoryAnalysisOptions,
   type RepositoryAnalysisResult,
 } from "./analyze.js";
+
+export {
+  analyzeRepository,
+  type RepositoryAnalysisMetrics,
+  type RepositoryAnalysisOptions,
+  type RepositoryAnalysisResult,
+} from "./analyze.js";
