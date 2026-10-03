@@ -11,7 +11,7 @@ RepoGraph turns a pinned repository revision into reusable facts about files, mo
 
 It is designed as shared infrastructure for products that need repository understanding without making the graph itself a source of policy.
 
-> **Status:** pre-public development. 0.0.x versions are engineering milestones; **1.0.0 is the first public release**. **0.0.2 is complete:** deterministic graph + incremental reuse/diff planning + TS/JS dependency extraction are now proven on the high-velocity eval. Work moves to 0.0.3 semantics and consumer proof.
+> **Status:** pre-public development. 0.0.x versions are engineering milestones; **1.0.0 is the first public release**. **0.0.3 is complete:** overlays/authority, evidence-aware traversal, deterministic package/test/contract relationships and VibeGuard/Hacka consumer compatibility are proven. Work moves to 0.0.4 extension, lifecycle and external-protocol hardening.
 
 ## The boundary
 
@@ -37,7 +37,7 @@ repository facts + explicit generic overlays
 impact / review              task context / validation
 ```
 
-## 0.0.2 quick start
+## Quick start
 
 ```bash
 npm install
@@ -47,7 +47,7 @@ npm run build
 node dist/src/cli.js version
 node dist/src/cli.js build --repo . --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --out graph.json
 
-# incremental 0.0.2 path
+# incremental snapshot/update path
 node dist/src/cli.js snapshot --repo . --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --cache-dir .repograph-cache
 node dist/src/cli.js update --repo . --base HEAD~1 --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --cache-dir .repograph-cache
 ```
@@ -85,6 +85,7 @@ The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/Szym
 - [Repository relationships: packages, artifacts, contracts and tests](docs/repository-relations.md)
 - [Generic overlays and authority](docs/overlays.md)
 - [0.0.2 incremental economics evidence](docs/evals/0.0.2-incremental-economics.md)
+- [0.0.3 consumer compatibility proof](docs/evals/0.0.3-consumer-compatibility.md)
 - [Consumers: VibeGuard and HackaTeam](docs/consumers.md)
 - [Release/version contract](docs/releases.md)\n- [Traversal policy contract](docs/traversal-policies.md)
 - [Roadmap and delivery rules](docs/roadmap.md)
