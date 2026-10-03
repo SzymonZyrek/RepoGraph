@@ -13,7 +13,7 @@ import { canonicalJsonUnknown, toJsonValue } from "./canonical.js";
 import type { ExtractorRef, JsonValue } from "./model.js";
 
 export const STORE_SCHEMA_VERSION = "repograph.store/v1" as const;
-export const SNAPSHOT_SCHEMA_VERSION = "repograph.snapshot/v1" as const;
+export const SNAPSHOT_SCHEMA_VERSION = "repograph.snapshot/v2" as const;
 
 export interface ArtifactIdentity {
   contentIdentity: string;
@@ -39,6 +39,7 @@ export interface SnapshotManifestInput {
   repository: string;
   ref: string;
   commit: string;
+  configurationIdentity: string;
   graphSchemaVersion: string;
   artifacts: SnapshotArtifactRef[];
 }
@@ -113,12 +114,19 @@ export function artifactKey(identity: ArtifactIdentity): string {
 }
 
 export function snapshotManifestKey(
-  input: Pick<SnapshotManifestInput, "repository" | "ref" | "commit">,
+  input: Pick<
+    SnapshotManifestInput,
+    "repository" | "ref" | "commit" | "configurationIdentity"
+  >,
 ): string {
   return `snapshot-sha256-${hash({
     repository: nonEmpty(input.repository, "repository"),
     ref: nonEmpty(input.ref, "ref"),
     commit: nonEmpty(input.commit, "commit"),
+    configurationIdentity: nonEmpty(
+      input.configurationIdentity,
+      "configurationIdentity",
+    ),
   })}`;
 }
 
@@ -281,6 +289,10 @@ function normalizeManifestInput(
     repository: nonEmpty(input.repository, "repository"),
     ref: nonEmpty(input.ref, "ref"),
     commit: nonEmpty(input.commit, "commit"),
+    configurationIdentity: nonEmpty(
+      input.configurationIdentity,
+      "configurationIdentity",
+    ),
     graphSchemaVersion: nonEmpty(input.graphSchemaVersion, "graphSchemaVersion"),
     artifacts: normalizeRefs(input.artifacts),
   };
@@ -315,6 +327,10 @@ function parseManifest(raw: string, expectedKey: string): SnapshotManifest {
     repository: requireString(record.repository, "snapshot.repository"),
     ref: requireString(record.ref, "snapshot.ref"),
     commit: requireString(record.commit, "snapshot.commit"),
+    configurationIdentity: requireString(
+      record.configurationIdentity,
+      "snapshot.configurationIdentity",
+    ),
     graphSchemaVersion: requireString(
       record.graphSchemaVersion,
       "snapshot.graphSchemaVersion",
@@ -461,7 +477,10 @@ export class LocalArtifactStore {
   }
 
   getManifest(
-    identity: Pick<SnapshotManifestInput, "repository" | "ref" | "commit">,
+    identity: Pick<
+      SnapshotManifestInput,
+      "repository" | "ref" | "commit" | "configurationIdentity"
+    >,
   ): SnapshotManifest | undefined {
     const key = snapshotManifestKey(identity);
     const path = this.manifestPath(key);
