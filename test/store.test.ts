@@ -71,6 +71,8 @@ test("two commit manifests reuse unchanged content-addressed artifacts", () => {
     repository: "fixture/repo",
     ref: "refs/heads/main",
     commit: "commit-a",
+    configurationIdentity: "config:default",
+    tree: "tree-a",
     graphSchemaVersion: GRAPH_SCHEMA_VERSION,
     artifacts: [
       { logicalKey: "src/shared.ts", artifactKey: firstPut.key },
@@ -80,6 +82,8 @@ test("two commit manifests reuse unchanged content-addressed artifacts", () => {
     repository: "fixture/repo",
     ref: "refs/heads/main",
     commit: "commit-b",
+    configurationIdentity: "config:default",
+    tree: "tree-b",
     graphSchemaVersion: GRAPH_SCHEMA_VERSION,
     artifacts: [
       { logicalKey: "src/shared.ts", artifactKey: firstPut.key },
@@ -113,6 +117,8 @@ test("store survives process-style restart and exposes hit/miss counters", () =>
     repository: "fixture/repo",
     ref: "refs/heads/main",
     commit: "commit-a",
+    configurationIdentity: "config:default",
+    tree: "tree-a",
     graphSchemaVersion: GRAPH_SCHEMA_VERSION,
     artifacts: [{ logicalKey: "src/shared.ts", artifactKey: put.key }],
   });
@@ -124,6 +130,7 @@ test("store survives process-style restart and exposes hit/miss counters", () =>
       repository: "fixture/repo",
       ref: "refs/heads/main",
       commit: "commit-a",
+      configurationIdentity: "config:default",
     }),
     undefined,
   );
@@ -148,6 +155,8 @@ test("deleting the cache and rebuilding produces equivalent immutable state", ()
     repository: "fixture/repo",
     ref: "refs/heads/main",
     commit: "commit-a",
+    configurationIdentity: "config:default",
+    tree: "tree-a",
     graphSchemaVersion: GRAPH_SCHEMA_VERSION,
     artifacts: [
       { logicalKey: "src/shared.ts", artifactKey: firstArtifact.key },
@@ -168,6 +177,8 @@ test("deleting the cache and rebuilding produces equivalent immutable state", ()
     repository: "fixture/repo",
     ref: "refs/heads/main",
     commit: "commit-a",
+    configurationIdentity: "config:default",
+    tree: "tree-a",
     graphSchemaVersion: GRAPH_SCHEMA_VERSION,
     artifacts: [
       { logicalKey: "src/shared.ts", artifactKey: rebuiltArtifact.key },
@@ -186,6 +197,7 @@ test("deleting the cache and rebuilding produces equivalent immutable state", ()
         repository: "fixture/repo",
         ref: "refs/heads/main",
         commit: "commit-a",
+        configurationIdentity: "config:default",
       }),
     ),
     canonicalJsonUnknown(manifestBefore),
@@ -213,6 +225,8 @@ test("snapshot manifests reject dangling artifacts and leave no temp files", () 
         repository: "fixture/repo",
         ref: "main",
         commit: "missing",
+        configurationIdentity: "config:default",
+        tree: "tree-missing",
         graphSchemaVersion: GRAPH_SCHEMA_VERSION,
         artifacts: [
           {
@@ -229,6 +243,8 @@ test("snapshot manifests reject dangling artifacts and leave no temp files", () 
     repository: "fixture/repo",
     ref: "main",
     commit: "ok",
+    configurationIdentity: "config:default",
+    tree: "tree-ok",
     graphSchemaVersion: GRAPH_SCHEMA_VERSION,
     artifacts: [{ logicalKey: "ok", artifactKey: put.key }],
   });
