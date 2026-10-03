@@ -4,14 +4,14 @@ RepoGraph updates repository intelligence from an exact Git diff and the content
 
 ## Snapshot identity
 
-Snapshot manifest schema v2 is keyed by:
+Snapshot manifests are keyed by:
 
 - repository identity;
 - requested ref;
 - resolved commit;
 - ingestion/extraction configuration identity.
 
-The manifest also records the resolved Git tree. This prevents two builds of the same commit with different include/exclude, parser, extractor, chunking or schema settings from colliding.
+The manifest also records the resolved Git tree. The optional configuration identity added in #31 is used by repository snapshots, so two builds of the same commit with different include/exclude, parser, extractor, chunking or schema settings do not collide. Existing default v1 manifests remain readable.
 
 Artifact identity remains content-addressed. Configuration changes invalidate snapshot reuse, not immutable artifacts whose own extractor/parser/schema identity still matches.
 
