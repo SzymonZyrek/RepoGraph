@@ -4,6 +4,7 @@ export {
   GraphValidationError,
   buildGraph,
   edgeId,
+  graphEquals,
   makeEdge,
   makeNode,
   nodeId,
