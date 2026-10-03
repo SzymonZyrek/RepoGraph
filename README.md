@@ -46,6 +46,9 @@ npm run build
 
 node dist/src/cli.js version
 node dist/src/cli.js build --repo . --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --out graph.json
+
+# 0.0.2 cache slice: same graph facts, reusable content artifacts
+node dist/src/cli.js snapshot --repo . --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --cache-dir .repograph-cache --graph-out graph.json
 ```
 
 Query by stable node ID:
@@ -73,7 +76,8 @@ The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/Szym
 
 - [Architecture and invariants](docs/architecture.md)
 - [Graph contract](docs/graph-contract.md)
-- [Pinned Git ingestion](docs/git-ingestion.md)\n- [Content-addressed store](docs/content-store.md)
+- [Pinned Git ingestion](docs/git-ingestion.md)
+- [Content-addressed store](docs/content-store.md)
 - [Consumers: VibeGuard and HackaTeam](docs/consumers.md)
 - [Release/version contract](docs/releases.md)
 - [Roadmap and delivery rules](docs/roadmap.md)
