@@ -30,13 +30,15 @@ The cache has no network service and can be deleted at any time.
 
 ## Snapshot manifests
 
-A lightweight manifest is identified by repository + requested ref + resolved commit and records:
+Snapshot manifest v2 is identified by repository + requested ref + resolved commit + configuration identity and records:
 
+- resolved Git tree;
 - graph schema version;
+- ingestion/extraction configuration identity;
 - logical artifact names;
 - immutable artifact keys.
 
-Different commits can therefore point at the same artifact when their underlying source content and extractor/parser/schema identity are unchanged.
+Different commits can therefore point at the same artifact when their underlying source content and extractor/parser/schema identity are unchanged. The configuration identity prevents the same commit/ref built with different policies or extractor settings from colliding.
 
 Manifests cannot point at missing artifacts.
 
