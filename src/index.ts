@@ -251,3 +251,10 @@ export {
   type GraphViewViewport,
   type RenderGraphViewOptions,
 } from "./view.js";
+
+export {
+  analyzeRepository,
+  type RepositoryAnalysisMetrics,
+  type RepositoryAnalysisOptions,
+  type RepositoryAnalysisResult,
+} from "./analyze.js";
