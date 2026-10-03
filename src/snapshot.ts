@@ -39,9 +39,10 @@ export function gitSnapshotConfigurationIdentity(
 }
 
 function reusableGitObjectPayload(node: GraphNode): JsonValue {
+  const target = node.metadata?.target;
   return {
     kind: node.identity.kind,
-    metadata: node.metadata ?? {},
+    ...(typeof target === "string" ? { target } : {}),
   };
 }
 
