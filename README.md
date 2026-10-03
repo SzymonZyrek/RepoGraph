@@ -11,7 +11,7 @@ RepoGraph turns a pinned repository revision into reusable facts about files, mo
 
 It is designed as shared infrastructure for products that need repository understanding without making the graph itself a source of policy.
 
-> **Status:** 0.0.1 kernel implementation. The graph contract, pinned Git ingestion, traversal API and deterministic CLI are implemented; incremental language-aware extraction starts in 0.0.2.
+> **Status:** pre-public development. 0.0.x versions are engineering milestones; **1.0.0 is the first public release**. The 0.0.1 kernel is complete and incremental reuse starts in 0.0.2.
 
 ## The boundary
 
@@ -66,6 +66,7 @@ All CLI output is deterministic JSON. Invalid input exits non-zero and writes a 
 | **0.0.2** | Incremental dependency engine: content-addressed snapshots, Git diffs, TS/JS extraction |
 | **0.0.3** | Repository-intelligence semantics: overlays, provenance/authority, traversal policies, consumer proof |
 | **0.0.4** | Extension boundary: extractor contract, cross-repo edges, lifecycle hardening, stable external protocol |
+| **1.0.0** | First public release, after pre-1.0 contracts are proven by real consumers |
 
 The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/SzymonZyrek/RepoGraph/issues/1).
 

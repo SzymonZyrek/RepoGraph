@@ -21,6 +21,12 @@ Every released version must have a `CHANGELOG.md` entry containing:
 
 A release note must distinguish graph/schema compatibility from consumer-product behavior. RepoGraph release notes do not claim VibeGuard or Hacka policy changes unless those consumers explicitly ship them.
 
+## Public release policy
+
+All 0.0.x versions are pre-public engineering milestones. They exist to prove contracts and economics quickly; they are not public-launch candidates.
+
+The first public release is **1.0.0**. Its criteria are evidence-driven and should be derived from consumer proofs, compatibility requirements and operational behavior after the pre-1.0 roadmap has stabilized.
+
 ## 0.0.x rule
 
-Until 0.1.0, a 0.0.x release may change experimental APIs, but persisted/exported schema changes still require an explicit schema-version change or migration note. Silent reinterpretation of an existing schema version is not allowed.
+A 0.0.x release may change experimental APIs, but persisted/exported schema changes still require an explicit schema-version change or migration note. Silent reinterpretation of an existing schema version is not allowed.
