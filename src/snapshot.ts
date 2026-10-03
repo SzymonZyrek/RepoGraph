@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { realpathSync } from "node:fs";
 
-import { canonicalJsonUnknown } from "./canonical.js";
+import { canonicalJsonUnknown, toJsonValue } from "./canonical.js";
 import {
   ingestGitRepository,
   type GitIngestionOptions,
@@ -75,14 +75,14 @@ function sha256(value: unknown): string {
 function snapshotConfigurationPayload(
   options: RepositorySnapshotOptions,
 ): JsonValue {
-  return {
+  return toJsonValue({
     ingestion: {
       discoverCodeowners: options.discoverCodeowners ?? true,
       policy: options.policy ?? {},
       pathRules: options.pathRules ?? [],
     },
     analysis: options.analysis ?? {},
-  } as JsonValue;
+  });
 }
 
 export function repositorySnapshotConfigurationIdentity(
@@ -183,7 +183,7 @@ function writeSnapshot(
 
   const graphPut = store.putArtifact(
     graphArtifactIdentity(ingested.graph),
-    ingested.graph,
+    toJsonValue(ingested.graph),
   );
   refs.push({ logicalKey: "$graph", artifactKey: graphPut.key });
 
