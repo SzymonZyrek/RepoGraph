@@ -50,13 +50,20 @@ Issues: [#4](https://github.com/SzymonZyrek/RepoGraph/issues/4), [#13](https://g
 
 Issues: [#5](https://github.com/SzymonZyrek/RepoGraph/issues/5), [#17](https://github.com/SzymonZyrek/RepoGraph/issues/17), [#18](https://github.com/SzymonZyrek/RepoGraph/issues/18), [#19](https://github.com/SzymonZyrek/RepoGraph/issues/19), [#20](https://github.com/SzymonZyrek/RepoGraph/issues/20).
 
-## Optional presentation extraction
+## 0.0.5 — consumer integration
 
-After the 0.0.4 contract is proven by at least two consumers, an optional read-only renderer can be extracted. It is not a release blocker and must remain generic/headless-compatible.
+**Status:** complete on 2026-10-03.
 
-Tracking: [#21](https://github.com/SzymonZyrek/RepoGraph/issues/21).
+**Goal:** close concrete gaps exposed by real consumer integration without weakening the headless/core boundary.
+
+- optional framework-free read-only view over bounded protocol DTOs (#21, #56);
+- full built-in repository-intelligence composition available through library and CLI (#55, #57);
+- direct proof that the full intelligence graph feeds the stable `repograph.protocol/v1` boundary;
+- one canonical external-consumer CLI surface (`build-intelligence`) rather than synonymous commands (#59).
+
+This milestone was discovered from live HackaTeam/VibeGuard work after the planned 0.0.4 foundation had already completed. It does not turn RepoGraph into either consumer's product layer.
 
 
 ## 1.0.0 — first public release
 
-The 0.0.x foundation is complete. 1.0.0 remains intentionally evidence-driven rather than cosmetic: release criteria should now be cut from real VibeGuard/Hacka integrations, upgrade behavior, protocol compatibility and the usefulness of bounded explanations. Optional #21 can proceed in parallel and does not redefine the headless core.
+The planned 0.0.1–0.0.4 foundation plus the consumer-discovered 0.0.5 integration layer are complete. 1.0.0 remains intentionally evidence-driven rather than cosmetic: release criteria should now be cut from real VibeGuard/Hacka integrations, upgrade behavior, protocol compatibility and the usefulness of bounded explanations.
