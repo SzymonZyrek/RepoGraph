@@ -5,7 +5,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 
-import { loadGraph, saveGraph } from "../src/index.js";
+import {
+  REPOGRAPH_PROTOCOL_VERSION,
+  buildGraph,
+  createTraversalPolicy,
+  loadGraph,
+  nodeId,
+  saveGraph,
+} from "../src/index.js";
 
 const cli = "dist/src/cli.js";
 
@@ -112,4 +119,127 @@ test("CLI snapshot and update expose incremental metrics", () => {
   assert.equal(update.plan.metrics.changes, 1);
   assert.equal(update.plan.metrics.modified, 1);
   assert.equal(update.plan.metrics.artifactReuses > 0, true);
+});
+
+
+test("CLI exposes protocol feature discovery", () => {
+  const raw = execFileSync(process.execPath, [cli, "protocol-info"], {
+    encoding: "utf8",
+  });
+  const info = JSON.parse(raw) as {
+    protocolVersion: string;
+    releaseVersion: string;
+    features: Array<{ name: string; version: string; status: string }>;
+  };
+
+  assert.equal(info.protocolVersion, REPOGRAPH_PROTOCOL_VERSION);
+  assert.equal(typeof info.releaseVersion, "string");
+  assert.equal(
+    info.features.some((feature) => feature.name === "graph-slice"),
+    true,
+  );
+});
+
+test("CLI protocol command consumes the same bounded request contract over stdin", () => {
+  const source = {
+    namespace: "fixture/cli-protocol",
+    kind: "file",
+    key: "src/a.ts",
+  };
+  const testNode = {
+    namespace: "fixture/cli-protocol",
+    kind: "file",
+    key: "src/a.test.ts",
+  };
+  const provenance = {
+    repository: "fixture/cli-protocol",
+    ref: "main",
+    commit: "abc",
+    extractor: { name: "fixture", version: "1" },
+    origin: "derived" as const,
+    method: "deterministic-extraction" as const,
+    state: "complete" as const,
+  };
+  const graph = buildGraph({
+    nodes: [
+      { identity: source, provenance: [provenance] },
+      { identity: testNode, provenance: [provenance] },
+    ],
+    edges: [
+      {
+        identity: {
+          kind: "tests",
+          from: nodeId(testNode),
+          to: nodeId(source),
+        },
+        provenance: [provenance],
+      },
+    ],
+  });
+  const request = {
+    protocolVersion: REPOGRAPH_PROTOCOL_VERSION,
+    operation: "slice",
+    requestId: "cli-protocol",
+    graph,
+    start: nodeId(source),
+    policy: createTraversalPolicy({
+      direction: "in",
+      edgeKinds: ["tests"],
+      maxDepth: 2,
+      maxNodes: 10,
+    }),
+  };
+
+  const result = spawnSync(
+    process.execPath,
+    [cli, "protocol", "--request", "-"],
+    {
+      encoding: "utf8",
+      input: JSON.stringify(request),
+    },
+  );
+
+  assert.equal(result.status, 0);
+  assert.equal(result.stderr, "");
+  const response = JSON.parse(result.stdout) as {
+    ok: boolean;
+    requestId: string;
+    data: {
+      type: string;
+      availability: string;
+      nodes: Array<{ kind: string; key: string }>;
+    };
+  };
+  assert.equal(response.ok, true);
+  assert.equal(response.requestId, "cli-protocol");
+  assert.equal(response.data.type, "graph-slice");
+  assert.equal(response.data.availability, "available");
+  assert.deepEqual(response.data.nodes.map((node) => node.key), [
+    "src/a.test.ts",
+  ]);
+});
+
+test("CLI protocol returns machine-readable unsupported-version responses with exit 2", () => {
+  const result = spawnSync(
+    process.execPath,
+    [cli, "protocol", "--request", "-"],
+    {
+      encoding: "utf8",
+      input: JSON.stringify({
+        protocolVersion: "repograph.protocol/v999",
+        operation: "slice",
+        graph: {},
+        start: "node",
+      }),
+    },
+  );
+
+  assert.equal(result.status, 2);
+  assert.equal(result.stderr, "");
+  const response = JSON.parse(result.stdout) as {
+    ok: boolean;
+    error: { code: string; message: string };
+  };
+  assert.equal(response.ok, false);
+  assert.equal(response.error.code, "unsupported-protocol");
 });

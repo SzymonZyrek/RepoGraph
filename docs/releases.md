@@ -30,3 +30,14 @@ The first public release is **1.0.0**. Its criteria are evidence-driven and shou
 ## 0.0.x rule
 
 A 0.0.x release may change experimental APIs, but persisted/exported schema changes still require an explicit schema-version change or migration note. Silent reinterpretation of an existing schema version is not allowed.
+
+
+## External protocol compatibility
+
+The versioned JSON wire contract is independent from the package semantic version.
+
+Within a protocol major such as `repograph.protocol/v1`, changes are additive: existing required fields and stable feature semantics keep their meaning, while new optional fields or advertised features may be added. Breaking wire changes require a new protocol major and must be discoverable through `protocol-info`.
+
+A protocol feature marked `deprecated` remains discoverable for at least one pre-1.0 engineering milestone before removal unless keeping it would preserve a security or correctness defect.
+
+Release artifacts consumed by external callers must expose the same `VERSION.txt`-derived release version through both the TypeScript library and CLI protocol metadata. The stable protocol is the supported cross-process boundary; convenience CLI command output outside that protocol remains pre-1.0 experimental unless separately documented.

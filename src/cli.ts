@@ -7,6 +7,7 @@ import { ingestGitRepository } from "./git.js";
 import { incrementalRepositoryUpdate } from "./incremental.js";
 import { loadGraph } from "./io.js";
 import { explainWithPolicy, parseTraversalPolicy, traverseWithPolicy } from "./policy.js";
+import { executeProtocolRequest, protocolInfo } from "./protocol.js";
 import { createRepositorySnapshot } from "./snapshot.js";
 import { LocalArtifactStore } from "./store.js";
 import {
@@ -102,6 +103,8 @@ function usage(): never {
     "usage",
     [
       "repograph version",
+      "repograph protocol-info",
+      "repograph protocol --request FILE|- [--out FILE]",
       "repograph build --repo PATH --ref REF [--repository NAME] [--out FILE]",
       "repograph snapshot --repo PATH --ref REF --cache-dir DIR [--repository NAME] [--out FILE] [--graph-out FILE]",
       "repograph update --repo PATH --base BASE --ref TARGET --cache-dir DIR [--base-mode direct|merge-base] [--out FILE] [--graph-out FILE]",
@@ -122,6 +125,35 @@ function run(argv: readonly string[]): void {
 
   if (command === "version") {
     output({ version: VERSION });
+    return;
+  }
+
+  if (command === "protocol-info") {
+    output(protocolInfo());
+    return;
+  }
+
+  if (command === "protocol") {
+    const requestPath = one(args, "request", true)!;
+    const out = one(args, "out");
+    const serialized =
+      requestPath === "-"
+        ? readFileSync(0, "utf8")
+        : readFileSync(requestPath, "utf8");
+    let request: unknown;
+    try {
+      request = JSON.parse(serialized) as unknown;
+    } catch (error) {
+      throw new CliError(
+        "invalid-json",
+        `Protocol request JSON is malformed: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
+    const response = executeProtocolRequest(request);
+    output(response, out);
+    if (!response.ok) process.exitCode = 2;
     return;
   }
 
