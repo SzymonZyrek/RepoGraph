@@ -80,7 +80,7 @@ The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/Szym
 - [Graph contract](docs/graph-contract.md)
 - [Pinned Git ingestion](docs/git-ingestion.md)
 - [Content-addressed store](docs/content-addressed-store.md)
-- [Incremental updates](docs/incremental-updates.md)
+- [Incremental updates](docs/incremental-updates.md)\n- [TypeScript/JavaScript extractor](docs/typescript-extractor.md)
 - [Consumers: VibeGuard and HackaTeam](docs/consumers.md)
 - [Release/version contract](docs/releases.md)
 - [Roadmap and delivery rules](docs/roadmap.md)
