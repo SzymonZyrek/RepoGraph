@@ -76,3 +76,30 @@ RepoGraph is headless first:
 - stable error and feature-discovery contract.
 
 A later optional view layer may render a bounded graph slice, but it cannot define product vocabulary or consumer policy. See [consumers.md](consumers.md).
+
+
+## Evidence fidelity
+
+Provenance answers both **where a fact came from** and **how it was obtained**.
+
+RepoGraph should preserve evidence classes such as:
+
+- direct Git/source observation;
+- explicit or authoritative consumer overlay;
+- deterministic native extraction;
+- precise externally indexed evidence;
+- partial/unresolved extraction as a diagnostic/state rather than invented edges.
+
+Do not attach one universal numeric confidence score to edges. The evidence classes are not naturally comparable on one scalar, and consumer policies may intentionally treat them differently.
+
+Traversal policies can filter by evidence method/fidelity and causal explanations preserve that classification.
+
+## External code intelligence
+
+RepoGraph should own the normalized graph contract, identities, provenance and traversal — not every compiler frontend.
+
+The versioned extractor/plugin boundary may ingest precomputed external code-intelligence indexes (a SCIP-like fixture is a useful example) alongside RepoGraph-native extractors.
+
+Native and external sources must map deterministically into the same graph identities. Overlap converges when equivalent; disagreement remains inspectable rather than being hidden by silent precedence.
+
+This keeps the initial TypeScript/JavaScript extractor deliberately narrow while leaving a path to compiler-aware multi-language evidence without rebuilding an entire Sourcegraph-class indexing stack.
