@@ -405,7 +405,10 @@ export class LocalContentStore {
   }
 
   readArtifact(descriptor: ArtifactDescriptor): ArtifactEnvelope | undefined {
-    const key = artifactKey(descriptor);
+    return this.readArtifactByKey(artifactKey(descriptor));
+  }
+
+  readArtifactByKey(key: string): ArtifactEnvelope | undefined {
     const path = this.artifactPath(key);
     if (!existsSync(path)) {
       this.stats.misses += 1;
@@ -467,6 +470,16 @@ export class LocalContentStore {
       tree: manifest.tree,
       artifacts: manifest.artifacts,
     });
+    for (const reference of normalized.artifacts) {
+      for (const artifact of reference.artifactKeys) {
+        if (!existsSync(this.artifactPath(artifact))) {
+          throw new StoreValidationError(
+            `Manifest references missing artifact: ${artifact}`,
+          );
+        }
+      }
+    }
+
     const key = snapshotManifestKey(normalized.identity);
     this.writeImmutable(this.manifestPath(key), normalized, "manifest");
     return key;
