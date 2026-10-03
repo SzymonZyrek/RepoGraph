@@ -13,6 +13,12 @@ export type EvidenceMethod =
   | "explicit-overlay";
 
 export type EvidenceState = "complete" | "partial" | "unresolved";
+export type FactAuthority = "authoritative" | "advisory";
+
+export interface OverlayRef {
+  name: string;
+  version: string;
+}
 
 export interface ExtractorRef {
   name: string;
@@ -28,6 +34,8 @@ export interface Provenance {
   origin: FactOrigin;
   method: EvidenceMethod;
   state: EvidenceState;
+  authority?: FactAuthority;
+  overlay?: OverlayRef;
   diagnostic?: string;
 }
 

@@ -6,6 +6,7 @@ import {
   type EdgeIdentity,
   type EvidenceMethod,
   type EvidenceState,
+  type FactAuthority,
   type FactOrigin,
   type GraphDiagnostic,
   type GraphDocument,
@@ -106,6 +107,13 @@ function provenanceJson(value: Provenance): JsonValue {
     repository: value.repository,
     state: value.state,
   };
+  if (value.authority !== undefined) json.authority = value.authority;
+  if (value.overlay !== undefined) {
+    json.overlay = {
+      name: value.overlay.name,
+      version: value.overlay.version,
+    };
+  }
   if (value.commit !== undefined) json.commit = value.commit;
   if (value.path !== undefined) json.path = value.path;
   if (value.extractor !== undefined) {
@@ -355,6 +363,17 @@ function validateProvenance(value: Provenance): void {
     assertNonEmpty(value.extractor.name, "extractor name");
     assertNonEmpty(value.extractor.version, "extractor version");
   }
+  if (value.overlay !== undefined) {
+    assertNonEmpty(value.overlay.name, "overlay name");
+    assertNonEmpty(value.overlay.version, "overlay version");
+  }
+  if (value.authority !== undefined) {
+    assertAllowed<FactAuthority>(
+      value.authority,
+      ["authoritative", "advisory"],
+      "provenance authority",
+    );
+  }
   assertAllowed<FactOrigin>(
     value.origin,
     ["source", "derived", "overlay"],
@@ -375,6 +394,28 @@ function validateProvenance(value: Provenance): void {
     ["complete", "partial", "unresolved"],
     "provenance state",
   );
+
+  if (value.origin === "overlay") {
+    if (value.method !== "explicit-overlay") {
+      throw new GraphValidationError(
+        "overlay provenance must use explicit-overlay evidence method",
+      );
+    }
+    if (value.overlay === undefined) {
+      throw new GraphValidationError(
+        "overlay provenance must identify overlay name and version",
+      );
+    }
+    if (value.authority === undefined) {
+      throw new GraphValidationError(
+        "overlay provenance must declare authoritative or advisory authority",
+      );
+    }
+  } else if (value.overlay !== undefined || value.authority !== undefined) {
+    throw new GraphValidationError(
+      "overlay identity/authority are only valid for overlay provenance",
+    );
+  }
 }
 
 function validateDiagnostic(value: GraphDiagnostic): GraphDiagnostic {
@@ -449,6 +490,26 @@ function parseProvenance(value: unknown, label: string): Provenance {
       ["complete", "partial", "unresolved"] as const,
       `${label}.state`,
     ),
+    ...(record.authority === undefined
+      ? {}
+      : {
+          authority: requireAllowed(
+            record.authority,
+            ["authoritative", "advisory"] as const,
+            `${label}.authority`,
+          ),
+        }),
+    ...(record.overlay === undefined
+      ? {}
+      : {
+          overlay: (() => {
+            const rawOverlay = requireRecord(record.overlay, `${label}.overlay`);
+            return {
+              name: requireString(rawOverlay.name, `${label}.overlay.name`),
+              version: requireString(rawOverlay.version, `${label}.overlay.version`),
+            };
+          })(),
+        }),
     ...(record.diagnostic === undefined
       ? {}
       : { diagnostic: requireString(record.diagnostic, `${label}.diagnostic`) }),

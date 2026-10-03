@@ -22,6 +22,7 @@ export {
   type EvidenceMethod,
   type EvidenceState,
   type ExtractorRef,
+  type FactAuthority,
   type FactOrigin,
   type GraphDiagnostic,
   type GraphDocument,
@@ -34,6 +35,7 @@ export {
   type JsonPrimitive,
   type JsonValue,
   type NodeIdentity,
+  type OverlayRef,
   type Provenance,
 } from "./model.js";
 export {
@@ -118,3 +120,14 @@ export {
   type TsJsExtractionOptions,
   type TsJsExtractionResult,
 } from "./tsjs.js";
+
+export {
+  applyOverlay,
+  matchGraphNodesByPath,
+  overlayProvenance,
+  type OverlayApplyResult,
+  type OverlayDefinition,
+  type OverlayEdgeInput,
+  type OverlayNodeInput,
+  type OverlayPathEdgeInput,
+} from "./overlay.js";
