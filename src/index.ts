@@ -109,3 +109,19 @@ export {
   type IncrementalRepositoryUpdateResult,
   type IncrementalUpdatePlan,
 } from "./incremental.js";
+
+export {
+  TYPESCRIPT_DEPENDENCY_EXTRACTOR,
+  TYPESCRIPT_DEPENDENCY_SCHEMA_VERSION,
+  TYPESCRIPT_SYNTAX_SCHEMA_VERSION,
+  extractTypeScriptDependencies,
+  extractTypeScriptRepository,
+  incrementalTypeScriptRepositoryUpdate,
+  typeScriptAnalysisConfiguration,
+  type IncrementalTypeScriptRepositoryOptions,
+  type IncrementalTypeScriptRepositoryResult,
+  type TypeScriptExtractionMetrics,
+  type TypeScriptExtractionResult,
+  type TypeScriptRepositoryExtractionOptions,
+  type TypeScriptRepositoryExtractionResult,
+} from "./typescript-extractor.js";
