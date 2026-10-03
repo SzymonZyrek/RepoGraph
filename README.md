@@ -11,7 +11,7 @@ RepoGraph turns a pinned repository revision into reusable facts about files, mo
 
 It is designed as shared infrastructure for products that need repository understanding without making the graph itself a source of policy.
 
-> **Status:** pre-public development. 0.0.x versions are engineering milestones; **1.0.0 is the first public release**. **0.0.4 is complete:** extractor/plugin boundaries, explicit cross-repository bridges, recoverable cache lifecycle and a bounded stable external protocol are proven. Broader extractor work and the optional read-only view can now build on that contract; 1.0.0 criteria come from real consumer integration evidence.
+> **Status:** pre-public development. 0.0.x versions are engineering milestones; **1.0.0 is the first public release**. **0.0.4 is complete:** extractor/plugin boundaries, explicit cross-repository bridges, recoverable cache lifecycle and a bounded stable external protocol are proven. Broader extractor work and real consumer integrations can now build on that contract. An optional framework-free read-only view is available on top of the bounded protocol DTO; 1.0.0 criteria come from real consumer integration evidence.
 
 ## The boundary
 
@@ -89,6 +89,7 @@ The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/Szym
 - [Cross-repository coordinate bridges](docs/cross-repository.md)
 - [External protocol v1](docs/protocol.md)
 - [Built-in repository intelligence build](docs/intelligence-build.md)
+- [Optional read-only graph view](docs/view.md)
 - [Generic overlays and authority](docs/overlays.md)
 - [0.0.2 incremental economics evidence](docs/evals/0.0.2-incremental-economics.md)
 - [0.0.3 consumer compatibility proof](docs/evals/0.0.3-consumer-compatibility.md)
