@@ -170,3 +170,20 @@ export {
   type ExtractorPlugin,
   type ExtractorRequest,
 } from "./extractor.js";
+
+export {
+  CROSS_REPOSITORY_COORDINATE_NAMESPACE,
+  CROSS_REPOSITORY_MAPPING_VERSION,
+  composeCrossRepositoryGraph,
+  coordinateIdentity,
+  crossRepositoryAffected,
+  type CrossRepositoryCompositionMetrics,
+  type CrossRepositoryCompositionOptions,
+  type CrossRepositoryCompositionResult,
+  type CrossRepositoryCoordinate,
+  type CrossRepositoryDependencyMapping,
+  type CrossRepositoryNodeLocator,
+  type CrossRepositorySlice,
+  type CrossRepositoryTraversalOptions,
+  type RepositoryGraphSnapshot,
+} from "./cross-repo.js";
