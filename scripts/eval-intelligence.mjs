@@ -20,6 +20,7 @@ import {
 const CLUSTERS = 24;
 const FILES_PER_CLUSTER = 10;
 const TINY_COMMITS = 8;
+const DEPENDENCY_EDIT_INDEX = Math.floor(FILES_PER_CLUSTER / 2);
 const repositoryName = "eval/intelligence-high-velocity";
 
 function git(cwd, ...args) {
@@ -92,7 +93,11 @@ function createHistory() {
   scenarios.push({ kind: "rename-only", base: previous, target });
   previous = target;
 
-  write(root, pathFor(1, FILES_PER_CLUSTER - 1), sourceFor(1, FILES_PER_CLUSTER - 1, 0, FILES_PER_CLUSTER - 3));
+  write(
+    root,
+    pathFor(1, DEPENDENCY_EDIT_INDEX),
+    sourceFor(1, DEPENDENCY_EDIT_INDEX, 0, DEPENDENCY_EDIT_INDEX - 2),
+  );
   target = commit(root, "dependency-affecting edit");
   scenarios.push({ kind: "dependency-edit", base: previous, target });
   previous = target;
@@ -178,7 +183,7 @@ for (const scenario of scenarios) {
 
   let affectedNodes = null;
   if (scenario.kind === "dependency-edit") {
-    const changed = fileId(pathFor(1, FILES_PER_CLUSTER - 1));
+    const changed = fileId(pathFor(1, DEPENDENCY_EDIT_INDEX));
     affectedNodes = affectedClosure(warm.graph, changed, {
       edgeKinds: ["imports", "reexports", "covers", "package-contains"],
       maxNodes: 1000,
