@@ -8,7 +8,7 @@ import {
   type RepositorySnapshotOptions,
   type SnapshotAnalysisConfiguration,
 } from "./snapshot.js";
-import { LocalArtifactStore, type StoreStats } from "./store.js";
+import type { LocalArtifactStore, StoreStats } from "./store.js";
 
 const GIT_MAX_BUFFER = 64 * 1024 * 1024;
 
