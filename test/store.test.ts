@@ -10,6 +10,7 @@ import {
   StoreConflictError,
   artifactKey,
   canonicalJsonUnknown,
+  snapshotManifestKey,
   type ArtifactIdentity,
   type JsonValue,
 } from "../src/index.js";
@@ -71,8 +72,6 @@ test("two commit manifests reuse unchanged content-addressed artifacts", () => {
     repository: "fixture/repo",
     ref: "refs/heads/main",
     commit: "commit-a",
-    configurationIdentity: "config:default",
-    tree: "tree-a",
     graphSchemaVersion: GRAPH_SCHEMA_VERSION,
     artifacts: [
       { logicalKey: "src/shared.ts", artifactKey: firstPut.key },
@@ -82,8 +81,6 @@ test("two commit manifests reuse unchanged content-addressed artifacts", () => {
     repository: "fixture/repo",
     ref: "refs/heads/main",
     commit: "commit-b",
-    configurationIdentity: "config:default",
-    tree: "tree-b",
     graphSchemaVersion: GRAPH_SCHEMA_VERSION,
     artifacts: [
       { logicalKey: "src/shared.ts", artifactKey: firstPut.key },
@@ -109,6 +106,52 @@ test("two commit manifests reuse unchanged content-addressed artifacts", () => {
   assert.equal(second?.artifacts[0]?.artifactKey, firstPut.key);
 });
 
+test("snapshot identity distinguishes build configuration without breaking default keys", () => {
+  const base = {
+    repository: "fixture/repo",
+    ref: "refs/heads/main",
+    commit: "same-commit",
+  };
+
+  assert.equal(
+    snapshotManifestKey(base),
+    snapshotManifestKey({ ...base, configurationIdentity: "default" }),
+  );
+  assert.notEqual(
+    snapshotManifestKey(base),
+    snapshotManifestKey({ ...base, configurationIdentity: "policy:strict" }),
+  );
+
+  const root = newRoot();
+  const store = new LocalArtifactStore(root);
+  const put = store.putArtifact(identity, payload);
+
+  const defaultManifest = store.writeManifest({
+    ...base,
+    graphSchemaVersion: GRAPH_SCHEMA_VERSION,
+    artifacts: [{ logicalKey: "src/shared.ts", artifactKey: put.key }],
+  });
+  const strictManifest = store.writeManifest({
+    ...base,
+    configurationIdentity: "policy:strict",
+    graphSchemaVersion: GRAPH_SCHEMA_VERSION,
+    artifacts: [{ logicalKey: "src/shared.ts", artifactKey: put.key }],
+  });
+
+  assert.notEqual(defaultManifest.key, strictManifest.key);
+  assert.equal(
+    store.getManifest(base)?.configurationIdentity,
+    undefined,
+  );
+  assert.equal(
+    store.getManifest({
+      ...base,
+      configurationIdentity: "policy:strict",
+    })?.configurationIdentity,
+    "policy:strict",
+  );
+});
+
 test("store survives process-style restart and exposes hit/miss counters", () => {
   const root = newRoot();
   const first = new LocalArtifactStore(root);
@@ -117,8 +160,6 @@ test("store survives process-style restart and exposes hit/miss counters", () =>
     repository: "fixture/repo",
     ref: "refs/heads/main",
     commit: "commit-a",
-    configurationIdentity: "config:default",
-    tree: "tree-a",
     graphSchemaVersion: GRAPH_SCHEMA_VERSION,
     artifacts: [{ logicalKey: "src/shared.ts", artifactKey: put.key }],
   });
@@ -130,7 +171,6 @@ test("store survives process-style restart and exposes hit/miss counters", () =>
       repository: "fixture/repo",
       ref: "refs/heads/main",
       commit: "commit-a",
-      configurationIdentity: "config:default",
     }),
     undefined,
   );
@@ -155,8 +195,6 @@ test("deleting the cache and rebuilding produces equivalent immutable state", ()
     repository: "fixture/repo",
     ref: "refs/heads/main",
     commit: "commit-a",
-    configurationIdentity: "config:default",
-    tree: "tree-a",
     graphSchemaVersion: GRAPH_SCHEMA_VERSION,
     artifacts: [
       { logicalKey: "src/shared.ts", artifactKey: firstArtifact.key },
@@ -177,8 +215,6 @@ test("deleting the cache and rebuilding produces equivalent immutable state", ()
     repository: "fixture/repo",
     ref: "refs/heads/main",
     commit: "commit-a",
-    configurationIdentity: "config:default",
-    tree: "tree-a",
     graphSchemaVersion: GRAPH_SCHEMA_VERSION,
     artifacts: [
       { logicalKey: "src/shared.ts", artifactKey: rebuiltArtifact.key },
@@ -197,7 +233,6 @@ test("deleting the cache and rebuilding produces equivalent immutable state", ()
         repository: "fixture/repo",
         ref: "refs/heads/main",
         commit: "commit-a",
-        configurationIdentity: "config:default",
       }),
     ),
     canonicalJsonUnknown(manifestBefore),
@@ -225,8 +260,6 @@ test("snapshot manifests reject dangling artifacts and leave no temp files", () 
         repository: "fixture/repo",
         ref: "main",
         commit: "missing",
-        configurationIdentity: "config:default",
-        tree: "tree-missing",
         graphSchemaVersion: GRAPH_SCHEMA_VERSION,
         artifacts: [
           {
@@ -243,8 +276,6 @@ test("snapshot manifests reject dangling artifacts and leave no temp files", () 
     repository: "fixture/repo",
     ref: "main",
     commit: "ok",
-    configurationIdentity: "config:default",
-    tree: "tree-ok",
     graphSchemaVersion: GRAPH_SCHEMA_VERSION,
     artifacts: [{ logicalKey: "ok", artifactKey: put.key }],
   });
