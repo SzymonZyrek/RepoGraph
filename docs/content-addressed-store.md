@@ -30,15 +30,15 @@ The cache has no network service and can be deleted at any time.
 
 ## Snapshot manifests
 
-Snapshot manifest v2 is identified by repository + requested ref + resolved commit + configuration identity and records:
+A snapshot manifest is identified by repository + requested ref + resolved commit plus optional configuration identity and records:
 
 - resolved Git tree;
 - graph schema version;
-- ingestion/extraction configuration identity;
+- optional ingestion/extraction configuration identity;
 - logical artifact names;
 - immutable artifact keys.
 
-Different commits can therefore point at the same artifact when their underlying source content and extractor/parser/schema identity are unchanged. The configuration identity prevents the same commit/ref built with different policies or extractor settings from colliding.
+Different commits can therefore point at the same artifact when their underlying source content and extractor/parser/schema identity are unchanged. Repository snapshot operations always supply a configuration identity so the same commit/ref built with different policies or extractor settings cannot collide; legacy/default v1 manifests remain valid.
 
 Manifests cannot point at missing artifacts.
 
