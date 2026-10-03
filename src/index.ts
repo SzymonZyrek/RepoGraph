@@ -234,3 +234,20 @@ export {
   type ProtocolSuccess,
   type ProtocolUnavailable,
 } from "./protocol.js";
+
+export {
+  GRAPH_VIEW_SCHEMA_VERSION,
+  GraphViewController,
+  createGraphViewModel,
+  renderGraphViewSvg,
+  type GraphViewBounds,
+  type GraphViewEdge,
+  type GraphViewEvidence,
+  type GraphViewInput,
+  type GraphViewModel,
+  type GraphViewNode,
+  type GraphViewOptions,
+  type GraphViewSnapshot,
+  type GraphViewViewport,
+  type RenderGraphViewOptions,
+} from "./view.js";
