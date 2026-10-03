@@ -66,7 +66,7 @@ The detailed, dependency-linked roadmap lives in [GitHub issue #1](https://githu
 
 ## Documentation
 
-- [Architecture and invariants](docs/architecture.md)
+- [Architecture and invariants](docs/architecture.md)\n- [Pinned Git ingestion](docs/git-ingestion.md)
 - [Consumers: VibeGuard and HackaTeam](docs/consumers.md)
 - [Roadmap and delivery rules](docs/roadmap.md)
 
