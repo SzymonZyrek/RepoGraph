@@ -1,17 +1,33 @@
 {
   "name": "@repograph/core",
-  "private": true,
+  "version": "0.0.1",
+  "description": "Deterministic repository dependency-intelligence graph",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
       "import": "./dist/src/index.js"
     }
   },
+  "bin": {
+    "repograph": "./dist/src/cli.js"
+  },
+  "files": [
+    "dist/src",
+    "README.md",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node --test dist/test/*.test.js"
+    "lint": "npm run typecheck",
+    "test": "npm run build && node --test dist/test/*.test.js",
+    "test:coverage": "npm run build && node --experimental-test-coverage --test --test-coverage-lines=70 dist/test/*.test.js",
+    "smoke": "npm run build && node dist/src/cli.js --version && npm pack --dry-run",
+    "check": "npm run lint && npm run test:coverage && npm run smoke"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

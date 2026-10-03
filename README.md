@@ -11,7 +11,35 @@ RepoGraph turns a pinned repository revision into reusable facts about files, mo
 
 It is designed as shared infrastructure for products that need repository understanding without making the graph itself a source of policy.
 
-> **Status:** roadmap and contract-first implementation. The repository is intentionally starting small; the release plan is documented before extractors and persistence grow around it.
+> **Status:** pre-public development. `0.0.x` releases are implementation milestones; the first public release target is **1.0.0**.
+
+## What 0.0.1 contains
+
+The first usable kernel now includes:
+
+- deterministic typed node/edge identities and canonical serialization;
+- exact provenance on graph facts;
+- pinned Git tree ingestion from Git objects rather than the mutable working tree;
+- path filters and generic CODEOWNERS-like path rules;
+- forward and reverse neighbors;
+- transitive reverse affected closure with edge-kind/depth bounds;
+- shortest causal path explanation;
+- TypeScript library exports and a deterministic JSON CLI.
+
+### CLI
+
+```bash
+npm install
+npm run build
+
+node dist/src/cli.js build --repo . --ref HEAD > graph.json
+node dist/src/cli.js neighbors --graph graph.json --node src/index.ts
+node dist/src/cli.js reverse-neighbors --graph graph.json --node src/index.ts
+node dist/src/cli.js affected --graph graph.json --seed src/index.ts
+node dist/src/cli.js explain --graph graph.json --from . --to src/index.ts
+```
+
+CLI failures return a non-zero exit code and a machine-readable JSON diagnostic on stderr.
 
 ## The boundary
 
@@ -61,12 +89,14 @@ See [Consumer integration](docs/consumers.md).
 | **0.0.2** | Incremental dependency engine: content-addressed snapshots, Git diffs, TS/JS extraction |
 | **0.0.3** | Repository-intelligence semantics: overlays, provenance/authority, traversal policies, consumer proof |
 | **0.0.4** | Extension boundary: extractor contract, cross-repo edges, lifecycle hardening, stable external protocol |
+| **1.0.0** | First public release after the pre-public contracts and consumer proofs have stabilized |
 
 The detailed, dependency-linked roadmap lives in [GitHub issue #1](https://github.com/SzymonZyrek/RepoGraph/issues/1). The future optional read-only graph view is deliberately deferred until the contract is proven by consumers; see [#21](https://github.com/SzymonZyrek/RepoGraph/issues/21).
 
 ## Documentation
 
-- [Architecture and invariants](docs/architecture.md)\n- [Pinned Git ingestion](docs/git-ingestion.md)
+- [Architecture and invariants](docs/architecture.md)
+- [Pinned Git ingestion](docs/git-ingestion.md)
 - [Consumers: VibeGuard and HackaTeam](docs/consumers.md)
 - [Roadmap and delivery rules](docs/roadmap.md)
 
@@ -78,7 +108,3 @@ The detailed, dependency-linked roadmap lives in [GitHub issue #1](https://githu
 4. **Every answer is bounded and inspectable.**
 5. **A new commit must not require a whole-repository rebuild.**
 6. **The library stays headless by default.**
-
-## Current work
-
-The next implementation work is the 0.0.1 kernel: [graph contract #6](https://github.com/SzymonZyrek/RepoGraph/issues/6), [Git/path ingestion #7](https://github.com/SzymonZyrek/RepoGraph/issues/7) and [API/CLI baseline #8](https://github.com/SzymonZyrek/RepoGraph/issues/8).

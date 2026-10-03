@@ -51,3 +51,15 @@ export {
   type PathRule,
   type PathRuleInput,
 } from "./path-rules.js";
+export {
+  affected,
+  explainPath,
+  neighbors,
+  resolveNode,
+  reverseNeighbors,
+  type Neighbor,
+  type PathExplanation,
+  type QueryOptions,
+  type TraversalResult,
+} from "./query.js";
+export { VERSION } from "./version.js";
