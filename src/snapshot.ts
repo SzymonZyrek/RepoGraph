@@ -8,9 +8,9 @@ import {
 } from "./git.js";
 import type { GraphNode, JsonObject, JsonValue } from "./model.js";
 import {
-  LocalContentStore,
   createSnapshotManifest,
   type CommitSnapshotManifest,
+  type LocalContentStore,
   type StoreStats,
 } from "./store.js";
 
