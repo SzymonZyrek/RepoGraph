@@ -1,0 +1,32 @@
+export { canonicalJson, canonicalize } from "./canonical.js";
+export {
+  GraphConflictError,
+  GraphValidationError,
+  buildGraph,
+  edgeId,
+  makeEdge,
+  makeNode,
+  nodeId,
+  parseGraph,
+  serializeGraph,
+} from "./graph.js";
+export {
+  GRAPH_SCHEMA_VERSION,
+  type EdgeIdentity,
+  type EvidenceMethod,
+  type EvidenceState,
+  type ExtractorRef,
+  type FactOrigin,
+  type GraphDiagnostic,
+  type GraphDocument,
+  type GraphEdge,
+  type GraphEdgeInput,
+  type GraphInput,
+  type GraphNode,
+  type GraphNodeInput,
+  type JsonObject,
+  type JsonPrimitive,
+  type JsonValue,
+  type NodeIdentity,
+  type Provenance,
+} from "./model.js";
