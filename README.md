@@ -11,7 +11,7 @@ RepoGraph turns a pinned repository revision into reusable facts about files, mo
 
 It is designed as shared infrastructure for products that need repository understanding without making the graph itself a source of policy.
 
-> **Status:** 0.0.1 kernel implementation. The graph contract, pinned Git ingestion, traversal API and deterministic CLI are implemented; incremental language-aware extraction starts in 0.0.2.
+> **Status:** 0.0.1 kernel shipped; 0.0.2 incremental engine is in progress. Content-addressed persistence is the first 0.0.2 slice.
 
 ## The boundary
 
@@ -73,7 +73,7 @@ The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/Szym
 
 - [Architecture and invariants](docs/architecture.md)
 - [Graph contract](docs/graph-contract.md)
-- [Pinned Git ingestion](docs/git-ingestion.md)
+- [Pinned Git ingestion](docs/git-ingestion.md)\n- [Content-addressed store](docs/content-store.md)
 - [Consumers: VibeGuard and HackaTeam](docs/consumers.md)
 - [Release/version contract](docs/releases.md)
 - [Roadmap and delivery rules](docs/roadmap.md)
