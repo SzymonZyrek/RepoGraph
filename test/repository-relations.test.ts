@@ -147,6 +147,65 @@ test("extracts explicit local package dependencies plus build and contract entry
   );
 });
 
+test("assigns files to the nearest package manifest without a second package extractor", () => {
+  const root = repository();
+
+  file(
+    root,
+    "package.json",
+    JSON.stringify({
+      name: "@fixture/root",
+    }),
+  );
+  file(root, "src/root.ts", "export const rootValue = 1;\n");
+  file(
+    root,
+    "packages/app/package.json",
+    JSON.stringify({
+      name: "@fixture/app",
+    }),
+  );
+  file(root, "packages/app/src/app.ts", "export const app = 1;\n");
+
+  const ref = commit(root, "package membership");
+  const result = extract(root, ref);
+
+  const rootSource = fileId("src/root.ts");
+  const appSource = fileId("packages/app/src/app.ts");
+  const rootPackage = packageId("package.json");
+  const appPackage = packageId("packages/app/package.json");
+
+  const memberships = result.graph.edges.filter(
+    (edge) => edge.identity.kind === "belongs-to-package",
+  );
+
+  assert.equal(
+    memberships.some(
+      (edge) =>
+        edge.identity.from === rootSource &&
+        edge.identity.to === rootPackage,
+    ),
+    true,
+  );
+  assert.equal(
+    memberships.some(
+      (edge) =>
+        edge.identity.from === appSource &&
+        edge.identity.to === appPackage,
+    ),
+    true,
+  );
+  assert.equal(
+    memberships.some(
+      (edge) =>
+        edge.identity.from === appSource &&
+        edge.identity.to === rootPackage,
+    ),
+    false,
+  );
+  assert.equal(result.metrics.packageMemberships, memberships.length);
+});
+
 test("emits test-to-source edges only for an unambiguous filename convention", () => {
   const root = repository();
 
