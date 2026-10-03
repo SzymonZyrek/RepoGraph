@@ -144,11 +144,13 @@ test("slice response is bounded, normalized and ignores additive request fields"
   assert.equal(response.data.truncated, false);
   assert.equal(response.data.partial, false);
   assert.deepEqual(
-    response.data.nodes.map((node) => [node.kind, node.key]),
+    response.data.nodes
+      .map((node) => [node.kind, node.key])
+      .sort((a, b) => String(a[1]).localeCompare(String(b[1]))),
     [
       ["file", "src/a.test.ts"],
       ["module", "module:a"],
-    ].sort((a, b) => String(a[1]).localeCompare(String(b[1]))),
+    ],
   );
   assert.equal(
     response.data.nodes.every(
