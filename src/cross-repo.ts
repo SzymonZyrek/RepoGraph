@@ -425,7 +425,6 @@ export function composeCrossRepositoryGraph(
           key: canonicalJsonUnknown(coordinate),
         },
         metadata: {
-          mappingId: mapping.id,
           producerRepository: producer.snapshot.repository,
           producerRef: producer.snapshot.ref,
           producerCommit: producer.snapshot.commit,
