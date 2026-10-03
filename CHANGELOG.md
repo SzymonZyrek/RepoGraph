@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.0.4 — 2026-10-03
+
+Pre-public extension, multi-repository and external-consumer milestone.
+
+- Versioned extractor/plugin protocol supports native and external-process fact sources, deterministic composition, provenance validation, conflict diagnostics and per-extractor cache identity (#17, #49).
+- Explicit cross-repository package/artifact coordinate bridges connect only supplied pinned snapshots or caller-selected producers; unresolved dependencies never trigger implicit network/registry resolution, and traversal is bounded by repository hops (#18, #50).
+- Content-addressed store lifecycle now exposes inventory/reclaimable metrics, reference-aware GC, conservative corruption handling, targeted rebuild invalidation and explicit schema-migration hooks (#19, #51).
+- Stable `repograph.protocol/v1` gives TypeScript and CLI consumers the same bounded slice/explanation wire contract, feature/version negotiation, normalized generic presentation DTOs and machine-readable failures (#20, #52).
+- Protocol v1 enforces bounded defaults/hard limits and distinguishes unavailable evidence from transport/request failures, so consumers can render missing/partial/truncated state without requesting an unbounded graph dump.
+- The 0.0.4 dependency slices remain headless: no RepoGraph GitHub write credential, webhook receiver, task queue, registry resolver or hidden authoritative database was introduced.
+
+Compatibility notes:
+
+- Exported graph schema remains `repograph.graph/v1`.
+- Store and snapshot wrapper schemas remain `repograph.store/v1` and `repograph.snapshot/v1`; incompatible derived cache state may be rebuilt, while known wrapper migrations can be explicit.
+- The new stable cross-process wire contract is `repograph.protocol/v1`. Additive optional fields may evolve inside v1; breaking wire changes require a new protocol major.
+- Lower-level TypeScript APIs remain 0.0.x experimental until the first public release.
+- This is an internal engineering milestone, not the public RepoGraph launch. **1.0.0 remains the first public release.**
+- Optional read-only presentation extraction (#21) is intentionally non-blocking and may proceed independently after this milestone.
+
 ## 0.0.3 — 2026-10-03
 
 Pre-public repository-intelligence semantics milestone.
