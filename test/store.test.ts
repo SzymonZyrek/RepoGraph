@@ -186,6 +186,9 @@ test("immutable artifact writes reject nondeterministic output for one key", () 
 });
 
 test("snapshot manifests normalize reference ordering and include schema versions", () => {
+  const keyA = artifactKey(descriptor("blob:key-a"));
+  const keyB = artifactKey(descriptor("blob:key-b"));
+  const keyC = artifactKey(descriptor("blob:key-c"));
   const manifest = createSnapshotManifest({
     repository: "fixture/repo",
     commit: "commit-1",
@@ -194,12 +197,12 @@ test("snapshot manifests normalize reference ordering and include schema version
     artifacts: [
       {
         contentIdentity: "blob:b",
-        artifactKeys: ["artifact:b", "artifact:a", "artifact:a"],
+        artifactKeys: [keyB, keyA, keyA],
         path: "b.ts",
       },
       {
         contentIdentity: "blob:a",
-        artifactKeys: ["artifact:c"],
+        artifactKeys: [keyC],
         path: "a.ts",
       },
     ],
@@ -207,11 +210,10 @@ test("snapshot manifests normalize reference ordering and include schema version
 
   assert.equal(manifest.storeSchemaVersion, STORE_SCHEMA_VERSION);
   assert.equal(manifest.graphSchemaVersion, GRAPH_SCHEMA_VERSION);
-  assert.deepEqual(manifest.artifacts[0]?.artifactKeys, ["artifact:c"]);
-  assert.deepEqual(manifest.artifacts[1]?.artifactKeys, [
-    "artifact:a",
-    "artifact:b",
-  ]);
+  const aRef = manifest.artifacts.find((item) => item.path === "a.ts");
+  const bRef = manifest.artifacts.find((item) => item.path === "b.ts");
+  assert.deepEqual(aRef?.artifactKeys, [keyC]);
+  assert.deepEqual(bRef?.artifactKeys, [keyA, keyB].sort());
   assert.match(snapshotManifestKey(manifest.identity), /^manifest:[0-9a-f]{64}$/);
 });
 
