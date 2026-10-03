@@ -74,3 +74,62 @@ test("CLI exits non-zero with machine-readable errors", () => {
   assert.equal(error.error.code, "repograph-error");
   assert.equal(typeof error.error.message, "string");
 });
+
+
+test("CLI snapshot persists and reuses content-addressed Git artifacts", () => {
+  const { root, commit } = fixtureRepository();
+  const cache = join(root, "cache");
+  const graphPath = join(root, "snapshot-graph.json");
+
+  const firstRaw = execFileSync(
+    process.execPath,
+    [
+      cli,
+      "snapshot",
+      "--repo",
+      root,
+      "--ref",
+      commit,
+      "--repository",
+      "fixture/cli-cache",
+      "--cache-dir",
+      cache,
+      "--graph-out",
+      graphPath,
+    ],
+    { encoding: "utf8" },
+  );
+  const first = JSON.parse(firstRaw) as {
+    manifestKey: string;
+    cache: { hits: number; misses: number; writes: number };
+  };
+
+  assert.match(first.manifestKey, /^manifest:[0-9a-f]{64}$/);
+  assert.equal(first.cache.writes > 0, true);
+  assert.equal(loadGraph(graphPath).nodes.length > 0, true);
+
+  const secondRaw = execFileSync(
+    process.execPath,
+    [
+      cli,
+      "snapshot",
+      "--repo",
+      root,
+      "--ref",
+      commit,
+      "--repository",
+      "fixture/cli-cache",
+      "--cache-dir",
+      cache,
+    ],
+    { encoding: "utf8" },
+  );
+  const second = JSON.parse(secondRaw) as {
+    manifestKey: string;
+    cache: { hits: number; misses: number; writes: number };
+  };
+
+  assert.equal(second.manifestKey, first.manifestKey);
+  assert.equal(second.cache.writes, 0);
+  assert.equal(second.cache.hits > 0, true);
+});
