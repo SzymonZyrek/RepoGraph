@@ -228,6 +228,7 @@ export function collectArtifactStoreGarbage(
   const deletedArtifacts: string[] = [];
   const deletedManifests: string[] = [];
   let bytesReclaimed = 0;
+  let protectAllArtifacts = false;
 
   for (const file of manifests) {
     if (!file.valid || file.manifest === undefined) {
@@ -235,6 +236,10 @@ export function collectArtifactStoreGarbage(
         deletedManifests.push(file.key);
         bytesReclaimed += file.bytes;
         maybeRemove(file.path, dryRun);
+      } else {
+        // A corrupt retained manifest may still reference any artifact. Without
+        // being able to inspect those references, conservative GC keeps them all.
+        protectAllArtifacts = true;
       }
       continue;
     }
@@ -261,7 +266,7 @@ export function collectArtifactStoreGarbage(
       }
       continue;
     }
-    if (retainedArtifactKeys.has(file.key)) continue;
+    if (protectAllArtifacts || retainedArtifactKeys.has(file.key)) continue;
 
     deletedArtifacts.push(file.key);
     bytesReclaimed += file.bytes;
