@@ -577,8 +577,34 @@ function parseConfigs(input: {
       path,
       directory: normalizedDirectory,
       ...(baseUrl === undefined ? {} : { baseUrl }),
-      paths: paths.sort((left, right) => left.pattern.localeCompare(right.pattern)),
+      paths: paths.sort((left, right) => {
+        const leftStar = left.pattern.indexOf("*");
+        const rightStar = right.pattern.indexOf("*");
+        const leftPrefix = leftStar < 0 ? left.pattern.length + 1 : leftStar;
+        const rightPrefix = rightStar < 0 ? right.pattern.length + 1 : rightStar;
+        return (
+          rightPrefix - leftPrefix ||
+          right.pattern.length - left.pattern.length ||
+          left.pattern.localeCompare(right.pattern)
+        );
+      }),
     });
+
+    if (Array.isArray(config.references) && config.references.length > 0) {
+      input.diagnostics.push({
+        code: "tsconfig-project-references-not-expanded",
+        message:
+          "tsconfig project references are recorded as partial evidence in 0.0.2; referenced configs are not recursively expanded",
+        state: "partial",
+        provenance: partialProvenance(
+          input.repository,
+          input.ref,
+          input.commit,
+          path,
+          "tsconfig project references not recursively expanded",
+        ),
+      });
+    }
   }
 
   return results;
