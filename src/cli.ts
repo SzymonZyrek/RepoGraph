@@ -5,7 +5,8 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { canonicalJsonUnknown } from "./canonical.js";
 import { ingestGitRepository } from "./git.js";
 import { incrementalRepositoryUpdate } from "./incremental.js";
-import { loadGraph } from "./io.js";\nimport { explainWithPolicy, parseTraversalPolicy, traverseWithPolicy } from "./policy.js";
+import { loadGraph } from "./io.js";
+import { explainWithPolicy, parseTraversalPolicy, traverseWithPolicy } from "./policy.js";
 import { createRepositorySnapshot } from "./snapshot.js";
 import { LocalArtifactStore } from "./store.js";
 import {
