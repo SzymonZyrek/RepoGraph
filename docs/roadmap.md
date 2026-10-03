@@ -39,6 +39,8 @@ Issues: [#4](https://github.com/SzymonZyrek/RepoGraph/issues/4), [#13](https://g
 
 ## 0.0.4 — extension and external-consumer boundary
 
+**Status:** complete on 2026-10-03. Optional presentation extraction remains non-blocking.
+
 **Goal:** consumers can upgrade independently and safely use RepoGraph as a library or CLI.
 
 - versioned extractor/plugin contract;
@@ -57,4 +59,4 @@ Tracking: [#21](https://github.com/SzymonZyrek/RepoGraph/issues/21).
 
 ## 1.0.0 — first public release
 
-1.0.0 is intentionally not decomposed into cosmetic hardening tasks yet. Its release criteria will be cut from evidence after the pre-1.0 consumer proofs: stable external contracts, upgrade behavior, useful bounded explanations, and demonstrated integration by real RepoGraph consumers.
+The 0.0.x foundation is complete. 1.0.0 remains intentionally evidence-driven rather than cosmetic: release criteria should now be cut from real VibeGuard/Hacka integrations, upgrade behavior, protocol compatibility and the usefulness of bounded explanations. Optional #21 can proceed in parallel and does not redefine the headless core.
