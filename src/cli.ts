@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 
 import { canonicalJsonUnknown } from "./canonical.js";
 import { ingestGitRepository } from "./git.js";
 import { incrementalRepositoryUpdate } from "./incremental.js";
-import { loadGraph } from "./io.js";
+import { loadGraph } from "./io.js";\nimport { explainWithPolicy, parseTraversalPolicy, traverseWithPolicy } from "./policy.js";
 import { createRepositorySnapshot } from "./snapshot.js";
 import { LocalArtifactStore } from "./store.js";
 import {
@@ -106,7 +106,7 @@ function usage(): never {
       "repograph update --repo PATH --base BASE --ref TARGET --cache-dir DIR [--base-mode direct|merge-base] [--out FILE] [--graph-out FILE]",
       "repograph neighbors --graph FILE --node ID [--direction out|in|both] [--edge KIND]",
       "repograph affected --graph FILE --node ID [--edge KIND] [--max-depth N] [--max-nodes N]",
-      "repograph explain --graph FILE --from ID --to ID [--direction out|in|both] [--edge KIND] [--max-depth N]",
+      "repograph explain --graph FILE --from ID --to ID [--direction out|in|both] [--edge KIND] [--max-depth N]",\n      "repograph traverse-policy --graph FILE --node ID --policy FILE",\n      "repograph explain-policy --graph FILE --from ID --to ID --policy FILE",
     ].join("\n"),
   );
 }
@@ -203,6 +203,25 @@ function run(argv: readonly string[]): void {
       plan: result.plan,
       targetSnapshotKey: result.targetSnapshotKey,
     }, out);
+    return;
+  }
+
+  if (command === "traverse-policy") {
+    const graph = loadGraph(one(args, "graph", true)!);
+    const policy = parseTraversalPolicy(readFileSync(one(args, "policy", true)!, "utf8"));
+    output(traverseWithPolicy(graph, one(args, "node", true)!, policy));
+    return;
+  }
+
+  if (command === "explain-policy") {
+    const graph = loadGraph(one(args, "graph", true)!);
+    const policy = parseTraversalPolicy(readFileSync(one(args, "policy", true)!, "utf8"));
+    output(explainWithPolicy(
+      graph,
+      one(args, "from", true)!,
+      one(args, "to", true)!,
+      policy,
+    ));
     return;
   }
 
