@@ -1,9 +1,9 @@
 import { createHash, randomUUID } from "node:crypto";
 import {
   existsSync,
+  linkSync,
   mkdirSync,
   readFileSync,
-  renameSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -36,6 +36,7 @@ export interface SnapshotManifestIdentity {
   repository: string;
   commit: string;
   configurationIdentity: string;
+  requestedRef?: string;
 }
 
 export interface SnapshotArtifactRef {
@@ -49,7 +50,6 @@ export interface CommitSnapshotManifest {
   storeSchemaVersion: typeof STORE_SCHEMA_VERSION;
   graphSchemaVersion: typeof GRAPH_SCHEMA_VERSION;
   identity: SnapshotManifestIdentity;
-  requestedRef?: string;
   tree: string;
   artifacts: SnapshotArtifactRef[];
 }
@@ -140,7 +140,11 @@ function normalizeArtifactRefs(
         "snapshot artifact contentIdentity",
       ),
       artifactKeys: [...new Set(value.artifactKeys)]
-        .map((key) => nonEmpty(key, "snapshot artifact key"))
+        .map((key) => {
+          const normalized = nonEmpty(key, "snapshot artifact key");
+          keyDigest(normalized, "artifact");
+          return normalized;
+        })
         .sort(),
       ...(value.path === undefined
         ? {}
@@ -172,6 +176,14 @@ export function snapshotManifestKey(
       identity.configurationIdentity,
       "manifest configurationIdentity",
     ),
+    ...(identity.requestedRef === undefined
+      ? {}
+      : {
+          requestedRef: nonEmpty(
+            identity.requestedRef,
+            "manifest requestedRef",
+          ),
+        }),
   };
   return `manifest:${sha256({
     storeSchemaVersion: STORE_SCHEMA_VERSION,
@@ -198,12 +210,6 @@ export function createSnapshotManifest(input: {
             input.configurationIdentity,
             "manifest configurationIdentity",
           ),
-  };
-
-  return {
-    storeSchemaVersion: STORE_SCHEMA_VERSION,
-    graphSchemaVersion: GRAPH_SCHEMA_VERSION,
-    identity,
     ...(input.requestedRef === undefined
       ? {}
       : {
@@ -212,6 +218,12 @@ export function createSnapshotManifest(input: {
             "manifest requestedRef",
           ),
         }),
+  };
+
+  return {
+    storeSchemaVersion: STORE_SCHEMA_VERSION,
+    graphSchemaVersion: GRAPH_SCHEMA_VERSION,
+    identity,
     tree: nonEmpty(input.tree, "manifest tree"),
     artifacts: normalizeArtifactRefs(input.artifacts ?? []),
   };
@@ -292,6 +304,14 @@ function parseManifest(
       rawIdentity.configurationIdentity,
       "manifest configurationIdentity",
     ),
+    ...(rawIdentity.requestedRef === undefined
+      ? {}
+      : {
+          requestedRef: nonEmpty(
+            rawIdentity.requestedRef,
+            "manifest requestedRef",
+          ),
+        }),
   };
 
   if (
@@ -311,12 +331,14 @@ function parseManifest(
         artifactKeys: array(
           ref.artifactKeys,
           `manifest artifacts[${index}].artifactKeys`,
-        ).map((key, keyIndex) =>
-          nonEmpty(
+        ).map((key, keyIndex) => {
+          const normalized = nonEmpty(
             key,
             `manifest artifacts[${index}].artifactKeys[${keyIndex}]`,
-          ),
-        ),
+          );
+          keyDigest(normalized, "artifact");
+          return normalized;
+        }),
         ...(ref.path === undefined
           ? {}
           : {
@@ -341,14 +363,9 @@ function parseManifest(
     repository: identity.repository,
     commit: identity.commit,
     configurationIdentity: identity.configurationIdentity,
-    ...(raw.requestedRef === undefined
+    ...(identity.requestedRef === undefined
       ? {}
-      : {
-          requestedRef: nonEmpty(
-            raw.requestedRef,
-            "manifest requestedRef",
-          ),
-        }),
+      : { requestedRef: identity.requestedRef }),
     tree: nonEmpty(raw.tree, "manifest tree"),
     artifacts,
   });
@@ -444,9 +461,9 @@ export class LocalContentStore {
       repository: manifest.identity.repository,
       commit: manifest.identity.commit,
       configurationIdentity: manifest.identity.configurationIdentity,
-      ...(manifest.requestedRef === undefined
+      ...(manifest.identity.requestedRef === undefined
         ? {}
-        : { requestedRef: manifest.requestedRef }),
+        : { requestedRef: manifest.identity.requestedRef }),
       tree: manifest.tree,
       artifacts: manifest.artifacts,
     });
@@ -512,7 +529,7 @@ export class LocalContentStore {
     try {
       writeFileSync(temporary, serialized, { flag: "wx" });
       try {
-        renameSync(temporary, path);
+        linkSync(temporary, path);
       } catch (error) {
         if (!existsSync(path)) throw error;
         const existing = readFileSync(path, "utf8");
@@ -521,7 +538,6 @@ export class LocalContentStore {
             `Concurrent immutable ${kind} write disagreed at ${path}`,
           );
         }
-        rmSync(temporary, { force: true });
         return;
       }
       this.stats.writes += 1;
