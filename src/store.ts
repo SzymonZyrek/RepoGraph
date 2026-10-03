@@ -13,7 +13,7 @@ import { canonicalJsonUnknown, toJsonValue } from "./canonical.js";
 import type { ExtractorRef, JsonValue } from "./model.js";
 
 export const STORE_SCHEMA_VERSION = "repograph.store/v1" as const;
-export const SNAPSHOT_SCHEMA_VERSION = "repograph.snapshot/v2" as const;
+export const SNAPSHOT_SCHEMA_VERSION = "repograph.snapshot/v1" as const;
 
 export interface ArtifactIdentity {
   contentIdentity: string;
@@ -39,8 +39,8 @@ export interface SnapshotManifestInput {
   repository: string;
   ref: string;
   commit: string;
-  configurationIdentity: string;
-  tree: string;
+  configurationIdentity?: string;
+  tree?: string;
   graphSchemaVersion: string;
   artifacts: SnapshotArtifactRef[];
 }
@@ -114,20 +114,30 @@ export function artifactKey(identity: ArtifactIdentity): string {
   return `artifact-sha256-${hash(normalizeArtifactIdentity(identity))}`;
 }
 
+function normalizeConfigurationIdentity(
+  value: string | undefined,
+): string | undefined {
+  if (value === undefined) return undefined;
+  const normalized = nonEmpty(value, "configurationIdentity");
+  return normalized === "default" ? undefined : normalized;
+}
+
 export function snapshotManifestKey(
   input: Pick<
     SnapshotManifestInput,
     "repository" | "ref" | "commit" | "configurationIdentity"
   >,
 ): string {
+  const configurationIdentity = normalizeConfigurationIdentity(
+    input.configurationIdentity,
+  );
   return `snapshot-sha256-${hash({
     repository: nonEmpty(input.repository, "repository"),
     ref: nonEmpty(input.ref, "ref"),
     commit: nonEmpty(input.commit, "commit"),
-    configurationIdentity: nonEmpty(
-      input.configurationIdentity,
-      "configurationIdentity",
-    ),
+    ...(configurationIdentity === undefined
+      ? {}
+      : { configurationIdentity }),
   })}`;
 }
 
@@ -286,15 +296,17 @@ function normalizeRefs(values: readonly SnapshotArtifactRef[]): SnapshotArtifact
 function normalizeManifestInput(
   input: SnapshotManifestInput,
 ): SnapshotManifestInput {
+  const configurationIdentity = normalizeConfigurationIdentity(
+    input.configurationIdentity,
+  );
   return {
     repository: nonEmpty(input.repository, "repository"),
     ref: nonEmpty(input.ref, "ref"),
     commit: nonEmpty(input.commit, "commit"),
-    configurationIdentity: nonEmpty(
-      input.configurationIdentity,
-      "configurationIdentity",
-    ),
-    tree: nonEmpty(input.tree, "tree"),
+    ...(configurationIdentity === undefined
+      ? {}
+      : { configurationIdentity }),
+    ...(input.tree === undefined ? {} : { tree: nonEmpty(input.tree, "tree") }),
     graphSchemaVersion: nonEmpty(input.graphSchemaVersion, "graphSchemaVersion"),
     artifacts: normalizeRefs(input.artifacts),
   };
@@ -329,11 +341,17 @@ function parseManifest(raw: string, expectedKey: string): SnapshotManifest {
     repository: requireString(record.repository, "snapshot.repository"),
     ref: requireString(record.ref, "snapshot.ref"),
     commit: requireString(record.commit, "snapshot.commit"),
-    configurationIdentity: requireString(
-      record.configurationIdentity,
-      "snapshot.configurationIdentity",
-    ),
-    tree: requireString(record.tree, "snapshot.tree"),
+    ...(record.configurationIdentity === undefined
+      ? {}
+      : {
+          configurationIdentity: requireString(
+            record.configurationIdentity,
+            "snapshot.configurationIdentity",
+          ),
+        }),
+    ...(record.tree === undefined
+      ? {}
+      : { tree: requireString(record.tree, "snapshot.tree") }),
     graphSchemaVersion: requireString(
       record.graphSchemaVersion,
       "snapshot.graphSchemaVersion",
