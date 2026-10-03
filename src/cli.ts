@@ -3,6 +3,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
 import { analyzeRepository } from "./analyze.js";
+import { analyzeRepository } from "./analyze.js";
 import { canonicalJsonUnknown } from "./canonical.js";
 import { ingestGitRepository } from "./git.js";
 import { incrementalRepositoryUpdate } from "./incremental.js";
@@ -108,6 +109,7 @@ function usage(): never {
       "repograph protocol --request FILE|- [--out FILE]",
       "repograph build --repo PATH --ref REF [--repository NAME] [--out FILE]",
       "repograph analyze --repo PATH --ref REF [--repository NAME] [--out FILE]",
+      "repograph analyze --repo PATH --ref REF [--repository NAME] [--out FILE]",
       "repograph snapshot --repo PATH --ref REF --cache-dir DIR [--repository NAME] [--out FILE] [--graph-out FILE]",
       "repograph update --repo PATH --base BASE --ref TARGET --cache-dir DIR [--base-mode direct|merge-base] [--out FILE] [--graph-out FILE]",
       "repograph neighbors --graph FILE --node ID [--direction out|in|both] [--edge KIND]",
@@ -156,6 +158,27 @@ function run(argv: readonly string[]): void {
     const response = executeProtocolRequest(request);
     output(response, out);
     if (!response.ok) process.exitCode = 2;
+    return;
+  }
+
+  if (command === "analyze") {
+    const repositoryPath = one(args, "repo", true)!;
+    const ref = one(args, "ref", true)!;
+    const repository = one(args, "repository");
+    const out = one(args, "out");
+
+    const result = analyzeRepository({
+      repositoryPath,
+      ref,
+      ...(repository === undefined ? {} : { repository }),
+      policy: {
+        ...(many(args, "include").length === 0 ? {} : { include: many(args, "include") }),
+        ...(many(args, "exclude").length === 0 ? {} : { exclude: many(args, "exclude") }),
+        ...(many(args, "generated").length === 0 ? {} : { generated: many(args, "generated") }),
+        ...(many(args, "vendor").length === 0 ? {} : { vendor: many(args, "vendor") }),
+      },
+    });
+    output(result.graph, out);
     return;
   }
 
