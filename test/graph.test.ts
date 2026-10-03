@@ -86,8 +86,7 @@ test("stable ids and serialization do not depend on insertion order", () => {
 });
 
 test("checked-in golden fixture round-trips byte-for-byte", () => {
-  const fixtureUrl = new URL("./fixtures/minimal.golden.json", import.meta.url);
-  const fixture = readFileSync(fixtureUrl, "utf8").trim();
+  const fixture = readFileSync("test/fixtures/minimal.golden.json", "utf8").trim();
   assert.equal(serializeGraph(parseGraph(fixture)), fixture);
 });
 
