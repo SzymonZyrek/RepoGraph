@@ -251,3 +251,10 @@ export {
   type GraphViewViewport,
   type RenderGraphViewOptions,
 } from "./view.js";
+
+export {
+  buildRepositoryIntelligence,
+  type RepositoryIntelligenceMetrics,
+  type RepositoryIntelligenceOptions,
+  type RepositoryIntelligenceResult,
+} from "./intelligence.js";

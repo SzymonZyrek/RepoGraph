@@ -5,6 +5,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { canonicalJsonUnknown } from "./canonical.js";
 import { ingestGitRepository } from "./git.js";
 import { incrementalRepositoryUpdate } from "./incremental.js";
+import { buildRepositoryIntelligence } from "./intelligence.js";
 import { loadGraph } from "./io.js";
 import { explainWithPolicy, parseTraversalPolicy, traverseWithPolicy } from "./policy.js";
 import { executeProtocolRequest, protocolInfo } from "./protocol.js";
@@ -106,6 +107,7 @@ function usage(): never {
       "repograph protocol-info",
       "repograph protocol --request FILE|- [--out FILE]",
       "repograph build --repo PATH --ref REF [--repository NAME] [--out FILE]",
+      "repograph build-intelligence --repo PATH --ref REF [--repository NAME] [--cache-dir DIR] [--metrics-out FILE] [--out FILE]",
       "repograph snapshot --repo PATH --ref REF --cache-dir DIR [--repository NAME] [--out FILE] [--graph-out FILE]",
       "repograph update --repo PATH --base BASE --ref TARGET --cache-dir DIR [--base-mode direct|merge-base] [--out FILE] [--graph-out FILE]",
       "repograph neighbors --graph FILE --node ID [--direction out|in|both] [--edge KIND]",
@@ -154,6 +156,46 @@ function run(argv: readonly string[]): void {
     const response = executeProtocolRequest(request);
     output(response, out);
     if (!response.ok) process.exitCode = 2;
+    return;
+  }
+
+  if (command === "build-intelligence") {
+    const repositoryPath = one(args, "repo", true)!;
+    const ref = one(args, "ref", true)!;
+    const repository = one(args, "repository");
+    const cacheDir = one(args, "cache-dir");
+    const metricsOut = one(args, "metrics-out");
+    const out = one(args, "out");
+
+    const result = buildRepositoryIntelligence({
+      repositoryPath,
+      ref,
+      ...(repository === undefined ? {} : { repository }),
+      ...(cacheDir === undefined
+        ? {}
+        : { store: new LocalArtifactStore(cacheDir) }),
+      policy: {
+        ...(many(args, "include").length === 0 ? {} : { include: many(args, "include") }),
+        ...(many(args, "exclude").length === 0 ? {} : { exclude: many(args, "exclude") }),
+        ...(many(args, "generated").length === 0 ? {} : { generated: many(args, "generated") }),
+        ...(many(args, "vendor").length === 0 ? {} : { vendor: many(args, "vendor") }),
+      },
+    });
+
+    if (metricsOut !== undefined) {
+      output(
+        {
+          releaseVersion: VERSION,
+          repository: result.repository,
+          requestedRef: result.requestedRef,
+          commit: result.commit,
+          metrics: result.metrics,
+          ...(result.cache === undefined ? {} : { cache: result.cache }),
+        },
+        metricsOut,
+      );
+    }
+    output(result.graph, out);
     return;
   }
 
