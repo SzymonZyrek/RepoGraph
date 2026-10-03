@@ -8,7 +8,7 @@ The extractor is deliberately conservative. It emits an edge only when the relat
 
 ### Package manifests
 
-Every checked-in `package.json` becomes a generic `package` node linked from its manifest with `declares-package`.
+Every checked-in `package.json` becomes a generic `package` node linked from its manifest with `declares-package`. Repository files also receive a deterministic `belongs-to-package` edge to the nearest ancestor package manifest, so nested workspaces keep a single package owner.
 
 Local package dependencies are emitted as `package-dependency` only when the target is unambiguous and the dependency is explicitly local:
 
@@ -36,6 +36,8 @@ A `tests` edge is emitted only when a test filename maps to exactly one checked-
 RepoGraph does not automatically map a broad `test/` tree to `src/`. Consumers can still use language-level import edges or explicit overlays for repository-specific conventions.
 
 ## Provenance and failure behavior
+
+`extractRepositoryRelationships` is the single 0.0.3 package/repository relationship source. RepoGraph does not expose a second package-manifest extractor with overlapping node or edge semantics.
 
 All emitted relationship facts use deterministic-extraction provenance pinned to repository/ref/commit and the manifest or test path that justified the edge.
 

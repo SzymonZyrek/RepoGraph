@@ -135,6 +135,16 @@ test("extracts explicit local package dependencies plus build and contract entry
   );
 
   assert.equal(result.metrics.packageDependencies, 1);
+  assert.equal(result.metrics.packageMemberships > 0, true);
+  assert.equal(
+    result.graph.edges.some(
+      (edge) =>
+        edge.identity.kind === "belongs-to-package" &&
+        edge.identity.from === fileId("packages/app/src/index.ts") &&
+        edge.identity.to === packageId("packages/app/package.json"),
+    ),
+    true,
+  );
   assert.equal(result.metrics.buildEntrypoints >= 1, true);
   assert.equal(result.metrics.contractEntrypoints >= 1, true);
   assert.equal(
