@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import {
@@ -82,6 +83,12 @@ test("stable ids and serialization do not depend on insertion order", () => {
   assert.equal(graphEquals(first, second), true);
   assert.equal(first.nodes.length, 2);
   assert.equal(first.nodes.find((node) => node.id === cartId)?.provenance.length, 2);
+});
+
+test("checked-in golden fixture round-trips byte-for-byte", () => {
+  const fixtureUrl = new URL("./fixtures/minimal.golden.json", import.meta.url);
+  const fixture = readFileSync(fixtureUrl, "utf8").trim();
+  assert.equal(serializeGraph(parseGraph(fixture)), fixture);
 });
 
 test("round trip preserves external evidence fidelity and partial state", () => {
