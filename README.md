@@ -86,6 +86,7 @@ The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/Szym
 - [Repository relationships: packages, artifacts, contracts and tests](docs/repository-relations.md)
 - [Extractor and external-process plugin contract](docs/extractors.md)
 - [Cross-repository coordinate bridges](docs/cross-repository.md)
+- [External protocol v1](docs/protocol.md)
 - [Generic overlays and authority](docs/overlays.md)
 - [0.0.2 incremental economics evidence](docs/evals/0.0.2-incremental-economics.md)
 - [0.0.3 consumer compatibility proof](docs/evals/0.0.3-consumer-compatibility.md)
