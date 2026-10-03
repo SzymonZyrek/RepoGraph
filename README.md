@@ -80,6 +80,7 @@ The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/Szym
 - [Graph contract](docs/graph-contract.md)
 - [Pinned Git ingestion](docs/git-ingestion.md)
 - [Content-addressed store](docs/content-addressed-store.md)
+- [Artifact store lifecycle: GC, recovery and migrations](docs/store-lifecycle.md)
 - [Incremental updates](docs/incremental-updates.md)
 - [TypeScript/JavaScript extractor](docs/tsjs-extractor.md)
 - [Repository relationships: packages, artifacts, contracts and tests](docs/repository-relations.md)

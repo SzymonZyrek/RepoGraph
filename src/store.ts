@@ -190,7 +190,7 @@ function requireString(value: unknown, label: string): string {
   return value;
 }
 
-function parseArtifact(raw: string, expectedKey: string): StoredArtifact {
+export function parseStoredArtifact(raw: string, expectedKey: string): StoredArtifact {
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw) as unknown;
@@ -310,7 +310,7 @@ function normalizeManifestInput(
   };
 }
 
-function parseManifest(raw: string, expectedKey: string): SnapshotManifest {
+export function parseSnapshotManifest(raw: string, expectedKey: string): SnapshotManifest {
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw) as unknown;
@@ -452,7 +452,7 @@ export class LocalArtifactStore {
       return undefined;
     }
 
-    const artifact = parseArtifact(readFileSync(path, "utf8"), key);
+    const artifact = parseStoredArtifact(readFileSync(path, "utf8"), key);
     this.stats.artifactHits += 1;
     return artifact;
   }
@@ -505,7 +505,7 @@ export class LocalArtifactStore {
       return undefined;
     }
 
-    const manifest = parseManifest(readFileSync(path, "utf8"), key);
+    const manifest = parseSnapshotManifest(readFileSync(path, "utf8"), key);
     this.stats.manifestHits += 1;
     return manifest;
   }

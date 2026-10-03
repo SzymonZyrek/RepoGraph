@@ -187,3 +187,18 @@ export {
   type CrossRepositoryTraversalOptions,
   type RepositoryGraphSnapshot,
 } from "./cross-repo.js";
+
+export {
+  collectArtifactStoreGarbage,
+  inspectArtifactStore,
+  recoverArtifactStore,
+  type StoreFileInfo,
+  type StoreGarbageCollectionOptions,
+  type StoreGarbageCollectionResult,
+  type StoreInventory,
+  type StoreInventorySection,
+  type StoreRecoveryOptions,
+  type StoreRecoveryResult,
+  type StoreSchemaMigration,
+  type StoreSchemaMigrationKind,
+} from "./store-lifecycle.js";
