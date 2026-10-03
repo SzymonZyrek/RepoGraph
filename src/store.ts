@@ -40,6 +40,7 @@ export interface SnapshotManifestInput {
   ref: string;
   commit: string;
   configurationIdentity: string;
+  tree: string;
   graphSchemaVersion: string;
   artifacts: SnapshotArtifactRef[];
 }
@@ -293,6 +294,7 @@ function normalizeManifestInput(
       input.configurationIdentity,
       "configurationIdentity",
     ),
+    tree: nonEmpty(input.tree, "tree"),
     graphSchemaVersion: nonEmpty(input.graphSchemaVersion, "graphSchemaVersion"),
     artifacts: normalizeRefs(input.artifacts),
   };
@@ -331,6 +333,7 @@ function parseManifest(raw: string, expectedKey: string): SnapshotManifest {
       record.configurationIdentity,
       "snapshot.configurationIdentity",
     ),
+    tree: requireString(record.tree, "snapshot.tree"),
     graphSchemaVersion: requireString(
       record.graphSchemaVersion,
       "snapshot.graphSchemaVersion",
