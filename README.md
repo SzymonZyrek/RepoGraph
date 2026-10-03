@@ -46,11 +46,14 @@ npm run build
 
 node dist/src/cli.js version
 node dist/src/cli.js build --repo . --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --out graph.json
+node dist/src/cli.js analyze --repo . --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --out analysis.json
 
 # incremental snapshot/update path
 node dist/src/cli.js snapshot --repo . --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --cache-dir .repograph-cache
 node dist/src/cli.js update --repo . --base HEAD~1 --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --cache-dir .repograph-cache
 ```
+
+`build` emits pinned Git/path facts. `analyze` enriches the same pinned revision with native TS/JS dependency evidence plus deterministic package, test, build-entrypoint and contract relationships.
 
 Query by stable node ID:
 
@@ -83,6 +86,7 @@ The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/Szym
 - [Artifact store lifecycle: GC, recovery and migrations](docs/store-lifecycle.md)
 - [Incremental updates](docs/incremental-updates.md)
 - [TypeScript/JavaScript extractor](docs/tsjs-extractor.md)
+- [Enriched repository analysis](docs/analysis.md)
 - [Repository relationships: packages, artifacts, contracts and tests](docs/repository-relations.md)
 - [Extractor and external-process plugin contract](docs/extractors.md)
 - [Cross-repository coordinate bridges](docs/cross-repository.md)
