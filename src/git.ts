@@ -387,7 +387,7 @@ export function ingestGitRepository(
     if (kind === "file" || kind === "symlink") metadata.blobSha = entry.sha;
     if (kind === "submodule") metadata.commitSha = entry.sha;
     if (kind === "symlink") {
-      metadata.target = gitText(repositoryRoot, ["cat-file", "blob", entry.sha]);
+      metadata.target = gitBuffer(repositoryRoot, ["cat-file", "blob", entry.sha]).toString("utf8");
     }
 
     graphNodes.push({
