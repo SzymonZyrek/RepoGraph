@@ -54,6 +54,7 @@ export interface RepositoryRelationshipMetrics {
   packageManifests: number;
   packageNodes: number;
   packageDependencies: number;
+  packageMemberships: number;
   buildEntrypoints: number;
   contractEntrypoints: number;
   testRelations: number;
@@ -373,6 +374,23 @@ function testSourceCandidates(path: string): string[] {
   return [...candidates].sort();
 }
 
+function containsPath(directory: string, path: string): boolean {
+  return directory === "." || path.startsWith(`${directory}/`);
+}
+
+function owningPackage(
+  packages: readonly PackageFacts[],
+  path: string,
+): PackageFacts | undefined {
+  return [...packages]
+    .filter((facts) => containsPath(facts.directory, path))
+    .sort(
+      (left, right) =>
+        right.directory.length - left.directory.length ||
+        left.path.localeCompare(right.path),
+    )[0];
+}
+
 function fileNodeByPath(nodes: readonly GraphNode[]): Map<string, GraphNode> {
   return new Map(
     nodes
@@ -436,7 +454,25 @@ export function extractRepositoryRelationships(
   }
 
   let packageDependencies = 0;
+  let packageMemberships = 0;
   let buildEntrypoints = 0;
+
+  for (const [path, fileNode] of filesByPath) {
+    const owner = owningPackage(packages, path);
+    if (owner === undefined) continue;
+    const ownerId = packageNodeIds.get(owner.path);
+    if (ownerId === undefined) continue;
+
+    inputs.edges.push({
+      identity: {
+        kind: "belongs-to-package",
+        from: fileNode.id,
+        to: ownerId,
+      },
+      provenance: [factProvenance(ingestion, owner.path)],
+    });
+    packageMemberships += 1;
+  }
   let contractEntrypoints = 0;
   let testRelations = 0;
 
@@ -573,6 +609,7 @@ export function extractRepositoryRelationships(
       packageManifests: packages.length,
       packageNodes: packages.length,
       packageDependencies,
+      packageMemberships,
       buildEntrypoints,
       contractEntrypoints,
       testRelations,
