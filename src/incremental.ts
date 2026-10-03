@@ -307,17 +307,41 @@ function configurationReasons(
   return reasons;
 }
 
+const NON_DEPENDENCY_EDGE_KINDS = new Set([
+  "contains",
+  "path-rule-match",
+]);
+
+function defaultInvalidationEdgeKinds(graph: GraphDocument): string[] {
+  return [
+    ...new Set(
+      graph.edges
+        .map((edge) => edge.identity.kind)
+        .filter((kind) => !NON_DEPENDENCY_EDGE_KINDS.has(kind)),
+    ),
+  ].sort();
+}
+
 function reverseInvalidation(
   graph: GraphDocument,
   seeds: ReadonlySet<string>,
   edgeKinds?: readonly string[],
 ): Set<string> {
   const result = new Set<string>();
+  const traversalEdgeKinds =
+    edgeKinds ?? defaultInvalidationEdgeKinds(graph);
+
   for (const seed of seeds) {
     if (!graph.nodes.some((node) => node.id === seed)) continue;
     result.add(seed);
+
+    // Traversal treats an empty edge-kind list as "all kinds", which is useful
+    // for generic graph queries but wrong for dependency invalidation. If this
+    // graph has no dependency-like edges, the changed seed is the whole slice.
+    if (traversalEdgeKinds.length === 0) continue;
+
     const closure = affectedClosure(graph, seed, {
-      ...(edgeKinds === undefined ? {} : { edgeKinds }),
+      edgeKinds: traversalEdgeKinds,
     });
     for (const node of closure.nodes) result.add(node.id);
   }
