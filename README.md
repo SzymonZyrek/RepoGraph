@@ -46,6 +46,7 @@ npm run build
 
 node dist/src/cli.js version
 node dist/src/cli.js build --repo . --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --out graph.json
+node dist/src/cli.js build-ts --repo . --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --cache-dir .repograph-cache
 
 # incremental 0.0.2 path
 node dist/src/cli.js snapshot --repo . --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --cache-dir .repograph-cache
@@ -81,6 +82,7 @@ The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/Szym
 - [Pinned Git ingestion](docs/git-ingestion.md)
 - [Content-addressed store](docs/content-addressed-store.md)
 - [Incremental updates](docs/incremental-updates.md)
+- [TypeScript / JavaScript extractor](docs/typescript-extractor.md)
 - [Consumers: VibeGuard and HackaTeam](docs/consumers.md)
 - [Release/version contract](docs/releases.md)
 - [Roadmap and delivery rules](docs/roadmap.md)
