@@ -11,7 +11,7 @@ Snapshot manifests are keyed by:
 - resolved commit;
 - ingestion/extraction configuration identity.
 
-The manifest also records the resolved Git tree. This prevents two builds of the same commit with different include/exclude, parser, extractor, chunking or schema settings from colliding.
+The configuration identity prevents two builds of the same commit with different include/exclude, parser, extractor, chunking or schema settings from colliding. The snapshot operation still resolves and returns the exact Git tree alongside the persisted manifest.
 
 Artifact identity remains content-addressed. Configuration changes invalidate snapshot reuse, not immutable artifacts whose own extractor/parser/schema identity still matches.
 
