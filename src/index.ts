@@ -86,3 +86,9 @@ export {
   type SnapshotManifestIdentity,
   type StoreStats,
 } from "./store.js";
+
+export {
+  gitSnapshotConfigurationIdentity,
+  snapshotGitRepository,
+  type GitSnapshotResult,
+} from "./snapshot.js";
