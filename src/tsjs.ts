@@ -477,14 +477,17 @@ function resolveSpecifier(
 ): { path?: string; external: boolean } {
   if (specifier.startsWith(".")) {
     const candidate = posix.join(posix.dirname(importerPath), specifier);
-    return { path: firstExisting(candidate, files), external: false };
+    const resolved = firstExisting(candidate, files);
+    return resolved === undefined
+      ? { external: false }
+      : { path: resolved, external: false };
   }
 
   if (specifier.startsWith("/")) {
-    return {
-      path: firstExisting(specifier.slice(1), files),
-      external: false,
-    };
+    const resolved = firstExisting(specifier.slice(1), files);
+    return resolved === undefined
+      ? { external: false }
+      : { path: resolved, external: false };
   }
 
   const patterns = Object.entries(config.paths).sort(
