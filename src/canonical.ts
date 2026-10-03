@@ -6,6 +6,35 @@ function assertFiniteNumber(value: number): void {
   }
 }
 
+export function toJsonValue(value: unknown): JsonValue {
+  if (
+    value === null ||
+    typeof value === "string" ||
+    typeof value === "boolean"
+  ) {
+    return value;
+  }
+
+  if (typeof value === "number") {
+    assertFiniteNumber(value);
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(toJsonValue);
+  }
+
+  if (typeof value === "object" && value !== null) {
+    const object: Record<string, JsonValue> = {};
+    for (const [key, item] of Object.entries(value)) {
+      if (item !== undefined) object[key] = toJsonValue(item);
+    }
+    return object;
+  }
+
+  throw new TypeError(`Value is not JSON serializable: ${typeof value}`);
+}
+
 export function canonicalize(value: JsonValue): JsonValue {
   if (
     value === null ||
@@ -33,4 +62,8 @@ export function canonicalize(value: JsonValue): JsonValue {
 
 export function canonicalJson(value: JsonValue): string {
   return JSON.stringify(canonicalize(value));
+}
+
+export function canonicalJsonUnknown(value: unknown): string {
+  return canonicalJson(toJsonValue(value));
 }
