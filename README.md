@@ -82,6 +82,7 @@ The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/Szym
 - [Content-addressed store](docs/content-addressed-store.md)
 - [Incremental updates](docs/incremental-updates.md)
 - [TypeScript/JavaScript extractor](docs/tsjs-extractor.md)
+- [Repository relationships: packages, artifacts, contracts and tests](docs/repository-relations.md)
 - [Generic overlays and authority](docs/overlays.md)
 - [0.0.2 incremental economics evidence](docs/evals/0.0.2-incremental-economics.md)
 - [Consumers: VibeGuard and HackaTeam](docs/consumers.md)
