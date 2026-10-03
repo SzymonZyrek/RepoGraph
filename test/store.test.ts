@@ -10,6 +10,7 @@ import {
   StoreConflictError,
   artifactKey,
   canonicalJsonUnknown,
+  snapshotManifestKey,
   type ArtifactIdentity,
   type JsonValue,
 } from "../src/index.js";
