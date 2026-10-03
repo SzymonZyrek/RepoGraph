@@ -11,7 +11,7 @@ import { performance } from "node:perf_hooks";
 
 import {
   LocalArtifactStore,
-  affectedWithPolicy,
+  affectedClosure,
   buildRepositoryIntelligence,
   diffGitRepository,
   nodeId,
@@ -179,7 +179,7 @@ for (const scenario of scenarios) {
   let affectedNodes = null;
   if (scenario.kind === "dependency-edit") {
     const changed = fileId(pathFor(1, FILES_PER_CLUSTER - 1));
-    affectedNodes = affectedWithPolicy(warm.graph, changed, {
+    affectedNodes = affectedClosure(warm.graph, changed, {
       edgeKinds: ["imports", "reexports", "covers", "package-contains"],
       maxNodes: 1000,
     }).nodes.length;
