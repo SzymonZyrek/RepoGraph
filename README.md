@@ -84,6 +84,7 @@ The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/Szym
 - [TypeScript/JavaScript extractor](docs/tsjs-extractor.md)
 - [Repository relationships: packages, artifacts, contracts and tests](docs/repository-relations.md)
 - [Extractor and external-process plugin contract](docs/extractors.md)
+- [Cross-repository coordinate bridges](docs/cross-repository.md)
 - [Generic overlays and authority](docs/overlays.md)
 - [0.0.2 incremental economics evidence](docs/evals/0.0.2-incremental-economics.md)
 - [0.0.3 consumer compatibility proof](docs/evals/0.0.3-consumer-compatibility.md)
