@@ -167,6 +167,7 @@ function mergeEdge(existing: GraphEdge, incoming: GraphEdge): GraphEdge {
 }
 
 export function makeNode(input: GraphNodeInput): GraphNode {
+  requireFactProvenance(input.provenance, "node");
   return {
     id: nodeId(input.identity),
     identity: { ...input.identity },
@@ -176,6 +177,7 @@ export function makeNode(input: GraphNodeInput): GraphNode {
 }
 
 export function makeEdge(input: GraphEdgeInput): GraphEdge {
+  requireFactProvenance(input.provenance, "edge");
   return {
     id: edgeId(input.identity),
     identity: { ...input.identity },
@@ -221,6 +223,10 @@ export function buildGraph(input: GraphInput): GraphDocument {
 export function serializeGraph(graph: GraphDocument): string {
   validateGraphDocument(graph);
   return canonicalJson(asJsonValue(graph));
+}
+
+export function graphEquals(left: GraphDocument, right: GraphDocument): boolean {
+  return serializeGraph(left) === serializeGraph(right);
 }
 
 export function parseGraph(serialized: string): GraphDocument {
@@ -328,6 +334,12 @@ function validateGraphDocument(graph: GraphDocument): void {
     throw new GraphValidationError(
       "Graph document is not normalized or contains inconsistent stable identities",
     );
+  }
+}
+
+function requireFactProvenance(values: Provenance[], label: string): void {
+  if (values.length === 0) {
+    throw new GraphValidationError(`${label} must carry at least one provenance record`);
   }
 }
 
@@ -492,7 +504,7 @@ function requireAllowed<const T extends readonly string[]>(
   label: string,
 ): T[number] {
   const text = requireString(value, label);
-  if (!allowed.includes(text)) {
+  if (!allowed.includes(text as T[number])) {
     throw new GraphValidationError(
       `${label} must be one of: ${allowed.join(", ")}`,
     );
