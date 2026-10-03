@@ -8,6 +8,7 @@ import { incrementalRepositoryUpdate } from "./incremental.js";
 import { loadGraph } from "./io.js";
 import { createRepositorySnapshot } from "./snapshot.js";
 import { LocalArtifactStore } from "./store.js";
+import { extractTypeScriptDependencies } from "./typescript.js";
 import {
   affectedClosure,
   neighbors,
@@ -102,6 +103,7 @@ function usage(): never {
     [
       "repograph version",
       "repograph build --repo PATH --ref REF [--repository NAME] [--out FILE]",
+      "repograph build-ts --repo PATH --ref REF [--repository NAME] [--cache-dir DIR] [--out FILE]",
       "repograph snapshot --repo PATH --ref REF --cache-dir DIR [--repository NAME] [--out FILE] [--graph-out FILE]",
       "repograph update --repo PATH --base BASE --ref TARGET --cache-dir DIR [--base-mode direct|merge-base] [--out FILE] [--graph-out FILE]",
       "repograph neighbors --graph FILE --node ID [--direction out|in|both] [--edge KIND]",
@@ -140,6 +142,34 @@ function run(argv: readonly string[]): void {
       },
     });
     output(result.graph, out);
+    return;
+  }
+
+  if (command === "build-ts") {
+    const repositoryPath = one(args, "repo", true)!;
+    const ref = one(args, "ref", true)!;
+    const repository = one(args, "repository");
+    const cacheDir = one(args, "cache-dir");
+    const out = one(args, "out");
+    const structural = ingestGitRepository({
+      repositoryPath,
+      ref,
+      ...(repository === undefined ? {} : { repository }),
+      policy: {
+        ...(many(args, "include").length === 0 ? {} : { include: many(args, "include") }),
+        ...(many(args, "exclude").length === 0 ? {} : { exclude: many(args, "exclude") }),
+        ...(many(args, "generated").length === 0 ? {} : { generated: many(args, "generated") }),
+        ...(many(args, "vendor").length === 0 ? {} : { vendor: many(args, "vendor") }),
+      },
+    });
+    const extracted = extractTypeScriptDependencies({
+      repositoryPath,
+      ref,
+      graph: structural.graph,
+      ...(repository === undefined ? {} : { repository }),
+      ...(cacheDir === undefined ? {} : { store: new LocalArtifactStore(cacheDir) }),
+    });
+    output({ graph: extracted.graph, metrics: extracted.metrics }, out);
     return;
   }
 
