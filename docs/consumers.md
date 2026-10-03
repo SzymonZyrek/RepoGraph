@@ -116,6 +116,8 @@ impact evidence
 
 without RepoGraph becoming the owner of that workflow.
 
+Executable compatibility proof: [0.0.3 consumer compatibility](evals/0.0.3-consumer-compatibility.md).
+
 Tracking:
 - VibeGuard control-plane direction: https://github.com/ateshgahofmine/VibeGuard/issues/186
 - HackaTeam work-request contract: https://github.com/ateshgahofmine/HackaTeam/issues/55
