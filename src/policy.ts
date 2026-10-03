@@ -532,6 +532,23 @@ function stringArray(value: unknown, label: string): string[] | undefined {
   return value as string[];
 }
 
+function enumArray<T extends string>(
+  value: unknown,
+  label: string,
+  allowed: readonly T[],
+): T[] | undefined {
+  const values = stringArray(value, label);
+  if (values === undefined) return undefined;
+  for (const item of values) {
+    if (!allowed.includes(item as T)) {
+      throw new GraphValidationError(
+        `${label} contains unsupported value: ${item}`,
+      );
+    }
+  }
+  return values as T[];
+}
+
 function numberValue(value: unknown, label: string): number | undefined {
   if (value === undefined) return undefined;
   if (typeof value !== "number") {
@@ -546,32 +563,39 @@ function parseEvidence(
 ): EvidenceFilter | undefined {
   if (value === undefined) return undefined;
   const raw = record(value, label);
+  const origins = enumArray(
+    raw.origins,
+    `${label}.origins`,
+    ["source", "derived", "overlay"] as const,
+  );
+  const methods = enumArray(
+    raw.methods,
+    `${label}.methods`,
+    [
+      "source-observation",
+      "deterministic-extraction",
+      "external-index",
+      "explicit-overlay",
+    ] as const,
+  );
+  const states = enumArray(
+    raw.states,
+    `${label}.states`,
+    ["complete", "partial", "unresolved"] as const,
+  );
+  const authorities = enumArray(
+    raw.authorities,
+    `${label}.authorities`,
+    ["authoritative", "advisory"] as const,
+  );
+  const overlayNames = stringArray(raw.overlayNames, `${label}.overlayNames`);
+
   return {
-    ...(stringArray(raw.origins, `${label}.origins`) === undefined
-      ? {}
-      : { origins: stringArray(raw.origins, `${label}.origins`) as FactOrigin[] }),
-    ...(stringArray(raw.methods, `${label}.methods`) === undefined
-      ? {}
-      : {
-          methods: stringArray(
-            raw.methods,
-            `${label}.methods`,
-          ) as EvidenceMethod[],
-        }),
-    ...(stringArray(raw.states, `${label}.states`) === undefined
-      ? {}
-      : { states: stringArray(raw.states, `${label}.states`) as EvidenceState[] }),
-    ...(stringArray(raw.authorities, `${label}.authorities`) === undefined
-      ? {}
-      : {
-          authorities: stringArray(
-            raw.authorities,
-            `${label}.authorities`,
-          ) as FactAuthority[],
-        }),
-    ...(stringArray(raw.overlayNames, `${label}.overlayNames`) === undefined
-      ? {}
-      : { overlayNames: stringArray(raw.overlayNames, `${label}.overlayNames`) }),
+    ...(origins === undefined ? {} : { origins }),
+    ...(methods === undefined ? {} : { methods }),
+    ...(states === undefined ? {} : { states }),
+    ...(authorities === undefined ? {} : { authorities }),
+    ...(overlayNames === undefined ? {} : { overlayNames }),
   };
 }
 
