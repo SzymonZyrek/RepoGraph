@@ -1,5 +1,12 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import {
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -14,6 +21,8 @@ import {
   artifactKey,
   canonicalJsonUnknown,
   createSnapshotManifest,
+  graphEquals,
+  snapshotGitRepository,
   parseGraph,
   serializeGraph,
   toJsonValue,
@@ -24,6 +33,28 @@ import {
 
 function cacheRoot(): string {
   return mkdtempSync(join(tmpdir(), "repograph-store-"));
+}
+
+function git(cwd: string, ...args: string[]): string {
+  return execFileSync("git", args, {
+    cwd,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  }).trim();
+}
+
+function gitRepository(): string {
+  const root = mkdtempSync(join(tmpdir(), "repograph-store-repo-"));
+  git(root, "init");
+  git(root, "config", "user.email", "repograph@example.test");
+  git(root, "config", "user.name", "RepoGraph Test");
+  return root;
+}
+
+function commitAll(root: string, message: string): string {
+  git(root, "add", "-A");
+  git(root, "commit", "-m", message);
+  return git(root, "rev-parse", "HEAD");
 }
 
 function descriptor(
@@ -310,4 +341,127 @@ test("atomic writes leave no temporary files behind", () => {
     readdirSync(directory).filter((name) => name.endsWith(".tmp")),
     [],
   );
+});
+
+
+test("real Git snapshots reuse unchanged blobs across commits and restarts", () => {
+  const root = gitRepository();
+  const cache = cacheRoot();
+
+  writeFileSync(join(root, "stable.txt"), "stable\n");
+  writeFileSync(join(root, "changing.txt"), "one\n");
+  const firstCommit = commitAll(root, "first");
+
+  const firstStore = new LocalContentStore(cache);
+  const first = snapshotGitRepository(firstStore, {
+    repositoryPath: root,
+    repository: "fixture/real-git",
+    ref: firstCommit,
+    discoverCodeowners: false,
+  });
+
+  writeFileSync(join(root, "changing.txt"), "two\n");
+  const secondCommit = commitAll(root, "second");
+
+  const secondStore = new LocalContentStore(cache);
+  const second = snapshotGitRepository(secondStore, {
+    repositoryPath: root,
+    repository: "fixture/real-git",
+    ref: secondCommit,
+    discoverCodeowners: false,
+  });
+
+  const stableFirst = first.manifest.artifacts.find(
+    (artifact) => artifact.path === "stable.txt",
+  );
+  const stableSecond = second.manifest.artifacts.find(
+    (artifact) => artifact.path === "stable.txt",
+  );
+  const changingFirst = first.manifest.artifacts.find(
+    (artifact) => artifact.path === "changing.txt",
+  );
+  const changingSecond = second.manifest.artifacts.find(
+    (artifact) => artifact.path === "changing.txt",
+  );
+
+  assert.notEqual(stableFirst, undefined);
+  assert.notEqual(stableSecond, undefined);
+  assert.notEqual(changingFirst, undefined);
+  assert.notEqual(changingSecond, undefined);
+  assert.deepEqual(stableSecond?.artifactKeys, stableFirst?.artifactKeys);
+  assert.notDeepEqual(changingSecond?.artifactKeys, changingFirst?.artifactKeys);
+  assert.equal(second.cache.hits >= 1, true);
+
+  const restarted = new LocalContentStore(cache);
+  const replay = snapshotGitRepository(restarted, {
+    repositoryPath: root,
+    repository: "fixture/real-git",
+    ref: secondCommit,
+    discoverCodeowners: false,
+  });
+
+  assert.equal(replay.manifestKey, second.manifestKey);
+  assert.equal(replay.cache.writes, 0);
+  assert.equal(replay.cache.hits >= second.manifest.artifacts.length, true);
+  assert.equal(graphEquals(replay.graph, second.graph), true);
+});
+
+test("Git mode-only changes reuse blob artifacts without CAS conflicts", () => {
+  const root = gitRepository();
+  const cache = cacheRoot();
+
+  writeFileSync(join(root, "script.sh"), "#!/bin/sh\necho ok\n");
+  const firstCommit = commitAll(root, "non-executable");
+  const first = snapshotGitRepository(new LocalContentStore(cache), {
+    repositoryPath: root,
+    repository: "fixture/mode",
+    ref: firstCommit,
+    discoverCodeowners: false,
+  });
+
+  git(root, "update-index", "--chmod=+x", "script.sh");
+  git(root, "commit", "-m", "executable");
+  const secondCommit = git(root, "rev-parse", "HEAD");
+  const second = snapshotGitRepository(new LocalContentStore(cache), {
+    repositoryPath: root,
+    repository: "fixture/mode",
+    ref: secondCommit,
+    discoverCodeowners: false,
+  });
+
+  const firstRef = first.manifest.artifacts.find(
+    (artifact) => artifact.path === "script.sh",
+  );
+  const secondRef = second.manifest.artifacts.find(
+    (artifact) => artifact.path === "script.sh",
+  );
+  assert.deepEqual(firstRef?.artifactKeys, secondRef?.artifactKeys);
+});
+
+test("cache deletion remains legal for real Git snapshots", () => {
+  const root = gitRepository();
+  const cache = cacheRoot();
+  writeFileSync(join(root, "a.txt"), "a\n");
+  writeFileSync(join(root, "b.txt"), "b\n");
+  const commit = commitAll(root, "fixture");
+
+  const first = snapshotGitRepository(new LocalContentStore(cache), {
+    repositoryPath: root,
+    repository: "fixture/disposable-git",
+    ref: commit,
+    discoverCodeowners: false,
+  });
+
+  rmSync(cache, { recursive: true, force: true });
+
+  const rebuilt = snapshotGitRepository(new LocalContentStore(cache), {
+    repositoryPath: root,
+    repository: "fixture/disposable-git",
+    ref: commit,
+    discoverCodeowners: false,
+  });
+
+  assert.equal(first.manifestKey, rebuilt.manifestKey);
+  assert.deepEqual(first.manifest, rebuilt.manifest);
+  assert.equal(graphEquals(first.graph, rebuilt.graph), true);
 });
