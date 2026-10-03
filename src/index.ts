@@ -234,3 +234,10 @@ export {
   type ProtocolSuccess,
   type ProtocolUnavailable,
 } from "./protocol.js";
+
+export {
+  buildRepositoryIntelligence,
+  type RepositoryIntelligenceMetrics,
+  type RepositoryIntelligenceOptions,
+  type RepositoryIntelligenceResult,
+} from "./intelligence.js";
