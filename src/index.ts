@@ -31,3 +31,23 @@ export {
   type NodeIdentity,
   type Provenance,
 } from "./model.js";
+
+export {
+  ingestGitRepository,
+  type GitIngestionOptions,
+  type GitIngestionPolicy,
+  type GitIngestionResult,
+} from "./git.js";
+export {
+  matchesAnyRepoGlob,
+  matchesRepoGlob,
+  normalizeRepoPath,
+} from "./glob.js";
+export {
+  effectivePathRule,
+  matchingPathRules,
+  normalizePathRules,
+  parseCodeownersLike,
+  type PathRule,
+  type PathRuleInput,
+} from "./path-rules.js";
