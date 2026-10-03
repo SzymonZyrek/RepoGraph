@@ -6,7 +6,7 @@ import {
   statSync,
   writeFileSync,
 } from "node:fs";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 
 import { canonicalJsonUnknown } from "./canonical.js";
 import {
@@ -108,7 +108,7 @@ function walkJson(directory: string): string[] {
 }
 
 function keyFromPath(path: string, prefix: string): string {
-  const filename = path.slice(path.lastIndexOf("/") + 1).replace(/\.json$/, "");
+  const filename = basename(path).replace(/\.json$/, "");
   if (!/^[a-f0-9]{64}$/.test(filename)) {
     throw new StoreCorruptionError(`Invalid store filename: ${path}`);
   }
