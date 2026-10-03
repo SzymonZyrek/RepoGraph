@@ -112,3 +112,43 @@ test("CLI snapshot and update expose incremental metrics", () => {
   assert.equal(update.plan.metrics.modified, 1);
   assert.equal(update.plan.metrics.artifactReuses > 0, true);
 });
+
+
+test("CLI build-ts emits import graph and reuses cached syntax", () => {
+  const root = mkdtempSync(join(tmpdir(), "repograph-cli-ts-"));
+  git(root, "init", "-b", "main");
+  git(root, "config", "user.email", "repograph@example.test");
+  git(root, "config", "user.name", "RepoGraph Test");
+  writeFileSync(join(root, "dep.ts"), "export const value = 1;\n");
+  writeFileSync(
+    join(root, "main.ts"),
+    'import { value } from "./dep.js";\nexport const result = value;\n',
+  );
+  git(root, "add", ".");
+  git(root, "commit", "-m", "fixture");
+  const commit = git(root, "rev-parse", "HEAD");
+  const cache = join(root, ".cache");
+
+  const first = JSON.parse(execFileSync(process.execPath, [
+    cli, "build-ts", "--repo", root, "--ref", commit,
+    "--repository", "fixture/cli-ts", "--cache-dir", cache,
+  ], { encoding: "utf8" })) as {
+    graph: { edges: Array<{ identity: { kind: string } }> };
+    metrics: { resolvedImports: number; parsedArtifacts: number; reusedArtifacts: number };
+  };
+  assert.equal(
+    first.graph.edges.some((edge) => edge.identity.kind === "imports"),
+    true,
+  );
+  assert.equal(first.metrics.resolvedImports, 1);
+  assert.equal(first.metrics.parsedArtifacts, 2);
+
+  const second = JSON.parse(execFileSync(process.execPath, [
+    cli, "build-ts", "--repo", root, "--ref", commit,
+    "--repository", "fixture/cli-ts", "--cache-dir", cache,
+  ], { encoding: "utf8" })) as {
+    metrics: { parsedArtifacts: number; reusedArtifacts: number };
+  };
+  assert.equal(second.metrics.parsedArtifacts, 0);
+  assert.equal(second.metrics.reusedArtifacts, 2);
+});
