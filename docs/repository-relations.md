@@ -17,6 +17,13 @@ Local package dependencies are emitted as `package-dependency` only when the tar
 
 Ordinary semver dependencies are not guessed to be local merely because a package with the same name exists in the repository.
 
+### Package membership
+
+Every checked-in file under a valid package manifest is linked to the nearest ancestor package with `belongs-to-package`.
+
+Nested packages therefore win over broader root packages deterministically. This gives consumers a direct path from a changed file to package-level dependency/build/contract facts without introducing folder-name heuristics such as assuming every `packages/*` directory is a package.
+
+
 ### Build artifacts and contracts
 
 Checked-in package entrypoints are linked from the package node:
