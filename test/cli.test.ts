@@ -74,3 +74,77 @@ test("CLI exits non-zero with machine-readable errors", () => {
   assert.equal(error.error.code, "repograph-error");
   assert.equal(typeof error.error.message, "string");
 });
+
+
+test("CLI snapshot and update expose deterministic incremental metrics", () => {
+  const root = mkdtempSync(join(tmpdir(), "repograph-cli-update-"));
+  git(root, "init", "-b", "main");
+  git(root, "config", "user.email", "repograph@example.test");
+  git(root, "config", "user.name", "RepoGraph Test");
+  writeFileSync(join(root, "stable.txt"), "stable\n");
+  writeFileSync(join(root, "changed.txt"), "one\n");
+  git(root, "add", ".");
+  git(root, "commit", "-m", "base");
+  const base = git(root, "rev-parse", "HEAD");
+
+  writeFileSync(join(root, "changed.txt"), "two\n");
+  git(root, "add", ".");
+  git(root, "commit", "-m", "target");
+  const target = git(root, "rev-parse", "HEAD");
+  const cache = join(root, ".cache");
+
+  const snapshotRaw = execFileSync(
+    process.execPath,
+    [
+      cli,
+      "snapshot",
+      "--repo",
+      root,
+      "--ref",
+      base,
+      "--repository",
+      "fixture/cli-update",
+      "--cache-dir",
+      cache,
+    ],
+    { encoding: "utf8" },
+  );
+  const snapshot = JSON.parse(snapshotRaw) as {
+    manifestKey: string;
+    cache: { artifactWrites: number };
+  };
+  assert.match(snapshot.manifestKey, /^snapshot-sha256-[0-9a-f]{64}$/);
+  assert.equal(snapshot.cache.artifactWrites > 0, true);
+
+  const updateRaw = execFileSync(
+    process.execPath,
+    [
+      cli,
+      "update",
+      "--repo",
+      root,
+      "--base",
+      base,
+      "--ref",
+      target,
+      "--repository",
+      "fixture/cli-update",
+      "--cache-dir",
+      cache,
+    ],
+    { encoding: "utf8" },
+  );
+  const update = JSON.parse(updateRaw) as {
+    plan: {
+      metrics: {
+        changes: number;
+        modified: number;
+        artifactReuses: number;
+      };
+    };
+  };
+
+  assert.equal(update.plan.metrics.changes, 1);
+  assert.equal(update.plan.metrics.modified, 1);
+  assert.equal(update.plan.metrics.artifactReuses > 0, true);
+});
