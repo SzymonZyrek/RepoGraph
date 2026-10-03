@@ -91,7 +91,8 @@ The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/Szym
 - [0.0.2 incremental economics evidence](docs/evals/0.0.2-incremental-economics.md)
 - [0.0.3 consumer compatibility proof](docs/evals/0.0.3-consumer-compatibility.md)
 - [Consumers: VibeGuard and HackaTeam](docs/consumers.md)
-- [Release/version contract](docs/releases.md)\n- [Traversal policy contract](docs/traversal-policies.md)
+- [Release/version contract](docs/releases.md)
+- [Traversal policy contract](docs/traversal-policies.md)
 - [Roadmap and delivery rules](docs/roadmap.md)
 
 ## Principles
