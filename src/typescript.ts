@@ -13,7 +13,6 @@ import type {
   GraphEdgeInput,
   GraphNode,
   GraphNodeInput,
-  JsonObject,
   JsonValue,
   Provenance,
 } from "./model.js";
@@ -674,15 +673,6 @@ function existingGraphInput(graph: GraphDocument): {
     })),
     diagnostics: [...graph.diagnostics],
   };
-}
-
-function fileNodeByPath(
-  graph: GraphDocument,
-  path: string,
-): GraphNode | undefined {
-  return graph.nodes.find(
-    (node) => node.identity.kind === "file" && node.identity.key === path,
-  );
 }
 
 function languageForPath(path: string): string {
