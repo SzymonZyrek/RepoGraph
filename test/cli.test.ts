@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -29,8 +29,9 @@ function fixtureRepository(): { root: string; commit: string } {
 }
 
 test("CLI reports VERSION.txt-derived semantic version", () => {
+  const expected = readFileSync("VERSION.txt", "utf8").trim();
   const raw = execFileSync(process.execPath, [cli, "version"], { encoding: "utf8" });
-  assert.deepEqual(JSON.parse(raw), { version: "0.0.1" });
+  assert.deepEqual(JSON.parse(raw), { version: expected });
 });
 
 test("CLI builds a pinned graph that the library can load", () => {

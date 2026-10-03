@@ -11,7 +11,7 @@ RepoGraph turns a pinned repository revision into reusable facts about files, mo
 
 It is designed as shared infrastructure for products that need repository understanding without making the graph itself a source of policy.
 
-> **Status:** pre-public development. 0.0.x versions are engineering milestones; **1.0.0 is the first public release**. The 0.0.1 kernel is complete and incremental reuse starts in 0.0.2.
+> **Status:** pre-public development. 0.0.x versions are engineering milestones; **1.0.0 is the first public release**. **0.0.2 is complete:** deterministic graph + incremental reuse/diff planning + TS/JS dependency extraction are now proven on the high-velocity eval. Work moves to 0.0.3 semantics and consumer proof.
 
 ## The boundary
 
@@ -37,7 +37,7 @@ repository facts + explicit generic overlays
 impact / review              task context / validation
 ```
 
-## 0.0.1 quick start
+## 0.0.2 quick start
 
 ```bash
 npm install
@@ -82,6 +82,7 @@ The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/Szym
 - [Content-addressed store](docs/content-addressed-store.md)
 - [Incremental updates](docs/incremental-updates.md)
 - [TypeScript/JavaScript extractor](docs/tsjs-extractor.md)
+- [0.0.2 incremental economics evidence](docs/evals/0.0.2-incremental-economics.md)
 - [Consumers: VibeGuard and HackaTeam](docs/consumers.md)
 - [Release/version contract](docs/releases.md)
 - [Roadmap and delivery rules](docs/roadmap.md)
