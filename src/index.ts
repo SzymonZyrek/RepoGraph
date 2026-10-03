@@ -154,3 +154,19 @@ export {
   type RepositoryRelationshipExtractionResult,
   type RepositoryRelationshipMetrics,
 } from "./repository-relations.js";
+
+export {
+  EXTRACTOR_PROTOCOL_VERSION,
+  applyExtractorOutput,
+  createExternalProcessExtractor,
+  extractorArtifactIdentity,
+  normalizeExtractorDescriptor,
+  runExtractors,
+  type ExternalProcessExtractorOptions,
+  type ExtractorCapabilities,
+  type ExtractorDescriptor,
+  type ExtractorExecutionBoundary,
+  type ExtractorOutput,
+  type ExtractorPlugin,
+  type ExtractorRequest,
+} from "./extractor.js";
