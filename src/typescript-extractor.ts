@@ -114,8 +114,10 @@ export interface TypeScriptExtractionResult {
   metrics: TypeScriptExtractionMetrics;
 }
 
-export interface TypeScriptRepositoryExtractionOptions
-  extends Omit<RepositorySnapshotOptions, "analysis"> {}
+export type TypeScriptRepositoryExtractionOptions = Omit<
+  RepositorySnapshotOptions,
+  "analysis"
+>;
 
 export interface TypeScriptRepositoryExtractionResult
   extends Omit<RepositorySnapshotResult, "graph">,
