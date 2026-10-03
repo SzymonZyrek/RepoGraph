@@ -11,7 +11,7 @@ RepoGraph turns a pinned repository revision into reusable facts about files, mo
 
 It is designed as shared infrastructure for products that need repository understanding without making the graph itself a source of policy.
 
-> **Status:** pre-public development. 0.0.x versions are engineering milestones; **1.0.0 is the first public release**. **0.0.3 is complete:** overlays/authority, evidence-aware traversal, deterministic package/test/contract relationships and VibeGuard/Hacka consumer compatibility are proven. Work moves to 0.0.4 extension, lifecycle and external-protocol hardening.
+> **Status:** pre-public development. 0.0.x versions are engineering milestones; **1.0.0 is the first public release**. **0.0.4 is complete:** extractor/plugin boundaries, explicit cross-repository bridges, recoverable cache lifecycle and a bounded stable external protocol are proven. Broader extractor work and the optional read-only view can now build on that contract; 1.0.0 criteria come from real consumer integration evidence.
 
 ## The boundary
 
