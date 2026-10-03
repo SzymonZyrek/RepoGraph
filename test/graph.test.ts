@@ -6,6 +6,7 @@ import {
   GraphConflictError,
   GraphValidationError,
   buildGraph,
+  graphEquals,
   makeNode,
   nodeId,
   parseGraph,
@@ -78,6 +79,7 @@ test("stable ids and serialization do not depend on insertion order", () => {
   });
 
   assert.equal(serializeGraph(first), serializeGraph(second));
+  assert.equal(graphEquals(first, second), true);
   assert.equal(first.nodes.length, 2);
   assert.equal(first.nodes.find((node) => node.id === cartId)?.provenance.length, 2);
 });
@@ -140,6 +142,25 @@ test("duplicate identities with conflicting metadata fail explicitly", () => {
         ],
       }),
     GraphConflictError,
+  );
+});
+
+test("every node and edge fact requires provenance", () => {
+  assert.throws(
+    () =>
+      buildGraph({
+        nodes: [
+          {
+            identity: {
+              namespace: "github.com/acme/shop",
+              kind: "file",
+              key: "src/no-evidence.ts",
+            },
+            provenance: [],
+          },
+        ],
+      }),
+    /at least one provenance record/,
   );
 });
 
