@@ -122,14 +122,6 @@ export {
 } from "./tsjs.js";
 
 export {
-  PACKAGE_MANIFEST_EXTRACTOR,
-  extractPackageManifestRelationships,
-  type PackageDependencyScope,
-  type PackageManifestExtractionMetrics,
-  type PackageManifestExtractionResult,
-} from "./package-manifests.js";
-
-export {
   applyOverlay,
   matchGraphNodesByPath,
   overlayProvenance,
