@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.0.5 — 2026-10-03
+
+Pre-public consumer-integration milestone cut from requirements discovered after the 0.0.4 foundation.
+
+- Optional framework-free read-only graph view consumes only the bounded `repograph.protocol/v1` slice/explanation DTO, preserving generic RepoGraph semantics and host-owned product vocabulary (#21, #56).
+- External consumers can build the full built-in repository-intelligence graph through `buildRepositoryIntelligence()` and `repograph build-intelligence`, rather than being limited to the raw Git/file graph (#55, #57).
+- The full intelligence build composes pinned Git facts, TypeScript/JavaScript dependencies, deterministic package/test/build/contract relationships, optional content-addressed syntax-cache reuse and metrics evidence into the existing `repograph.graph/v1` contract (#57).
+- The resulting graph is proven directly consumable by `repograph.protocol/v1`, closing the concrete boundary gap found during live HackaTeam/VibeGuard integration work (#57).
+- Repository/docs cleanup after 0.0.4 fixed release metadata without rewriting main history (#54).
+- A parallel synonymous CLI proposal was closed in favor of the stronger single `build-intelligence` surface, avoiding duplicate public commands (#59).
+
+Compatibility notes:
+
+- Exported graph schema remains `repograph.graph/v1`.
+- Stable cross-process wire contract remains `repograph.protocol/v1`; no breaking wire change is introduced.
+- The read-only view is optional through `@repograph/core/view` and does not make a UI framework part of the headless core.
+- Lower-level TypeScript APIs and convenience CLI surfaces remain pre-1.0.
+- This is still an internal engineering milestone. **1.0.0 remains the first public RepoGraph release.**
+
 ## 0.0.4 — 2026-10-03
 
 Pre-public extension, multi-repository and external-consumer milestone.
