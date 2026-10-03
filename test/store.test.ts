@@ -7,14 +7,19 @@ import test from "node:test";
 import {
   GRAPH_SCHEMA_VERSION,
   LocalContentStore,
+  buildGraph,
   STORE_SCHEMA_VERSION,
   StoreConflictError,
   StoreValidationError,
   artifactKey,
   canonicalJsonUnknown,
   createSnapshotManifest,
+  parseGraph,
+  serializeGraph,
+  toJsonValue,
   snapshotManifestKey,
   type ArtifactDescriptor,
+  type Provenance,
 } from "../src/index.js";
 
 function cacheRoot(): string {
@@ -143,32 +148,75 @@ test("unchanged content reuses artifacts across commits and process restarts", (
     thirdProcess.readManifest(manifest2.identity),
     manifest2,
   );
+  const sharedV1 = manifest1.artifacts.find(
+    (item) => item.contentIdentity === "blob:shared",
+  );
+  const sharedV2 = manifest2.artifacts.find(
+    (item) => item.contentIdentity === "blob:shared",
+  );
   assert.equal(
-    manifest1.artifacts[0]?.artifactKeys[0],
-    manifest2.artifacts[0]?.artifactKeys[0],
+    sharedV1?.artifactKeys[0],
+    sharedV2?.artifactKeys[0],
+  );
+  assert.deepEqual(
+    thirdProcess.readArtifactByKey(reused.key)?.payload,
+    reused.payload,
   );
 });
 
-test("deleting the disposable cache and rebuilding yields equivalent artifacts", () => {
+test("deleting the disposable cache and rebuilding yields equivalent graph output", () => {
   const root = cacheRoot();
   const store = new LocalContentStore(root);
-  const spec = descriptor("blob:stable");
+  const evidence: Provenance = {
+    repository: "fixture/repo",
+    ref: "main",
+    commit: "commit-1",
+    origin: "derived",
+    method: "deterministic-extraction",
+    state: "complete",
+  };
+  const identityA = {
+    namespace: "fixture/repo",
+    kind: "module",
+    key: "a",
+  };
+  const identityB = {
+    namespace: "fixture/repo",
+    kind: "module",
+    key: "b",
+  };
+  const spec: ArtifactDescriptor = {
+    kind: "graph-snapshot",
+    contentIdentity: "commit:commit-1",
+    extractor: { name: "fixture-graph", version: "1" },
+    schemaVersion: GRAPH_SCHEMA_VERSION,
+  };
 
-  const first = store.getOrCreateArtifact(spec, () => ({
-    exports: ["A", "B"],
-    nested: { value: 1 },
-  }));
-  const firstSerialized = canonicalJsonUnknown(first.payload);
+  const graphA = buildGraph({
+    nodes: [
+      { identity: identityB, provenance: [evidence] },
+      { identity: identityA, provenance: [evidence] },
+    ],
+  });
+  const first = store.getOrCreateArtifact(spec, () => toJsonValue(graphA));
+  const firstGraph = parseGraph(canonicalJsonUnknown(first.payload));
 
   store.clear();
 
-  const rebuilt = new LocalContentStore(root).getOrCreateArtifact(spec, () => ({
-    nested: { value: 1 },
-    exports: ["A", "B"],
-  }));
+  const graphB = buildGraph({
+    nodes: [
+      { identity: identityA, provenance: [evidence] },
+      { identity: identityB, provenance: [evidence] },
+    ],
+  });
+  const rebuilt = new LocalContentStore(root).getOrCreateArtifact(
+    spec,
+    () => toJsonValue(graphB),
+  );
+  const rebuiltGraph = parseGraph(canonicalJsonUnknown(rebuilt.payload));
 
   assert.equal(rebuilt.key, first.key);
-  assert.equal(canonicalJsonUnknown(rebuilt.payload), firstSerialized);
+  assert.equal(serializeGraph(rebuiltGraph), serializeGraph(firstGraph));
   assert.equal(rebuilt.reused, false);
 });
 
@@ -215,6 +263,25 @@ test("snapshot manifests normalize reference ordering and include schema version
   assert.deepEqual(aRef?.artifactKeys, [keyC]);
   assert.deepEqual(bRef?.artifactKeys, [keyA, keyB].sort());
   assert.match(snapshotManifestKey(manifest.identity), /^manifest:[0-9a-f]{64}$/);
+});
+
+test("manifests reject references to missing local artifacts", () => {
+  const root = cacheRoot();
+  const store = new LocalContentStore(root);
+  const missing = artifactKey(descriptor("blob:missing"));
+  const manifest = createSnapshotManifest({
+    repository: "fixture/repo",
+    commit: "commit-missing",
+    tree: "tree-missing",
+    artifacts: [
+      {
+        contentIdentity: "blob:missing",
+        artifactKeys: [missing],
+      },
+    ],
+  });
+
+  assert.throws(() => store.writeManifest(manifest), StoreValidationError);
 });
 
 test("corrupted persisted schema fails explicitly", () => {
