@@ -1,4 +1,9 @@
-export { canonicalJson, canonicalize } from "./canonical.js";
+export {
+  canonicalJson,
+  canonicalJsonUnknown,
+  canonicalize,
+  toJsonValue,
+} from "./canonical.js";
 export {
   GraphConflictError,
   GraphValidationError,
@@ -31,7 +36,6 @@ export {
   type NodeIdentity,
   type Provenance,
 } from "./model.js";
-
 export {
   ingestGitRepository,
   type GitIngestionOptions,
@@ -51,3 +55,17 @@ export {
   type PathRule,
   type PathRuleInput,
 } from "./path-rules.js";
+export {
+  affectedClosure,
+  neighbors,
+  reverseNeighbors,
+  shortestPath,
+  transitiveClosure,
+  type CausalPath,
+  type NeighborSlice,
+  type TraversalDirection,
+  type TraversalOptions,
+  type TraversalSlice,
+} from "./traversal.js";
+export { loadGraph, saveGraph } from "./io.js";
+export { VERSION } from "./generated-version.js";

@@ -11,7 +11,7 @@ RepoGraph turns a pinned repository revision into reusable facts about files, mo
 
 It is designed as shared infrastructure for products that need repository understanding without making the graph itself a source of policy.
 
-> **Status:** roadmap and contract-first implementation. The repository is intentionally starting small; the release plan is documented before extractors and persistence grow around it.
+> **Status:** 0.0.1 kernel implementation. The graph contract, pinned Git ingestion, traversal API and deterministic CLI are implemented; incremental language-aware extraction starts in 0.0.2.
 
 ## The boundary
 
@@ -20,11 +20,9 @@ RepoGraph owns generic repository intelligence:
 - Git tree, file and path facts pinned to a ref;
 - typed nodes and edges with deterministic identities;
 - provenance for derived facts;
-- TypeScript/JavaScript dependency extraction;
-- incremental diff updates and affected slices;
-- reverse traversal and causal explanations;
-- optional generic overlays and cross-repository edges;
-- a stable library and JSON/CLI contract.
+- deterministic traversal, reverse traversal and causal explanations;
+- path-rule evidence;
+- a library and JSON/CLI boundary.
 
 It does **not** decide product policy. Capability definitions, ownership, review routing, task selection, LLM suggestions and human approval remain with its consumers.
 
@@ -39,19 +37,26 @@ repository facts + explicit generic overlays
 impact / review              task context / validation
 ```
 
-See [Architecture](docs/architecture.md) for the model and invariants.
+## 0.0.1 quick start
 
-## Why a separate project?
+```bash
+npm install
+npm run ci
+npm run build
 
-A dependency graph becomes brittle when each product builds its own version of file parsing, reverse dependencies, caches and “why did this match?” logic. RepoGraph provides one disposable, reproducible graph derived from Git, while each consumer retains its own authoritative configuration and decisions.
+node dist/src/cli.js version
+node dist/src/cli.js build --repo . --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --out graph.json
+```
 
-That means:
+Query by stable node ID:
 
-- VibeGuard can map confirmed capabilities and ownership onto graph evidence without turning extracted edges into authority.
-- HackaTeam can assemble bounded task context from the same pinned-revision facts without adopting VibeGuard semantics.
-- neither consumer must run a permanent graph service or maintain a parallel source of truth.
+```bash
+node dist/src/cli.js neighbors --graph graph.json --node NODE_ID --direction in
+node dist/src/cli.js affected --graph graph.json --node NODE_ID --edge depends-on
+node dist/src/cli.js explain --graph graph.json --from NODE_ID --to OTHER_NODE_ID
+```
 
-See [Consumer integration](docs/consumers.md).
+All CLI output is deterministic JSON. Invalid input exits non-zero and writes a structured JSON error to stderr.
 
 ## Planned releases
 
@@ -62,12 +67,15 @@ See [Consumer integration](docs/consumers.md).
 | **0.0.3** | Repository-intelligence semantics: overlays, provenance/authority, traversal policies, consumer proof |
 | **0.0.4** | Extension boundary: extractor contract, cross-repo edges, lifecycle hardening, stable external protocol |
 
-The detailed, dependency-linked roadmap lives in [GitHub issue #1](https://github.com/SzymonZyrek/RepoGraph/issues/1). The future optional read-only graph view is deliberately deferred until the contract is proven by consumers; see [#21](https://github.com/SzymonZyrek/RepoGraph/issues/21).
+The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/SzymonZyrek/RepoGraph/issues/1).
 
 ## Documentation
 
-- [Architecture and invariants](docs/architecture.md)\n- [Pinned Git ingestion](docs/git-ingestion.md)
+- [Architecture and invariants](docs/architecture.md)
+- [Graph contract](docs/graph-contract.md)
+- [Pinned Git ingestion](docs/git-ingestion.md)
 - [Consumers: VibeGuard and HackaTeam](docs/consumers.md)
+- [Release/version contract](docs/releases.md)
 - [Roadmap and delivery rules](docs/roadmap.md)
 
 ## Principles
@@ -78,7 +86,3 @@ The detailed, dependency-linked roadmap lives in [GitHub issue #1](https://githu
 4. **Every answer is bounded and inspectable.**
 5. **A new commit must not require a whole-repository rebuild.**
 6. **The library stays headless by default.**
-
-## Current work
-
-The next implementation work is the 0.0.1 kernel: [graph contract #6](https://github.com/SzymonZyrek/RepoGraph/issues/6), [Git/path ingestion #7](https://github.com/SzymonZyrek/RepoGraph/issues/7) and [API/CLI baseline #8](https://github.com/SzymonZyrek/RepoGraph/issues/8).

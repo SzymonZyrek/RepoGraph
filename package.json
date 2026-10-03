@@ -2,6 +2,9 @@
   "name": "@repograph/core",
   "private": true,
   "type": "module",
+  "bin": {
+    "repograph": "./dist/src/cli.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
@@ -9,12 +12,19 @@
     }
   },
   "scripts": {
+    "generate:version": "node scripts/generate-version.mjs",
+    "prebuild": "npm run generate:version",
     "build": "tsc -p tsconfig.json",
+    "pretypecheck": "npm run generate:version",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node --test dist/test/*.test.js"
+    "lint": "npm run generate:version && eslint src test eslint.config.js",
+    "test": "npm run build && node --test --experimental-test-coverage --test-coverage-lines=80 --test-coverage-functions=80 --test-coverage-branches=70 dist/test/*.test.js",
+    "ci": "npm run lint && npm run typecheck && npm test"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
-    "typescript": "^5.7.2"
+    "eslint": "^9.17.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0"
   }
 }
