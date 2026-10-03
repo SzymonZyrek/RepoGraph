@@ -69,3 +69,20 @@ export {
 } from "./traversal.js";
 export { loadGraph, saveGraph } from "./io.js";
 export { VERSION } from "./generated-version.js";
+
+export {
+  LocalArtifactStore,
+  SNAPSHOT_SCHEMA_VERSION,
+  STORE_SCHEMA_VERSION,
+  StoreConflictError,
+  StoreCorruptionError,
+  artifactKey,
+  snapshotManifestKey,
+  type ArtifactIdentity,
+  type PutResult,
+  type SnapshotArtifactRef,
+  type SnapshotManifest,
+  type SnapshotManifestInput,
+  type StoredArtifact,
+  type StoreStats,
+} from "./store.js";

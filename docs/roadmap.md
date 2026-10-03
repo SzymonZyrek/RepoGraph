@@ -2,6 +2,8 @@
 
 The release sequence is deliberately layered. Each release earns the next by proving an invariant rather than accumulating unvalidated capability.
 
+Versions 0.0.x are pre-public engineering milestones and may change incompatibly when consumer evidence shows the contract is wrong. **1.0.0 is the first public release**; its criteria will be derived from the VibeGuard/Hacka consumer proofs and stabilized external contract rather than from polishing every pre-release milestone as if it were public.
+
 ## 0.0.1 — deterministic graph kernel
 
 **Goal:** a repository/ref can be converted into a typed, deterministic graph and queried through both library and CLI.
@@ -51,3 +53,8 @@ Issues: [#5](https://github.com/SzymonZyrek/RepoGraph/issues/5), [#17](https://g
 After the 0.0.4 contract is proven by at least two consumers, an optional read-only renderer can be extracted. It is not a release blocker and must remain generic/headless-compatible.
 
 Tracking: [#21](https://github.com/SzymonZyrek/RepoGraph/issues/21).
+
+
+## 1.0.0 — first public release
+
+1.0.0 is intentionally not decomposed into cosmetic hardening tasks yet. Its release criteria will be cut from evidence after the pre-1.0 consumer proofs: stable external contracts, upgrade behavior, useful bounded explanations, and demonstrated integration by real RepoGraph consumers.
