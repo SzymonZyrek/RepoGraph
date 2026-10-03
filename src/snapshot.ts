@@ -15,10 +15,10 @@ import type {
   GraphNode,
   JsonValue,
 } from "./model.js";
-import {
+import type {
   LocalArtifactStore,
-  type SnapshotManifest,
-  type StoreStats,
+  SnapshotManifest,
+  StoreStats,
 } from "./store.js";
 
 const GIT_MAX_BUFFER = 64 * 1024 * 1024;
