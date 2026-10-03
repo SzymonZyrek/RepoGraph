@@ -86,3 +86,26 @@ export {
   type StoredArtifact,
   type StoreStats,
 } from "./store.js";
+
+export {
+  createRepositorySnapshot,
+  ensureRepositorySnapshot,
+  loadSnapshotGraph,
+  repositorySnapshotConfigurationIdentity,
+  type RepositorySnapshotOptions,
+  type RepositorySnapshotResult,
+  type SnapshotAnalysisConfiguration,
+} from "./snapshot.js";
+export {
+  diffGitRepository,
+  incrementalRepositoryUpdate,
+  planIncrementalUpdate,
+  type DiffBaseMode,
+  type GitChange,
+  type GitChangeKind,
+  type GitDiffResult,
+  type IncrementalPlanMetrics,
+  type IncrementalRepositoryUpdateOptions,
+  type IncrementalRepositoryUpdateResult,
+  type IncrementalUpdatePlan,
+} from "./incremental.js";
