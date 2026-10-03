@@ -155,3 +155,10 @@ export {
   type TraversalPolicyInput,
   type TraversalReason,
 } from "./policy.js";
+
+export {
+  REPOSITORY_RELATIONSHIP_EXTRACTOR,
+  extractRepositoryRelationships,
+  type RepositoryRelationshipExtractionResult,
+  type RepositoryRelationshipMetrics,
+} from "./repository-relations.js";
