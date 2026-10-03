@@ -65,3 +65,59 @@ Both products may eventually use an optional read-only graph renderer. That rend
 - Hacka has no requirement to use a visual renderer.
 
 This extraction happens only after consumer proofs establish a stable contract: [RepoGraph #21](https://github.com/SzymonZyrek/RepoGraph/issues/21).
+
+
+## System loop: intelligence, control and execution
+
+RepoGraph participates in a wider closed loop, but it does not orchestrate that loop.
+
+~~~text
+GitHub
+  │ durable code / refs / issues / PRs / checks
+  ▼
+RepoGraph
+  │ pinned-revision repository intelligence
+  ▼
+VibeGuard
+  │ Founder + Owner decisions, policy and execution handoff
+  ▼
+GitHub-native work request
+  ▼
+HackaTeam (or another execution provider)
+  │ commits / PR / validation evidence
+  ▼
+GitHub
+  └── next pinned revision → RepoGraph
+~~~
+
+The important boundary is transport versus intelligence:
+
+- GitHub is the durable coordination and event surface.
+- RepoGraph derives inspectable facts from a pinned repository state.
+- VibeGuard owns human-facing technology governance and product authority.
+- HackaTeam owns execution workflow, not governance.
+
+### No RepoGraph control-plane service in the initial architecture
+
+RepoGraph does not need its own GitHub App, webhook receiver, task queue or long-running orchestration service to satisfy the current consumers. VibeGuard and HackaTeam already have GitHub-facing responsibilities and can invoke RepoGraph against an exact ref.
+
+A transport/service layer is justified only if multiple independent consumers later prove they need the same always-on ingestion behavior. Until then, keeping RepoGraph headless avoids duplicated authorization, webhook durability and source-of-truth semantics.
+
+### Cross-consumer identity
+
+The same repository/ref and deterministic RepoGraph schema should produce compatible node/edge identities and provenance whether queried by VibeGuard or HackaTeam. This makes it possible to link:
+
+~~~text
+impact evidence
+  → durable work request
+  → implementation PR
+  → validation evidence
+~~~
+
+without RepoGraph becoming the owner of that workflow.
+
+Tracking:
+- VibeGuard control-plane direction: https://github.com/ateshgahofmine/VibeGuard/issues/186
+- HackaTeam work-request contract: https://github.com/ateshgahofmine/HackaTeam/issues/55
+- consumer compatibility proof: https://github.com/SzymonZyrek/RepoGraph/issues/16
+- stable external protocol: https://github.com/SzymonZyrek/RepoGraph/issues/20
