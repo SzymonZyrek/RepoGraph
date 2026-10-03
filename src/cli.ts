@@ -5,6 +5,8 @@ import { writeFileSync } from "node:fs";
 import { canonicalJsonUnknown } from "./canonical.js";
 import { ingestGitRepository } from "./git.js";
 import { loadGraph } from "./io.js";
+import { snapshotGitRepository } from "./snapshot.js";
+import { LocalContentStore } from "./store.js";
 import {
   affectedClosure,
   neighbors,
@@ -99,6 +101,7 @@ function usage(): never {
     [
       "repograph version",
       "repograph build --repo PATH --ref REF [--repository NAME] [--out FILE]",
+      "repograph snapshot --repo PATH --ref REF --cache-dir DIR [--repository NAME] [--out FILE] [--graph-out FILE]",
       "repograph neighbors --graph FILE --node ID [--direction out|in|both] [--edge KIND]",
       "repograph affected --graph FILE --node ID [--edge KIND] [--max-depth N] [--max-nodes N]",
       "repograph explain --graph FILE --from ID --to ID [--direction out|in|both] [--edge KIND] [--max-depth N]",
@@ -135,6 +138,41 @@ function run(argv: readonly string[]): void {
       },
     });
     output(result.graph, out);
+    return;
+  }
+
+  if (command === "snapshot") {
+    const repositoryPath = one(args, "repo", true)!;
+    const ref = one(args, "ref", true)!;
+    const cacheDir = one(args, "cache-dir", true)!;
+    const repository = one(args, "repository");
+    const out = one(args, "out");
+    const graphOut = one(args, "graph-out");
+
+    const result = snapshotGitRepository(
+      new LocalContentStore(cacheDir),
+      {
+        repositoryPath,
+        ref,
+        ...(repository === undefined ? {} : { repository }),
+        policy: {
+          ...(many(args, "include").length === 0 ? {} : { include: many(args, "include") }),
+          ...(many(args, "exclude").length === 0 ? {} : { exclude: many(args, "exclude") }),
+          ...(many(args, "generated").length === 0 ? {} : { generated: many(args, "generated") }),
+          ...(many(args, "vendor").length === 0 ? {} : { vendor: many(args, "vendor") }),
+        },
+      },
+    );
+
+    if (graphOut !== undefined) output(result.graph, graphOut);
+    output(
+      {
+        cache: result.cache,
+        manifest: result.manifest,
+        manifestKey: result.manifestKey,
+      },
+      out,
+    );
     return;
   }
 
