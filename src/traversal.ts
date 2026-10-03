@@ -114,7 +114,10 @@ export function reverseNeighbors(
   start: string,
   edgeKinds?: readonly string[],
 ): NeighborSlice {
-  return neighbors(graph, start, { direction: "in", edgeKinds });
+  return neighbors(graph, start, {
+    direction: "in",
+    ...(edgeKinds === undefined ? {} : { edgeKinds }),
+  });
 }
 
 export function transitiveClosure(
