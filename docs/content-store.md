@@ -40,7 +40,7 @@ cache/
   manifests/cd/cdef01....json
 ~~~
 
-Writes use a temporary file followed by an atomic rename. Existing immutable objects are verified rather than overwritten.
+Writes create a temporary file and atomically publish it with a same-filesystem hard link. Existing immutable objects are verified rather than overwritten; a concurrent writer may win only when it publishes identical canonical content.
 
 The in-process `stats` counters expose cache hits, misses and successful writes. A new process can open the same directory and reuse valid artifacts immediately.
 
@@ -48,4 +48,4 @@ The in-process `stats` counters expose cache hits, misses and successful writes.
 
 Cache deletion is always legal. Rebuilding the same descriptor with a deterministic extractor yields the same artifact key and equivalent canonical payload.
 
-Garbage collection and long-term retention policy are intentionally deferred to the 0.0.4 persistence-lifecycle slice.
+`snapshotGitRepository()` connects the pinned Git ingestion from 0.0.1 to the store. It records reusable file/directory/symlink/submodule artifacts by Git object identity and emits a commit manifest. The CLI exposes the same path through `repograph snapshot --cache-dir ...`.\n\nGarbage collection and long-term retention policy are intentionally deferred to the 0.0.4 persistence-lifecycle slice.
