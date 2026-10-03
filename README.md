@@ -46,6 +46,7 @@ npm run build
 
 node dist/src/cli.js version
 node dist/src/cli.js build --repo . --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --out graph.json
+node dist/src/cli.js build-intelligence --repo . --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --cache-dir .repograph-cache --out intelligence.json
 
 # incremental snapshot/update path
 node dist/src/cli.js snapshot --repo . --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --cache-dir .repograph-cache
@@ -87,6 +88,7 @@ The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/Szym
 - [Extractor and external-process plugin contract](docs/extractors.md)
 - [Cross-repository coordinate bridges](docs/cross-repository.md)
 - [External protocol v1](docs/protocol.md)
+- [Built-in repository intelligence build](docs/intelligence-build.md)
 - [Generic overlays and authority](docs/overlays.md)
 - [0.0.2 incremental economics evidence](docs/evals/0.0.2-incremental-economics.md)
 - [0.0.3 consumer compatibility proof](docs/evals/0.0.3-consumer-compatibility.md)
