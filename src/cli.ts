@@ -107,7 +107,9 @@ function usage(): never {
       "repograph update --repo PATH --base BASE --ref TARGET --cache-dir DIR [--base-mode direct|merge-base] [--out FILE] [--graph-out FILE]",
       "repograph neighbors --graph FILE --node ID [--direction out|in|both] [--edge KIND]",
       "repograph affected --graph FILE --node ID [--edge KIND] [--max-depth N] [--max-nodes N]",
-      "repograph explain --graph FILE --from ID --to ID [--direction out|in|both] [--edge KIND] [--max-depth N]",\n      "repograph traverse-policy --graph FILE --node ID --policy FILE",\n      "repograph explain-policy --graph FILE --from ID --to ID --policy FILE",
+      "repograph explain --graph FILE --from ID --to ID [--direction out|in|both] [--edge KIND] [--max-depth N]",
+      "repograph traverse-policy --graph FILE --node ID --policy FILE",
+      "repograph explain-policy --graph FILE --from ID --to ID --policy FILE",
     ].join("\n"),
   );
 }
