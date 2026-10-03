@@ -148,8 +148,8 @@ test("slice response is bounded, normalized and ignores additive request fields"
       .map((node) => [node.kind, node.key])
       .sort((a, b) => String(a[1]).localeCompare(String(b[1]))),
     [
-      ["file", "src/a.test.ts"],
       ["module", "module:a"],
+      ["file", "src/a.test.ts"],
     ],
   );
   assert.equal(
