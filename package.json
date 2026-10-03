@@ -24,7 +24,8 @@
     "lint": "npm run generate:version && eslint src test eslint.config.js",
     "test": "npm run build && node --test --experimental-test-coverage --test-coverage-lines=80 --test-coverage-functions=80 --test-coverage-branches=70 dist/test/*.test.js",
     "ci": "npm run lint && npm run typecheck && npm test",
-    "eval:incremental": "npm run build && node scripts/eval-incremental.mjs"
+    "eval:incremental": "npm run build && node scripts/eval-incremental.mjs",
+    "eval:intelligence": "npm run build && node scripts/eval-intelligence.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
