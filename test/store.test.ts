@@ -315,6 +315,43 @@ test("manifests reject references to missing local artifacts", () => {
   assert.throws(() => store.writeManifest(manifest), StoreValidationError);
 });
 
+test("different requested refs get distinct manifest identities for the same commit", () => {
+  const main = createSnapshotManifest({
+    repository: "fixture/repo",
+    requestedRef: "main",
+    commit: "same-commit",
+    tree: "same-tree",
+  });
+  const tag = createSnapshotManifest({
+    repository: "fixture/repo",
+    requestedRef: "refs/tags/v1",
+    commit: "same-commit",
+    tree: "same-tree",
+  });
+
+  assert.notEqual(
+    snapshotManifestKey(main.identity),
+    snapshotManifestKey(tag.identity),
+  );
+});
+
+test("missing reads are observable and identical immutable writes are idempotent", () => {
+  const root = cacheRoot();
+  const store = new LocalContentStore(root);
+  const spec = descriptor("blob:idempotent");
+
+  assert.equal(store.readArtifact(spec), undefined);
+  assert.deepEqual(store.stats, { hits: 0, misses: 1, writes: 0 });
+
+  const first = store.writeArtifact(spec, { value: 1 });
+  const second = store.writeArtifact(spec, { value: 1 });
+  assert.equal(first.key, second.key);
+  assert.deepEqual(store.stats, { hits: 0, misses: 1, writes: 1 });
+
+  store.resetStats();
+  assert.deepEqual(store.stats, { hits: 0, misses: 0, writes: 0 });
+});
+
 test("corrupted persisted schema fails explicitly", () => {
   const root = cacheRoot();
   const store = new LocalContentStore(root);
