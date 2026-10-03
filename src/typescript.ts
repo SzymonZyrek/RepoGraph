@@ -209,9 +209,13 @@ function parseModuleSyntax(path: string, source: string): ModuleSyntax {
         "export-from",
         statement.isTypeOnly,
       );
-      if (statement.exportClause !== undefined && ts.isNamedExports(statement.exportClause)) {
-        for (const element of statement.exportClause.elements) {
-          exports.add(element.name.text);
+      if (statement.exportClause !== undefined) {
+        if (ts.isNamedExports(statement.exportClause)) {
+          for (const element of statement.exportClause.elements) {
+            exports.add(element.name.text);
+          }
+        } else if (ts.isNamespaceExport(statement.exportClause)) {
+          exports.add(statement.exportClause.name.text);
         }
       }
     } else if (
