@@ -131,3 +131,22 @@ export {
   type OverlayNodeInput,
   type OverlayPathEdgeInput,
 } from "./overlay.js";
+
+export {
+  TRAVERSAL_POLICY_SCHEMA_VERSION,
+  affectedWithPolicy,
+  explainWithPolicy,
+  matchingProvenance,
+  normalizeTraversalPolicy,
+  parseTraversalPolicy,
+  serializeTraversalPolicy,
+  traverseWithPolicy,
+  type EvidenceFilter,
+  type NormalizedEvidenceFilter,
+  type NormalizedTraversalPolicy,
+  type PolicyPathResult,
+  type PolicyPathStep,
+  type PolicyReason,
+  type PolicyTraversalResult,
+  type TraversalPolicy,
+} from "./policy.js";
