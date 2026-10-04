@@ -64,6 +64,15 @@ function git(root: string, ...args: string[]): string {
   return execFileSync("git", args, { cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"] });
 }
 
+function resolveRevision(root: string, ref: string): { commit: string; parent?: string; tree: string } {
+  const fields = git(root, "show", "-s", "--format=%H%x00%P%x00%T", `${ref}^{commit}`).trimEnd().split("\0");
+  if (fields.length !== 3 || fields[0] === "" || fields[2] === "") {
+    throw new Error(`Invalid Git revision metadata for ${ref}`);
+  }
+  const parent = fields[1]!.split(" ").find((value) => value.length > 0);
+  return { commit: fields[0]!, ...(parent === undefined ? {} : { parent }), tree: fields[2]! };
+}
+
 function emptyGraph(): GraphDocument {
   return { schemaVersion: GRAPH_SCHEMA_VERSION, nodes: [], edges: [], diagnostics: [] };
 }
@@ -223,9 +232,8 @@ export function buildIncrementalIntelligence(options: RepositoryIntelligenceOpti
   };
   const resolved = timed("gitChangeDiscoveryMs", () => {
     const root = realpathSync(git(options.repositoryPath, "rev-parse", "--show-toplevel").trim());
-    const commit = git(root, "rev-parse", "--verify", `${options.ref}^{commit}`).trim();
-    const lineage = git(root, "rev-list", "--parents", "-n", "1", commit).trim().split(" ");
-    return { root, commit, parent: lineage[1], tree: git(root, "rev-parse", `${commit}^{tree}`).trim(), repository: options.repository ?? `file://${root}` };
+    const revision = resolveRevision(root, options.ref);
+    return { root, ...revision, repository: options.repository ?? `file://${root}` };
   });
   const configurationIdentity = `intelligence-config-${createHash("sha256").update(canonicalJsonUnknown({
     schema: CACHE_VERSION, graph: GRAPH_SCHEMA_VERSION, git: "0.0.1", tsjs: TSJS_EXTRACTOR, relationships: REPOSITORY_RELATIONSHIP_EXTRACTOR,
