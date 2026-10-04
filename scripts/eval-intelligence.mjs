@@ -202,6 +202,10 @@ for (const scenario of scenarios) {
     reparsedFiles: warm.metrics.tsjs.parsedFiles,
     reusedSyntaxArtifacts: warm.metrics.tsjs.reusedSyntaxArtifacts,
     packageManifests: warm.metrics.relationships.packageManifests,
+    relationshipIndexedFiles: warm.metrics.relationships.indexedFiles,
+    relationshipTestCandidates: warm.metrics.relationships.testFileCandidates,
+    relationshipMembershipFilesVisited:
+      warm.metrics.relationships.membershipFilesVisited,
     composition: warm.metrics.composition,
     graphNodes: warm.graph.nodes.length,
     graphEdges: warm.graph.edges.length,
