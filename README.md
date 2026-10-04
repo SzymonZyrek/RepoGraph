@@ -2,7 +2,7 @@
 
 **A small, inspectable dependency-intelligence graph for Git repositories.**
 
-RepoGraph turns a pinned repository revision into reusable facts about files, modules, symbols, contracts and their relationships. It answers bounded questions such as:
+RepoGraph turns a pinned repository revision into a small causal graph of useful artifacts, logical boundaries and interaction interfaces. It answers bounded questions such as:
 
 - What can this change affect?
 - Why is this module, test or contract relevant?
@@ -11,15 +11,15 @@ RepoGraph turns a pinned repository revision into reusable facts about files, mo
 
 It is designed as shared infrastructure for products that need repository understanding without making the graph itself a source of policy.
 
-> **Status:** pre-public development. 0.0.x versions are engineering milestones; **1.0.0 is the first public release**. **0.0.6 is the current incremental-intelligence milestone:** exact-SHA full graphs reuse first-parent Git/source/relationship facts, with separate maintenance, cache and output measurements. 1.0.0 criteria continue to come from real VibeGuard/Hacka integration evidence.
+> **Status:** pre-public development. 0.0.x versions are engineering milestones; **1.0.0 is the first public release**. **0.0.6 is an architecture correction:** move from whole-graph JSON builds toward provider-first ingestion, a minimal language-agnostic causal model, protocol/interface boundaries and bounded queries over an embedded graph store. Existing full-graph commands remain transitional until this work lands.
 
 ## The boundary
 
 RepoGraph owns generic repository intelligence:
 
-- Git tree, file and path facts pinned to a ref;
-- typed nodes and edges with deterministic identities;
-- provenance for derived facts;
+- a minimal `Artifact / Boundary / DEPENDS_ON / CONTAINS` causal model;
+- provider-first normalization of mature code/build/protocol graph sources;
+- exact revision identity and compact provenance for derived facts;
 - deterministic traversal, reverse traversal and causal explanations;
 - path-rule evidence;
 - a library and JSON/CLI boundary.
@@ -72,7 +72,7 @@ All CLI output is deterministic JSON. Invalid input exits non-zero and writes a 
 | **0.0.3** | Repository-intelligence semantics: overlays, provenance/authority, traversal policies, consumer proof |
 | **0.0.4** | Extension boundary: extractor contract, cross-repo edges, lifecycle hardening, stable external protocol |
 | **0.0.5** | Consumer integration: full intelligence build + optional generic read-only view |
-| **0.0.6** | Incremental composed intelligence and opt-in multi-size economics evidence |
+| **0.0.6** | Architecture correction: embedded graph queries, minimal causal schema, provider-first ingestion, REST/SOAP/messaging interfaces |
 | **1.0.0** | First public release, after pre-1.0 contracts are proven by real consumers |
 
 The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/SzymonZyrek/RepoGraph/issues/1).
@@ -80,6 +80,8 @@ The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/Szym
 ## Documentation
 
 - [Architecture and invariants](docs/architecture.md)
+- [Provider-first dependency ingestion](docs/providers.md)
+- [Protocol and interface dependencies](docs/interfaces.md)
 - [Graph contract](docs/graph-contract.md)
 - [Pinned Git ingestion](docs/git-ingestion.md)
 - [Content-addressed store](docs/content-addressed-store.md)
@@ -106,5 +108,7 @@ The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/Szym
 2. **Evidence is not policy.** Extracted relationships explain; consumers decide.
 3. **Prefer no edge to a speculative edge.**
 4. **Every answer is bounded and inspectable.**
-5. **A new commit must not require a whole-repository rebuild.**
-6. **The library stays headless by default.**
+5. **Prefer mature dependency/build/protocol providers over custom language frontends.**
+6. **A new commit should refresh only the provider/graph surface that needs it when practical.**
+7. **JSON is a bounded wire/debug format, not the primary graph store.**
+8. **The library stays headless by default.**
