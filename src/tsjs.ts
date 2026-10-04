@@ -568,9 +568,10 @@ export function extractTypeScriptJavaScriptFragments(
   resolutionConfig?: TsConfigResolution,
   fileIndex?: ReadonlyMap<string, GraphNode>,
   readSource?: (path: string) => string,
-): { inputs: GraphInput; metrics: TsJsExtractionMetrics; candidates: Record<string, string[]> } {
+): { inputs: GraphInput; metrics: TsJsExtractionMetrics; candidates: Record<string, string[]>; configSources: string[] } {
   const inputs = { nodes: [] as GraphNodeInput[], edges: [] as GraphEdgeInput[], diagnostics: [] as GraphDiagnostic[] };
   const candidates: Record<string, string[]> = {};
+  const configSources: string[] = [];
   const byPath = fileIndex ?? new Map(ingestion.graph.nodes.filter((node) => node.identity.kind === "file").map((node) => [node.identity.key, node]));
   const files = { has: (path: string) => byPath.has(path) } as ReadonlySet<string>;
   const sourceNodes = selectedPaths === undefined
@@ -590,6 +591,7 @@ export function extractTypeScriptJavaScriptFragments(
     if (selectedPaths !== undefined && !selectedPaths.has(sourceNode.identity.key)) continue;
     const resolutionCandidates = new Set<string>();
     const syntax = getSyntaxFacts(ingestion, sourceNode, options.store, readSource);
+    if (syntax.facts.imports.some((dependency) => !dependency.specifier.startsWith(".") && !dependency.specifier.startsWith("/"))) configSources.push(sourceNode.identity.key);
     syntaxCacheIoMs += syntax.cacheIoMs;
     if (syntax.reused) reusedSyntaxArtifacts += 1;
     else parsedFiles += 1;
@@ -687,6 +689,7 @@ export function extractTypeScriptJavaScriptFragments(
   return {
     inputs,
     candidates,
+    configSources: configSources.sort(),
     metrics: {
       sourceFiles: sourceNodes.length,
       parsedFiles,

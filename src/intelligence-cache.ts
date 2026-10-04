@@ -5,17 +5,18 @@ import { performance } from "node:perf_hooks";
 import * as ts from "typescript";
 
 import { canonicalJsonUnknown, toJsonValue } from "./canonical.js";
-import { assembleGraphFragments, makeNode, makeEdge } from "./graph.js";
+import { assembleGraphFragments, makeNode, makeEdge, nodeId } from "./graph.js";
+import { posix } from "node:path";
 import { ingestGitRepository, parseTree, type GitTreeEntry, type GitIngestionResult } from "./git.js";
 import { GRAPH_SCHEMA_VERSION, type GraphDocument, type GraphInput, type GraphNode, type Provenance } from "./model.js";
-import { extractRepositoryRelationshipInputs, REPOSITORY_RELATIONSHIP_EXTRACTOR, testSourceCandidates, type PackageFacts, type RepositoryRelationshipMetrics } from "./repository-relations.js";
+import { extractRepositoryRelationshipInputs, REPOSITORY_RELATIONSHIP_EXTRACTOR, testSourceCandidates, parsePackageFacts, packageResolutionCandidates, type PackageFacts, type RepositoryRelationshipMetrics } from "./repository-relations.js";
 import { StoreCorruptionError } from "./store.js";
 import { extractTypeScriptJavaScriptFragments, isSourcePath, readTsConfig, TSJS_EXTRACTOR, type TsConfigResolution, type TsJsExtractionMetrics } from "./tsjs.js";
 import type { RepositoryIntelligenceOptions, RepositoryIntelligenceResult } from "./intelligence.js";
 import type { PathRuleInput } from "./path-rules.js";
 
-const FACT_REF = "$intelligence-facts/v2";
-const CACHE_VERSION = "repograph.intelligence/v2";
+const FACT_REF = "$intelligence-facts/v5";
+const CACHE_VERSION = "repograph.intelligence/v5";
 const PACK_SIZE = 64;
 type Fragments = Record<string, GraphDocument>;
 type ReverseIndex = Record<string, string[]>;
@@ -31,7 +32,10 @@ interface IntelligenceState {
   importers: ReverseIndex;
   tests: ReverseIndex;
   packages: PackageFacts[];
+  packageCandidates: Record<string, string[]>;
+  packageDependents: ReverseIndex;
   config: TsConfigResolution;
+  configSources: string[];
   configDiagnostics: GraphDocument;
   tsjs: TsJsExtractionMetrics;
   relationshipMetrics: RepositoryRelationshipMetrics;
@@ -66,25 +70,49 @@ function emptyGraph(): GraphDocument {
 
 /** Lazy batch reads amortize process startup; a fully cached rename never invokes Git. */
 function sourceReader(root: string, files: ReadonlyMap<string, GraphNode>, selected?: ReadonlySet<string>): (path: string) => string {
-  let contents: Map<string, string> | undefined;
+  const sources = (selected === undefined ? [...files.keys()] : [...selected]).filter((path) => files.has(path) && isSourcePath(path));
+  const positions = new Map(sources.map((path, index) => [path, index]));
+  const objects = sources.map((path) => String(files.get(path)!.metadata!.blobSha));
+  let sizes: number[] | undefined;
+  let contents = new Map<string, string>();
   return (path) => {
-    if (contents === undefined) {
-      const sources = (selected === undefined ? [...files.keys()] : [...selected]).filter((path) => files.has(path) && isSourcePath(path));
-      const objects = sources.map((path) => String(files.get(path)!.metadata!.blobSha));
-      const raw = execFileSync("git", ["cat-file", "--batch"], { cwd: root, input: objects.join("\n") + "\n", maxBuffer: 64 * 1024 * 1024, stdio: ["pipe", "pipe", "pipe"] });
+    if (!contents.has(path)) {
+      const position = positions.get(path);
+      if (position === undefined) throw new Error(`Missing batched source ${path}`);
+      if (sizes === undefined && sources.length === 1) sizes = [64 * 1024 * 1024];
+      if (sizes === undefined) {
+        const checked = execFileSync("git", ["cat-file", "--batch-check"], { cwd: root, input: objects.join("\n") + "\n", encoding: "utf8", maxBuffer: 64 * 1024 * 1024, stdio: ["pipe", "pipe", "pipe"] }).trimEnd().split("\n");
+        sizes = checked.map((header, index) => {
+          const [object, type, text] = header.trim().split(" ");
+          const size = Number(text);
+          if (object !== objects[index] || type !== "blob" || !Number.isSafeInteger(size) || size < 0 || size > 64 * 1024 * 1024) throw new Error(`Invalid or oversized Git source ${sources[index]}`);
+          return size;
+        });
+        if (sizes.length !== sources.length) throw new Error("Incomplete Git batch size response");
+      }
+      const batch: string[] = [];
+      const batchObjects: string[] = [];
+      let bytes = 0;
+      for (let index = position; index < sources.length; index++) {
+        const size = sizes[index]! + 128;
+        if (batch.length > 0 && bytes + size > 8 * 1024 * 1024) break;
+        batch.push(sources[index]!); batchObjects.push(objects[index]!); bytes += size;
+      }
+      const raw = execFileSync("git", ["cat-file", "--batch"], { cwd: root, input: batchObjects.join("\n") + "\n", maxBuffer: Math.max(64 * 1024 * 1024, bytes + 1024), stdio: ["pipe", "pipe", "pipe"] });
       contents = new Map();
       let offset = 0;
-      for (const source of sources) {
+      for (const source of batch) {
         const end = raw.indexOf(10, offset);
         const header = raw.subarray(offset, end).toString("utf8").split(" ");
         const size = Number(header[2]);
-        if (end < 0 || header[1] !== "blob" || !Number.isSafeInteger(size) || size < 0 || end + 1 + size >= raw.length) throw new Error(`Invalid Git batch response for ${source}`);
+        if (end < 0 || header[1] !== "blob" || !Number.isSafeInteger(size) || size < 0 || size > 64 * 1024 * 1024 || end + 1 + size >= raw.length) throw new Error(`Invalid Git batch response for ${source}`);
         contents.set(source, raw.subarray(end + 1, end + 1 + size).toString("utf8"));
         offset = end + 1 + size + 1;
       }
     }
     const content = contents.get(path);
     if (content === undefined) throw new Error(`Missing batched source ${path}`);
+    contents.delete(path);
     return content;
   };
 }
@@ -98,7 +126,7 @@ function pin(graph: GraphDocument, ref: string, commit?: string): GraphDocument 
   const provenance = (p: Provenance): Provenance => {
     const result = { ...p, ref };
     delete result.commit;
-    return { ...result, ...(commit === undefined ? {} : { commit }) };
+    return { ...result, ...(p.commit === undefined ? {} : { commit: commit ?? "$target" }) };
   };
   return {
     ...graph,
@@ -148,7 +176,7 @@ function removeIndex(index: ReverseIndex, path: string, owner: string): void {
 
 function relationshipKey(kind: string, path?: string): string {
   return kind === "tests" || (kind === "diagnostic" && path !== undefined && testSourceCandidates(path).length > 0)
-    ? `test:${path}` : "$packages";
+    ? `test:${path}` : `package:${path}`;
 }
 
 function relationshipFragments(input: GraphInput, files: ReadonlyMap<string, GraphNode>): Fragments {
@@ -213,7 +241,7 @@ export function buildIncrementalIntelligence(options: RepositoryIntelligenceOpti
       return { key: item.artifactKey, keys: keys as string[] };
     });
     layouts.set(commit, packs);
-    const artifact = reference === undefined ? undefined : options.store!.getArtifact(reference.artifactKey);
+    const artifact = reference === undefined ? undefined : options.store!.getArtifact(reference.artifactKey, { verifyContentIdentity: true });
     if (artifact === undefined) { reasons.push(`missing-artifact:${commit}`); return undefined; }
     const state = artifact.payload as unknown as IntelligenceState;
     if (state.schema !== CACHE_VERSION || state.importers === undefined || state.entries === undefined) {
@@ -221,7 +249,7 @@ export function buildIncrementalIntelligence(options: RepositoryIntelligenceOpti
     }
     const facts: Fragments = Object.create(null) as Fragments;
     for (const pack of packs) {
-      const artifact = options.store!.getArtifact(pack.key);
+      const artifact = options.store!.getArtifact(pack.key, { verifyContentIdentity: true });
       if (artifact === undefined) { reasons.push(`missing-artifact:${commit}:${pack.key}`); return undefined; }
       const payload = artifact.payload as unknown as Fragments;
       if (typeof payload !== "object" || payload === null || Array.isArray(payload) || Object.keys(payload).length !== pack.keys.length) throw new StoreCorruptionError(`Invalid intelligence pack ${pack.key}`);
@@ -231,7 +259,8 @@ export function buildIncrementalIntelligence(options: RepositoryIntelligenceOpti
       }
     }
     restoreFragments(state, facts);
-    for (const index of [state.entries, state.candidates, state.importers, state.tests]) {
+    if (!Array.isArray(state.configSources) || state.configSources.some((path) => typeof path !== "string")) throw new StoreCorruptionError(`Invalid configuration-source index in ${reference!.artifactKey}`);
+    for (const index of [state.entries, state.candidates, state.importers, state.tests, state.packageCandidates, state.packageDependents]) {
       if (typeof index !== "object" || index === null || Array.isArray(index)) throw new StoreCorruptionError(`Invalid intelligence index in ${reference!.artifactKey}`);
       Object.setPrototypeOf(index, null);
     }
@@ -277,9 +306,9 @@ export function buildIncrementalIntelligence(options: RepositoryIntelligenceOpti
       return updates;
     });
     changedPaths = updates.filter((u) => u.entry?.type !== "tree" && previous.entries[u.path]?.type !== "tree").map((u) => u.path);
-    const global = changedPaths.filter((path) => path === (options.tsconfigPath ?? "tsconfig.json") || /(^|\/)package\.json$/.test(path) || [".github/CODEOWNERS", "CODEOWNERS", "docs/CODEOWNERS"].includes(path));
+    const global = changedPaths.filter((path) => [".github/CODEOWNERS", "CODEOWNERS", "docs/CODEOWNERS"].includes(path));
     if (global.length > 0) {
-      reasons.push(...global.map((path) => `configuration-or-package-changed:${path}`));
+      reasons.push(...global.map((path) => `path-rules-changed:${path}`));
       state = undefined; mode = "cold";
     } else {
       const touched = new Set(updates.map((u) => u.path));
@@ -329,7 +358,52 @@ export function buildIncrementalIntelligence(options: RepositoryIntelligenceOpti
         });
         const ingestion: GitIngestionResult = { ...partial, graph: { ...emptyGraph(), nodes: [...files.values()] } };
         const affected = new Set(changedPaths.filter(isSourcePath));
+        if (changedPaths.includes(options.tsconfigPath ?? "tsconfig.json")) {
+          const configDiagnostics = emptyGraph();
+          previous.config = timed("extractionResolutionMs", () => readTsConfig(ingestion, { has: (path: string) => files.has(path) } as ReadonlySet<string>, options.tsconfigPath ?? "tsconfig.json", configDiagnostics.diagnostics));
+          previous.configDiagnostics = pin(configDiagnostics, FACT_REF);
+          for (const path of previous.configSources) affected.add(path);
+          reasons.push(`tsconfig-resolution-changed:${options.tsconfigPath ?? "tsconfig.json"}`);
+        }
         const pathChanges = changedPaths.filter((path) => previousFiles.has(path) !== files.has(path));
+        const changedPackages = new Set(changedPaths.filter((path) => /(^|\/)package\.json$/.test(path)));
+        const packagePaths = new Set(changedPackages);
+        for (const path of pathChanges) for (const owner of previous.packageDependents[`file:${path}`] ?? []) packagePaths.add(owner);
+        const packageDiagnostics = emptyGraph();
+        const membershipPaths = new Set(pathChanges);
+        if (changedPackages.size > 0) timed("relationshipMaintenanceMs", () => {
+          const byPath = new Map(previous.packages.map((facts) => [facts.path, facts]));
+          const regions = new Set<string>();
+          const dependents = (facts: PackageFacts) => {
+            for (const candidate of [`directory:${facts.directory}`, ...(facts.name === undefined ? [] : [`name:${facts.name}`])]) {
+              for (const path of previous.packageDependents[candidate] ?? []) packagePaths.add(path);
+            }
+          };
+          for (const path of changedPackages) {
+            const before = byPath.get(path);
+            if (before !== undefined) dependents(before);
+            const after = files.has(path) ? parsePackageFacts(ingestion, path, packageDiagnostics.diagnostics) : undefined;
+            for (const candidate of previous.packageCandidates[path] ?? []) removeIndex(previous.packageDependents, candidate, path);
+            delete previous.packageCandidates[path];
+            byPath.delete(path);
+            if (after !== undefined) {
+              byPath.set(path, after);
+              dependents(after);
+              const candidates = packageResolutionCandidates(after);
+              previous.packageCandidates[path] = candidates;
+              for (const candidate of candidates) addIndex(previous.packageDependents, candidate, path);
+            }
+            if ((before === undefined) !== (after === undefined)) regions.add(posix.dirname(path));
+          }
+          previous.packages = [...byPath.values()].sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0);
+          for (const path of files.keys()) {
+            if (![...regions].some((directory) => directory === "." || path.startsWith(`${directory}/`))) continue;
+            const owner = previous.packages.filter((facts) => facts.directory === "." || path.startsWith(`${facts.directory}/`)).sort((a, b) => b.directory.length - a.directory.length || a.path.localeCompare(b.path))[0];
+            const newOwner = owner === undefined ? undefined : nodeId({ namespace: ingestion.repository, kind: "package", key: owner.path });
+            const oldOwner = previous.relationships[`member:${path}`]?.edges[0]?.identity.to;
+            if (newOwner !== oldOwner) membershipPaths.add(path);
+          }
+        });
         for (const path of pathChanges) for (const importer of previous.importers[path] ?? []) affected.add(importer);
         resolvedSourceFragments = [...affected].filter((path) => files.has(path) && isSourcePath(path)).length;
         const extracted = timed("extractionResolutionMs", () => extractTypeScriptJavaScriptFragments(ingestion, options, affected, previous.config, files, sourceReader(resolved.root, files, affected)));
@@ -343,21 +417,24 @@ export function buildIncrementalIntelligence(options: RepositoryIntelligenceOpti
         }
         Object.assign(previous.sources, replacement);
         Object.assign(previous.candidates, extracted.candidates);
+        previous.configSources = [...new Set([...previous.configSources.filter((path) => !affected.has(path)), ...extracted.configSources])].sort();
         for (const [path, candidates] of Object.entries(extracted.candidates)) for (const candidate of candidates) addIndex(previous.importers, candidate, path);
-        if (pathChanges.length > 0) {
+        if (pathChanges.length > 0 || changedPackages.size > 0) {
           const testPaths = new Set<string>();
           for (const path of pathChanges) {
             testPaths.add(path);
             for (const test of previous.tests[path] ?? []) testPaths.add(test);
             for (const candidate of testSourceCandidates(path)) removeIndex(previous.tests, candidate, path);
             if (files.has(path)) for (const candidate of testSourceCandidates(path)) addIndex(previous.tests, candidate, path);
-            delete previous.relationships[`member:${path}`];
           }
+          for (const path of membershipPaths) delete previous.relationships[`member:${path}`];
+          for (const path of packagePaths) delete previous.relationships[`package:${path}`];
           for (const path of testPaths) delete previous.relationships[`test:${path}`];
-          const relation = timed("relationshipMaintenanceMs", () => extractRepositoryRelationshipInputs(ingestion, { packages: previous.packages, membershipPaths: new Set(pathChanges), testPaths, files }));
-          const replacements = relationshipFragments(relation.inputs, new Map(pathChanges.filter((path) => files.has(path)).map((path) => [path, files.get(path)!])));
+          const relation = timed("relationshipMaintenanceMs", () => extractRepositoryRelationshipInputs(ingestion, { packages: previous.packages, membershipPaths, testPaths, packagePaths, files }));
+          relation.inputs.diagnostics = [...(relation.inputs.diagnostics ?? []), ...packageDiagnostics.diagnostics];
+          const replacements = relationshipFragments(relation.inputs, new Map([...membershipPaths].filter((path) => files.has(path)).map((path) => [path, files.get(path)!])));
           Object.assign(previous.relationships, Object.fromEntries(Object.entries(replacements).map(([key, value]) => [key, pin(value, FACT_REF)])));
-          recomposedRelationshipFragments = pathChanges.length + testPaths.size + 1;
+          recomposedRelationshipFragments = membershipPaths.size + testPaths.size + packagePaths.size;
         }
         timed("graphMaterializationMs", () => totals(previous));
       }
@@ -377,11 +454,15 @@ export function buildIncrementalIntelligence(options: RepositoryIntelligenceOpti
       schema: CACHE_VERSION, entries: Object.fromEntries(entries.map((entry) => [entry.path, entry])), git: gitFragments,
       sources: split(pin(normalized(extracted.inputs), FACT_REF), (_kind, path) => path ?? "$config"),
       relationships: Object.fromEntries(Object.entries(relationshipFragments(relation.inputs, files)).map(([key, value]) => [key, pin(value, FACT_REF)])),
-      config, configDiagnostics: pin(configDiagnostics, FACT_REF), packages: relation.packages, candidates: extracted.candidates, importers: Object.create(null) as ReverseIndex, tests: Object.create(null) as ReverseIndex,
+      config, configSources: extracted.configSources, configDiagnostics: pin(configDiagnostics, FACT_REF), packages: relation.packages, packageCandidates: Object.create(null) as ReverseIndex, packageDependents: Object.create(null) as ReverseIndex, candidates: extracted.candidates, importers: Object.create(null) as ReverseIndex, tests: Object.create(null) as ReverseIndex,
       tsjs: extracted.metrics, relationshipMetrics: relation.metrics,
     };
     for (const [path, candidates] of Object.entries(state.candidates)) for (const candidate of candidates) addIndex(state.importers, candidate, path);
     for (const path of files.keys()) for (const candidate of testSourceCandidates(path)) addIndex(state.tests, candidate, path);
+    for (const facts of state.packages) {
+      state.packageCandidates[facts.path] = packageResolutionCandidates(facts);
+      for (const candidate of state.packageCandidates[facts.path]!) addIndex(state.packageDependents, candidate, facts.path);
+    }
     inspectedPaths = entries.length; inspectedBlobs = entries.filter((entry) => entry.type === "blob").length;
     resolvedSourceFragments = extracted.metrics.sourceFiles;
     recomposedRelationshipFragments = Object.keys(state.relationships).length;

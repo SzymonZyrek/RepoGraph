@@ -445,14 +445,26 @@ export class LocalArtifactStore {
     return { key, reused: true };
   }
 
-  getArtifact(key: string): StoredArtifact | undefined {
+  getArtifact(key: string, options: { verifyContentIdentity?: boolean } = {}): StoredArtifact | undefined {
     const path = this.artifactPath(key);
     if (!existsSync(path)) {
       this.stats.artifactMisses += 1;
       return undefined;
     }
 
-    const artifact = parseStoredArtifact(readFileSync(path, "utf8"), key);
+    const encoded = readFileSync(path, "utf8");
+    const artifact = parseStoredArtifact(encoded, key);
+    if (options.verifyContentIdentity === true) {
+      const expected = artifact.identity.contentIdentity;
+      if (!/^sha256:[a-f0-9]{64}$/.test(expected)) throw new StoreCorruptionError(`Artifact ${key} has no payload content identity`);
+      // Store-created wrappers are canonical. Hash their encoded payload bytes,
+      // without renormalizing unchanged graph identities or facts on every read.
+      const start = encoded.indexOf('"payload":') + '"payload":'.length;
+      const end = encoded.lastIndexOf(',"storeSchemaVersion":');
+      const matches = start >= '"payload":'.length && end > start && `sha256:${createHash("sha256").update(encoded.slice(start, end)).digest("hex")}` === expected;
+      // Retain support for valid non-canonical wrapper formatting.
+      if (!matches && `sha256:${hash(artifact.payload)}` !== expected) throw new StoreCorruptionError(`Artifact ${key} payload does not match its content identity`);
+    }
     this.stats.artifactHits += 1;
     return artifact;
   }

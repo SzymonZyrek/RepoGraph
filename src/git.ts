@@ -234,6 +234,8 @@ function buildPathRuleNodes(
             origin: "overlay",
             method: "explicit-overlay",
             state: "complete",
+            overlay: { name: "repograph-path-rules", version: "1" },
+            authority: "advisory",
           },
     ],
   }));
@@ -476,6 +478,8 @@ export function ingestGitRepository(
                 origin: "overlay",
                 method: "explicit-overlay",
                 state: "complete",
+                overlay: { name: "repograph-path-rules", version: "1" },
+                authority: "advisory",
               },
         ],
       });

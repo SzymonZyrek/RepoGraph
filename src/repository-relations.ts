@@ -194,7 +194,7 @@ function collectExportTargets(
   }
 }
 
-function parsePackageFacts(
+export function parsePackageFacts(
   ingestion: GitIngestionResult,
   path: string,
   diagnostics: GraphDiagnostic[],
@@ -321,6 +321,23 @@ function resolveManifestRelativePath(
   return resolved.startsWith("./") ? resolved.slice(2) : resolved;
 }
 
+/** Resolution dependencies, including unresolved package/entrypoint candidates. */
+export function packageResolutionCandidates(facts: PackageFacts): string[] {
+  const candidates = new Set<string>();
+  for (const dependency of facts.dependencies) {
+    if (dependency.specifier.startsWith("workspace:")) candidates.add(`name:${dependency.name}`);
+    else if (dependency.specifier.startsWith("file:") || dependency.specifier.startsWith("link:")) {
+      const directory = posix.normalize(posix.join(facts.directory, dependency.specifier.slice(5)));
+      candidates.add(`directory:${directory}`);
+    }
+  }
+  for (const entrypoint of facts.entrypoints) {
+    const path = resolveManifestRelativePath(facts, entrypoint.target);
+    if (path !== undefined) candidates.add(`file:${path}`);
+  }
+  return [...candidates].sort();
+}
+
 function resolveLocalDependency(
   source: PackageFacts,
   dependency: DeclaredDependency,
@@ -411,7 +428,7 @@ function packageMetadata(facts: PackageFacts): JsonObject {
 
 export function extractRepositoryRelationshipInputs(
   ingestion: GitIngestionResult,
-  options: { packages?: PackageFacts[]; membershipPaths?: ReadonlySet<string>; testPaths?: ReadonlySet<string>; files?: ReadonlyMap<string, GraphNode> } = {},
+  options: { packages?: PackageFacts[]; membershipPaths?: ReadonlySet<string>; testPaths?: ReadonlySet<string>; packagePaths?: ReadonlySet<string>; files?: ReadonlyMap<string, GraphNode> } = {},
 ): { inputs: GraphInput; metrics: RepositoryRelationshipMetrics; packages: PackageFacts[] } {
   const inputs = { nodes: [] as GraphNodeInput[], edges: [] as GraphEdgeInput[], diagnostics: [] as GraphDiagnostic[] };
   const filesByPath = options.files ?? fileNodeByPath(ingestion.graph.nodes);
@@ -429,14 +446,14 @@ export function extractRepositoryRelationshipInputs(
   for (const facts of packages) {
     const identity = packageIdentity(ingestion.repository, facts.path);
     packageNodeIds.set(facts.path, nodeId(identity));
-    inputs.nodes.push({
+    if (options.packagePaths === undefined || options.packagePaths.has(facts.path)) inputs.nodes.push({
       identity,
       metadata: packageMetadata(facts),
       provenance: [factProvenance(ingestion, facts.path)],
     });
 
     const manifestNode = filesByPath.get(facts.path);
-    if (manifestNode !== undefined) {
+    if (manifestNode !== undefined && (options.packagePaths === undefined || options.packagePaths.has(facts.path))) {
       inputs.edges.push({
         identity: {
           kind: "declares-package",
@@ -480,6 +497,7 @@ export function extractRepositoryRelationshipInputs(
   let testRelations = 0;
 
   for (const source of packages) {
+    if (options.packagePaths !== undefined && !options.packagePaths.has(source.path)) continue;
     const sourceId = packageNodeIds.get(source.path);
     if (sourceId === undefined) continue;
 

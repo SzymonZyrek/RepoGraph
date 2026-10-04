@@ -5,6 +5,10 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import { buildRepositoryIntelligence, graphEquals, LocalArtifactStore, StoreCorruptionError } from "../src/index.js";
+import { ingestGitRepository } from "../src/git.js";
+import { extractTypeScriptJavaScriptDependencies } from "../src/tsjs.js";
+import { extractRepositoryRelationships } from "../src/repository-relations.js";
+import { assembleGraphFragments } from "../src/graph.js";
 
 function git(root: string, ...args: string[]): string {
   return execFileSync("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
@@ -78,7 +82,13 @@ test("configuration, package, policy and CODEOWNERS invalidations remain explici
     [".github/CODEOWNERS", "src/** @owner\n"],
   ]) {
     write(f.root, path!, text!); const revision = commit(f.root); const warm = f.equivalent(revision);
-    assert.equal(warm.metrics.composition.mode, "cold"); assert.ok(warm.metrics.composition.invalidationReasons.some((reason) => reason.includes(path!)));
+    if (path === "package.json" || path === "tsconfig.json") {
+      assert.equal(warm.metrics.composition.mode, "incremental");
+      assert.equal(warm.metrics.composition.resolvedSourceFragments, 0);
+      if (path === "package.json") assert.equal(warm.metrics.composition.recomposedRelationshipFragments, 1);
+    } else {
+      assert.equal(warm.metrics.composition.mode, "cold"); assert.ok(warm.metrics.composition.invalidationReasons.some((reason) => reason.includes(path!)));
+    }
   }
   write(f.root, "src/a.ts", "export const a = 3;\n"); const revision = commit(f.root); const warm = f.equivalent(revision);
   assert.equal(warm.metrics.composition.mode, "incremental"); assert.equal(warm.metrics.composition.resolvedSourceFragments, 1);
@@ -136,4 +146,77 @@ test("missing fragment packs rebuild the same immutable manifest instead of retu
   const digest = fragment.artifactKey.slice("artifact-sha256-".length);
   rmSync(join(f.cache, "artifacts", digest.slice(0, 2), `${digest}.json`));
   const rebuilt = f.equivalent(target); assert.equal(rebuilt.metrics.composition.mode, "cold"); assert.ok(rebuilt.metrics.composition.invalidationReasons.some((r) => r.startsWith("missing-artifact:")));
+});
+
+test("package edits invalidate local declarations, unresolved dependents and changed membership regions", () => {
+  const f = fixture();
+  write(f.root, "left/package.json", '{"name":"left","dependencies":{"right":"workspace:*"}}');
+  write(f.root, "left/index.ts", "export const left = 1;\n");
+  write(f.root, "right/index.ts", "export const right = 1;\n");
+  let revision = commit(f.root); f.build(revision);
+  write(f.root, "right/package.json", '{"name":"right","main":"index.ts"}');
+  revision = commit(f.root); let warm = f.equivalent(revision);
+  assert.equal(warm.metrics.composition.mode, "incremental"); assert.equal(warm.metrics.composition.resolvedSourceFragments, 0);
+  assert.equal(warm.metrics.relationships.packageDependencies, 1);
+  assert.ok(warm.metrics.composition.recomposedRelationshipFragments < warm.metrics.files);
+  write(f.root, "right/package.json", '{"name":"renamed-right","main":"absent.ts"}');
+  revision = commit(f.root); warm = f.equivalent(revision);
+  assert.equal(warm.metrics.composition.recomposedRelationshipFragments, 2); assert.equal(warm.metrics.relationships.packageDependencies, 0);
+  write(f.root, "right/package.json", "invalid"); revision = commit(f.root); warm = f.equivalent(revision);
+  assert.equal(warm.metrics.composition.resolvedSourceFragments, 0);
+  assert.ok(warm.graph.diagnostics.some((d) => d.code === "repository-relations-invalid-package-json"));
+  git(f.root, "rm", "right/package.json"); revision = commit(f.root); warm = f.equivalent(revision);
+  assert.equal(warm.metrics.composition.resolvedSourceFragments, 0);
+  assert.equal(warm.graph.diagnostics.some((d) => d.code === "repository-relations-invalid-package-json"), false);
+});
+
+test("TS config edits resolve only configuration-dependent sources and preserve repository relations", () => {
+  const f = fixture();
+  write(f.root, "tsconfig.json", '{"compilerOptions":{"paths":{}}}');
+  write(f.root, "src/alias.ts", 'import "@a";\n');
+  let revision = commit(f.root); f.build(revision);
+  write(f.root, "tsconfig.json", '{"compilerOptions":{"baseUrl":".","paths":{"@a":["src/a.ts"]}}}');
+  revision = commit(f.root); let warm = f.equivalent(revision);
+  assert.equal(warm.metrics.composition.mode, "incremental"); assert.equal(warm.metrics.composition.resolvedSourceFragments, 1);
+  assert.equal(warm.metrics.tsjs.parsedFiles, 0); assert.equal(warm.metrics.tsjs.reusedSyntaxArtifacts, 1);
+  assert.equal(warm.metrics.composition.recomposedRelationshipFragments, 0);
+  assert.ok(warm.graph.edges.some((edge) => edge.metadata?.specifier === "@a"));
+  write(f.root, "tsconfig.json", "invalid"); revision = commit(f.root); warm = f.equivalent(revision);
+  assert.equal(warm.metrics.composition.resolvedSourceFragments, 1);
+  assert.ok(warm.graph.diagnostics.some((diagnostic) => diagnostic.code === "tsjs-tsconfig-invalid"));
+});
+
+test("valid JSON with corrupted normalized fragment facts fails payload integrity before returning evidence", () => {
+  const f = fixture(); f.build(f.first);
+  const manifestPaths = readdirSync(join(f.cache, "manifests"), { recursive: true }).map(String).filter((path) => path.endsWith(".json"));
+  const manifest = JSON.parse(readFileSync(join(f.cache, "manifests", manifestPaths[0]!), "utf8")) as { artifacts: Array<{ logicalKey: string; artifactKey: string }> };
+  const key = manifest.artifacts.find((ref) => ref.logicalKey.startsWith("pack:"))!.artifactKey;
+  const digest = key.slice("artifact-sha256-".length);
+  const path = join(f.cache, "artifacts", digest.slice(0, 2), `${digest}.json`);
+  const artifact = JSON.parse(readFileSync(path, "utf8")) as { payload: Record<string, { nodes: Array<{ identity: { key: string } }> }> };
+  Object.values(artifact.payload).find((fragment) => fragment.nodes.length > 0)!.nodes[0]!.identity.key = "corrupted-path";
+  writeFileSync(path, JSON.stringify(artifact));
+  assert.throws(() => f.build(f.first), StoreCorruptionError);
+});
+
+test("composed fragment output preserves standalone-extractor semantics including explicit overlay provenance", () => {
+  const f = fixture();
+  const options = { repositoryPath: f.root, repository: "fixture/composition", ref: f.first, policy: { exclude: ["other/**"] }, pathRules: [{ pattern: "src/**", targets: ["owner"] }] };
+  const ingested = ingestGitRepository(options);
+  const original = assembleGraphFragments([extractTypeScriptJavaScriptDependencies(ingested).graph, extractRepositoryRelationships(ingested).graph]);
+  const cold = buildRepositoryIntelligence(options);
+  assert.equal(graphEquals(cold.graph, original), true);
+  const store = new LocalArtifactStore(f.cache); buildRepositoryIntelligence({ ...options, store });
+  write(f.root, "src/a.ts", "export const a = 19;\n"); const target = commit(f.root);
+  assert.equal(graphEquals(buildRepositoryIntelligence({ ...options, ref: target, store }).graph, buildRepositoryIntelligence({ ...options, ref: target }).graph), true);
+});
+
+test("cold batched extraction retains the per-blob limit without adding an aggregate 64 MiB source limit", () => {
+  const f = fixture();
+  for (let index = 0; index < 4; index++) write(f.root, `large/m${index}.ts`, `/*${"x".repeat(17 * 1024 * 1024)}*/\nexport const value = ${index};\n`);
+  const revision = commit(f.root);
+  const cold = f.build(revision, false);
+  assert.equal(cold.metrics.tsjs.sourceFiles, 20);
+  assert.equal(cold.metrics.tsjs.parsedFiles, 20);
+  assert.equal(cold.graph.nodes.filter((node) => node.identity.kind === "symbol" && node.identity.key.startsWith("large/")).length, 4);
 });

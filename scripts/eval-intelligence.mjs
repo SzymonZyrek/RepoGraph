@@ -1,9 +1,14 @@
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   appendFileSync,
   mkdtempSync,
   mkdirSync,
   writeFileSync,
+  readFileSync,
+  readdirSync,
+  existsSync,
+  renameSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -143,6 +148,45 @@ function structuralDelta(base, target) {
   return { added, removed, total: added + removed };
 }
 
+function changedPaths(root, scenario) {
+  const fields = execFileSync("git", ["diff", "--raw", "--no-abbrev", "--find-renames", "-z", scenario.base, scenario.target], { cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }).split("\0");
+  const changes = [];
+  for (let index = 0; index < fields.length - 1;) {
+    const [, , beforeObject, afterObject, status] = fields[index++].split(" ");
+    const firstPath = fields[index++];
+    const renamed = status.startsWith("R");
+    const path = renamed ? fields[index++] : firstPath;
+    const kind = renamed ? "renamed" : status === "A" ? "added" : status === "D" ? "deleted" : "modified";
+    changes.push({ kind, path, ...(renamed ? { oldPath: firstPath, similarity: Number(status.slice(1)) } : {}), ...(kind === "added" ? {} : { beforeObject }), ...(kind === "deleted" ? {} : { afterObject }), contentChanged: beforeObject !== afterObject });
+  }
+  return changes.sort((a, b) => `${a.oldPath ?? ""}\0${a.path}`.localeCompare(`${b.oldPath ?? ""}\0${b.path}`));
+}
+
+function reverseAffected(graph, paths, broad) {
+  const ids = new Set(graph.nodes.map((node) => node.id));
+  const seeds = new Set(paths.map(fileId).filter((id) => ids.has(id)));
+  if (!broad) {
+    const affected = new Set();
+    for (const seed of seeds) for (const node of affectedClosure(graph, seed, { edgeKinds: ["imports", "reexports", "tests"], maxNodes: 1000 }).nodes) affected.add(node.id);
+    return affected;
+  }
+  // All source files changed in this acyclic fixture. The union of reverse slices
+  // equals importers reached from those seeds, without N repeated whole-graph scans.
+  const reverse = new Map();
+  for (const edge of graph.edges) if (["imports", "reexports", "tests"].includes(edge.identity.kind)) {
+    const values = reverse.get(edge.identity.to) ?? [];
+    values.push(edge.identity.from); reverse.set(edge.identity.to, values);
+  }
+  const affected = new Set();
+  const visited = new Set(seeds);
+  const queue = [...seeds];
+  for (let index = 0; index < queue.length; index++) for (const id of reverse.get(queue[index]) ?? []) {
+    affected.add(id);
+    if (!visited.has(id)) { visited.add(id); queue.push(id); }
+  }
+  return affected;
+}
+
 function fileId(path) {
   return nodeId({ namespace: repositoryName, kind: "file", key: path });
 }
@@ -167,7 +211,10 @@ const samples = [];
 const initialStart = performance.now();
 const initial = buildAt(root, scenarios[0].base, store);
 const initialMs = performance.now() - initialStart;
-assert.ok(graphEquals(initial.graph, buildAt(root, scenarios[0].base).graph), "initial graph equality");
+const initialColdStart = performance.now();
+const initialCold = buildAt(root, scenarios[0].base);
+const initialColdMs = performance.now() - initialColdStart;
+assert.ok(graphEquals(initial.graph, initialCold.graph), "initial graph equality");
 
 for (const scenario of scenarios) {
   const base = buildAt(root, scenario.base, store);
@@ -191,26 +238,17 @@ for (const scenario of scenarios) {
   }
   if (scenario.kind === "rename-only") assert.equal(warm.metrics.tsjs.parsedFiles, 0);
 
-  const diff = diffGitRepository({
+  const changes = changedPaths(root, scenario);
+  if (scenario.kind !== "broad-edit") assert.deepEqual(changes, diffGitRepository({
     repositoryPath: root,
     baseRef: scenario.base,
     targetRef: scenario.target,
     baseMode: "direct",
-  });
+  }).changes, "batched audit matches the public Git diff");
   const delta = structuralDelta(base, warm);
 
-  const affected = new Set();
-  const beforeNodes = new Set(base.graph.nodes.map((node) => node.id));
-  const afterNodes = new Set(warm.graph.nodes.map((node) => node.id));
-  for (const change of diff.changes) {
-    for (const [graph, ids, path] of [[base.graph, beforeNodes, change.oldPath ?? change.path], [warm.graph, afterNodes, change.path]]) {
-    if (!ids.has(fileId(path))) continue;
-    for (const node of affectedClosure(graph, fileId(path), {
-      edgeKinds: ["imports", "reexports", "tests"],
-      maxNodes: 1000,
-    }).nodes) affected.add(node.id);
-    }
-  }
+  const affected = new Set([...reverseAffected(base.graph, changes.map((change) => change.oldPath ?? change.path), scenario.kind === "broad-edit"), ...reverseAffected(warm.graph, changes.map((change) => change.path), scenario.kind === "broad-edit")]);
+  if (scenario.kind === "broad-edit") assert.equal(affected.size, CLUSTERS * (FILES_PER_CLUSTER - 1));
   const serializationStart = performance.now();
   const serialized = canonicalJsonUnknown(warm.graph);
   const serializationMs = performance.now() - serializationStart;
@@ -220,8 +258,8 @@ for (const scenario of scenarios) {
     base: scenario.base,
     parent: git(root, "rev-parse", `${scenario.target}^`),
     target: scenario.target,
-    changedPaths: diff.changes.length,
-    changes: diff.changes,
+    changedPaths: changes.length,
+    changes,
     sourceFiles: warm.metrics.tsjs.sourceFiles,
     warmMs: round(warmMs),
     coldMs: round(coldMs),
@@ -229,7 +267,6 @@ for (const scenario of scenarios) {
     reparsedFiles: warm.metrics.tsjs.parsedFiles,
     reusedSyntaxArtifacts: warm.metrics.tsjs.reusedSyntaxArtifacts,
     packageManifests: warm.metrics.relationships.packageManifests,
-    composition: warm.metrics.composition,
     graphNodes: warm.graph.nodes.length,
     graphEdges: warm.graph.edges.length,
     structuralEdgeDelta: delta,
@@ -271,7 +308,7 @@ const result = {
     tinyCommits: TINY_COMMITS,
   },
   summary: {
-    initial: { commit: initial.commit, parent: null, warmMs: round(initialMs), composition: initial.metrics.composition, timings: initial.metrics.timings, graphNodes: initial.graph.nodes.length, graphEdges: initial.graph.edges.length, warmColdEqual: true },
+    initial: { commit: initial.commit, parent: null, warmMs: round(initialMs), coldMs: round(initialColdMs), composition: initial.metrics.composition, timings: initial.metrics.timings, coldTimings: initialCold.metrics.timings, sourceFiles: initial.metrics.tsjs.sourceFiles, reparsedFiles: initial.metrics.tsjs.parsedFiles, reusedSyntaxArtifacts: initial.metrics.tsjs.reusedSyntaxArtifacts, graphNodes: initial.graph.nodes.length, graphEdges: initial.graph.edges.length, structuralEdgeDelta: { added: initial.graph.edges.length, removed: 0, total: initial.graph.edges.length }, warmColdEqual: true },
     tinyMedianWarmMs: round(median(tiny.map((sample) => sample.warmMs))),
     tinyMedianColdMs: round(median(tiny.map((sample) => sample.coldMs))),
     tinyMedianWarmToColdRatio: round(median(tiny.map((sample) => sample.warmToColdRatio))),
@@ -286,5 +323,21 @@ process.stderr.write(`Evaluated ${sourceFiles} sources: warm median ${result.sum
 return result;
 }
 
-const result = { schema: "repograph.intelligence-economics/v2", evaluations: [240, 960, 3840].map(evaluate) };
+const checkpointPath = process.env.REPOGRAPH_EVAL_CHECKPOINT ?? join(process.cwd(), ".cache", "intelligence-economics.checkpoint.json");
+const fingerprintHash = createHash("sha256").update(process.version).update(readFileSync(new URL(import.meta.url)));
+for (const path of readdirSync(new URL("../dist/src", import.meta.url)).filter((path) => path.endsWith(".js")).sort()) fingerprintHash.update(path).update(readFileSync(new URL(`../dist/src/${path}`, import.meta.url)));
+const fingerprint = fingerprintHash.digest("hex");
+const checkpoint = process.env.REPOGRAPH_EVAL_RESUME === "1" && existsSync(checkpointPath) ? JSON.parse(readFileSync(checkpointPath, "utf8")) : { fingerprint, evaluations: [] };
+assert.equal(checkpoint.fingerprint, fingerprint, "resume requires unchanged compiled code and harness");
+const completed = new Map(checkpoint.evaluations.map((evaluation) => [evaluation.fixture.sourceFiles, evaluation]));
+const result = { schema: "repograph.intelligence-economics/v2", evaluations: [] };
+for (const size of [240, 960, 3840]) {
+  const evaluation = completed.get(size) ?? evaluate(size);
+  result.evaluations.push(evaluation);
+  checkpoint.evaluations = result.evaluations;
+  mkdirSync(dirname(checkpointPath), { recursive: true });
+  const temporary = `${checkpointPath}.${process.pid}.tmp`;
+  writeFileSync(temporary, JSON.stringify(checkpoint));
+  renameSync(temporary, checkpointPath);
+}
 process.stdout.write(JSON.stringify(result, null, 2) + "\n");

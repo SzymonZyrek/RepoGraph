@@ -48,6 +48,8 @@ Syntax artifacts distinguish the TypeScript parser's TS/TSX/JS/JSX modes, extrac
 
 Ordinary edits encode only changed packs; unchanged packs retain their keys. Full-graph builds still read all required packs and encode the full intelligence index/manifest. This remaining scaling cost is measured as cache I/O rather than attributed to relationship maintenance. The existing lifecycle inventory/GC follows direct manifest references to every pack, without a new database or daemon. Pack logical addresses preserve their fragment keys, allowing missing index/packs to be rebuilt without changing an immutable manifest. Missing artifacts trigger an explicit complete rebuild; malformed artifacts follow the store's corruption error behavior.
 
+Intelligence artifacts use payload SHA-256 content identities. Reads request `getArtifact(key, { verifyContentIdentity: true })`; canonical encoded payload bytes are verified without rehashing graph identities or renormalizing unchanged facts. Non-canonical wrapper formatting uses a canonical-payload fallback. Valid JSON with changed payload facts raises `StoreCorruptionError`. The default `getArtifact(key)` behavior and existing source-content artifact formats remain unchanged.
+
 ## Observability
 
 `LocalArtifactStore.getStats()` exposes artifact/manifest hits, misses, writes and reuses. These counters are process-local diagnostics; they are not persisted state.
