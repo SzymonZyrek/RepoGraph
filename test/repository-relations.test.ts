@@ -6,6 +6,7 @@ import { dirname, join } from "node:path";
 import test from "node:test";
 
 import {
+  LocalArtifactStore,
   extractRepositoryRelationships,
   ingestGitRepository,
   nodeId,
@@ -38,7 +39,7 @@ function commit(root: string, message: string): string {
   return git(root, "rev-parse", "HEAD");
 }
 
-function extract(root: string, ref: string) {
+function extract(root: string, ref: string, store?: LocalArtifactStore) {
   return extractRepositoryRelationships(
     ingestGitRepository({
       repositoryPath: root,
@@ -46,6 +47,9 @@ function extract(root: string, ref: string) {
       ref,
       discoverCodeowners: false,
     }),
+    {
+      ...(store === undefined ? {} : { store }),
+    },
   );
 }
 
@@ -261,6 +265,65 @@ test("indexes nearest package ownership plus file and link local dependencies", 
         edge.identity.to ===
           packageId("packages/app/plugins/inner/package.json") &&
         edge.metadata?.specifier === "link:./plugins/inner",
+    ),
+    true,
+  );
+});
+
+test("content-addressed package cache reuses unchanged manifest blobs", () => {
+  const root = repository();
+  const cache = new LocalArtifactStore(
+    mkdtempSync(join(tmpdir(), "repograph-relations-cache-")),
+  );
+
+  file(
+    root,
+    "package.json",
+    JSON.stringify({
+      name: "@fixture/root",
+      version: "1.0.0",
+    }),
+  );
+  file(
+    root,
+    "packages/app/package.json",
+    JSON.stringify({
+      name: "@fixture/app",
+      version: "1.0.0",
+    }),
+  );
+  file(root, "packages/app/src/app.ts", "export const app = 1;\n");
+  const base = commit(root, "base manifests");
+
+  const first = extract(root, base, cache);
+  assert.equal(first.metrics.packageManifests, 2);
+  assert.equal(first.metrics.parsedPackageManifests, 2);
+  assert.equal(first.metrics.reusedPackageArtifacts, 0);
+
+  file(root, "packages/app/src/app.ts", "export const app = 2;\n");
+  const sourceOnly = commit(root, "source only");
+  const second = extract(root, sourceOnly, cache);
+  assert.equal(second.metrics.parsedPackageManifests, 0);
+  assert.equal(second.metrics.reusedPackageArtifacts, 2);
+
+  file(
+    root,
+    "packages/app/package.json",
+    JSON.stringify({
+      name: "@fixture/app",
+      version: "2.0.0",
+    }),
+  );
+  const manifestChange = commit(root, "manifest change");
+  const third = extract(root, manifestChange, cache);
+  assert.equal(third.metrics.parsedPackageManifests, 1);
+  assert.equal(third.metrics.reusedPackageArtifacts, 1);
+  assert.equal(
+    third.graph.nodes.some(
+      (node) =>
+        node.identity.kind === "package" &&
+        node.identity.key === "packages/app/package.json" &&
+        node.metadata?.version === "2.0.0",
     ),
     true,
   );
