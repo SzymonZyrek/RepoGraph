@@ -48,14 +48,14 @@ Diagnostics from stages are deduplicated canonically; disagreement is not turned
 
 ## Cache behavior
 
-`--cache-dir` is optional. When supplied, the TS/JS syntax extractor reuses content-addressed artifacts for unchanged Git blobs. The final graph remains derived/disposable and can always be rebuilt from Git.
+`--cache-dir` is optional. When supplied, built-in extractors reuse content-addressed artifacts for unchanged Git blobs. TS/JS syntax facts and parsed `package.json` manifest facts are cached independently; path-specific package ownership, provenance, and graph edges are still rebuilt for the requested exact revision. The final graph remains derived/disposable and can always be rebuilt from Git.
 
 The metrics file records:
 
 - resolved repository/ref/commit;
 - total graph nodes/edges/diagnostics;
 - TS/JS parse/reuse metrics;
-- deterministic repository-relationship metrics;
+- deterministic repository-relationship metrics, including parsed vs reused package manifests;
 - composition metrics showing how many base Git nodes/edges were reused instead of rebuilt from the relationship stage;
 - cache stats when a cache is used.
 
