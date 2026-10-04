@@ -55,9 +55,11 @@ The metrics file records:
 - resolved repository/ref/commit;
 - total graph nodes/edges/diagnostics;
 - TS/JS parse/reuse metrics;
-- deterministic repository-relationship metrics, including parsed vs reused package manifests;
+- deterministic repository-relationship metrics, including parsed vs reused package manifests, indexed file count, package/test candidates, and membership files visited;
 - composition metrics showing how many base Git nodes/edges were reused instead of rebuilt from the relationship stage;
 - cache stats when a cache is used.
+
+Repository relationships index file paths once to discover package manifests and test-shaped files. Test-convention matching then runs only for those candidates instead of rescanning every repository file. Package membership still visits every indexed file because a complete graph may emit one `belongs-to-package` edge per file; that pass is therefore bounded by required output size rather than test/package discovery overhead.
 
 The built-in TS/JS and relationship extractors each expose a complete standalone graph, so both contain the pinned base Git facts. The composed `build-intelligence` path recognizes those shared base fact identities and feeds them into final graph construction only once. Relationship-only package/test/build/contract facts are still added normally. This avoids redundant hashing, validation and provenance merging for the unchanged base graph without changing the resulting `repograph.graph/v1` document.
 
