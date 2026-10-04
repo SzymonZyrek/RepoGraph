@@ -122,6 +122,16 @@ test("builds one pinned intelligence graph with dependency, test and contract fa
   assert.equal(result.metrics.tsjs.resolvedDependencies >= 2, true);
   assert.equal(result.metrics.relationships.testRelations, 1);
   assert.equal(result.metrics.relationships.contractEntrypoints, 1);
+  assert.equal(
+    result.metrics.composition.skippedDuplicateRelationshipNodes,
+    result.metrics.composition.baseNodes,
+  );
+  assert.equal(
+    result.metrics.composition.skippedDuplicateRelationshipEdges,
+    result.metrics.composition.baseEdges,
+  );
+  assert.equal(result.metrics.composition.relationshipOnlyNodes > 0, true);
+  assert.equal(result.metrics.composition.relationshipOnlyEdges > 0, true);
 });
 
 test("same revision is deterministic and unchanged syntax reuses content-addressed artifacts", () => {
