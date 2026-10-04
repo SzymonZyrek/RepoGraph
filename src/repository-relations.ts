@@ -10,7 +10,7 @@ import type {
   GraphNode,
   GraphNodeInput,
   JsonObject,
-  type JsonValue,
+  JsonValue,
   Provenance,
 } from "./model.js";
 import {
