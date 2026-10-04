@@ -63,6 +63,10 @@ interface PackageFacts extends PackageManifestFacts {
 }
 
 export interface RepositoryRelationshipMetrics {
+  indexedFiles: number;
+  packageManifestCandidates: number;
+  testFileCandidates: number;
+  membershipFilesVisited: number;
   packageManifests: number;
   parsedPackageManifests: number;
   reusedPackageArtifacts: number;
@@ -535,12 +539,36 @@ function owningPackage(
   }
 }
 
-function fileNodeByPath(nodes: readonly GraphNode[]): Map<string, GraphNode> {
-  return new Map(
-    nodes
-      .filter((node) => node.identity.kind === "file")
-      .map((node) => [node.identity.key, node]),
+function isPackageManifestPath(path: string): boolean {
+  return path === PACKAGE_JSON || path.endsWith(`/${PACKAGE_JSON}`);
+}
+
+function isTestFilePath(path: string): boolean {
+  return /^(.+)\.(test|spec)(\.(?:ts|tsx|mts|cts|js|jsx|mjs|cjs))$/.test(
+    posix.basename(path),
   );
+}
+
+function indexRepositoryFiles(nodes: readonly GraphNode[]): {
+  filesByPath: Map<string, GraphNode>;
+  packagePaths: string[];
+  testFiles: Array<[string, GraphNode]>;
+} {
+  const filesByPath = new Map<string, GraphNode>();
+  const packagePaths: string[] = [];
+  const testFiles: Array<[string, GraphNode]> = [];
+
+  for (const node of nodes) {
+    if (node.identity.kind !== "file") continue;
+    const path = node.identity.key;
+    filesByPath.set(path, node);
+    if (isPackageManifestPath(path)) packagePaths.push(path);
+    if (isTestFilePath(path)) testFiles.push([path, node]);
+  }
+
+  packagePaths.sort();
+  testFiles.sort(([left], [right]) => left.localeCompare(right));
+  return { filesByPath, packagePaths, testFiles };
 }
 
 function packageMetadata(facts: PackageFacts): JsonObject {
@@ -557,10 +585,9 @@ export function extractRepositoryRelationships(
   options: RepositoryRelationshipExtractionOptions = {},
 ): RepositoryRelationshipExtractionResult {
   const inputs = graphInputs(ingestion.graph);
-  const filesByPath = fileNodeByPath(ingestion.graph.nodes);
-  const packagePaths = [...filesByPath.keys()]
-    .filter((path) => path === PACKAGE_JSON || path.endsWith(`/${PACKAGE_JSON}`))
-    .sort();
+  const { filesByPath, packagePaths, testFiles } = indexRepositoryFiles(
+    ingestion.graph.nodes,
+  );
 
   const packages: PackageFacts[] = [];
   let parsedPackageManifests = 0;
@@ -615,9 +642,11 @@ export function extractRepositoryRelationships(
 
   let packageDependencies = 0;
   let packageMemberships = 0;
+  let membershipFilesVisited = 0;
   let buildEntrypoints = 0;
 
   for (const [path, fileNode] of filesByPath) {
+    membershipFilesVisited += 1;
     const owner = owningPackage(packagesByDirectory, path);
     if (owner === undefined) continue;
     const ownerId = packageNodeIds.get(owner.path);
@@ -725,7 +754,7 @@ export function extractRepositoryRelationships(
     }
   }
 
-  for (const [path, testNode] of filesByPath) {
+  for (const [path, testNode] of testFiles) {
     const existing = testSourceCandidates(path)
       .map((candidate) => filesByPath.get(candidate))
       .filter((node): node is GraphNode => node !== undefined);
@@ -766,6 +795,10 @@ export function extractRepositoryRelationships(
   return {
     graph: buildGraph(inputs),
     metrics: {
+      indexedFiles: filesByPath.size,
+      packageManifestCandidates: packagePaths.length,
+      testFileCandidates: testFiles.length,
+      membershipFilesVisited,
       packageManifests: packages.length,
       parsedPackageManifests,
       reusedPackageArtifacts,
