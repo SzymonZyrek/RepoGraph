@@ -148,8 +148,10 @@ test("same revision is deterministic and unchanged syntax reuses content-address
   assert.equal(second.metrics.tsjs.parsedFiles, 0);
   assert.equal(
     second.metrics.tsjs.reusedSyntaxArtifacts,
-    second.metrics.tsjs.sourceFiles,
+    0,
   );
+  assert.equal(second.metrics.composition.mode, "exact");
+  assert.equal(second.metrics.composition.resolvedSourceFragments, 0);
 });
 
 test("full intelligence graph can be consumed directly by protocol v1", () => {

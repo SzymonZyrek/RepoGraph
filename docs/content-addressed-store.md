@@ -40,6 +40,14 @@ Different commits can therefore point at the same artifact when their underlying
 
 Manifests cannot point at missing artifacts.
 
+## Composed intelligence cache (0.0.6)
+
+`buildRepositoryIntelligence` uses versioned `intelligence-index` and `intelligence-fragments` artifacts inside the same store and snapshot wrapper formats. Snapshot manifests identify an exact commit plus the complete intelligence configuration and use an internal facts ref; caller ref aliases do not duplicate analysis. Immutable packs hold at most 64 normalized Git/source/relationship fragments without target commit provenance. A separate index contains Git entries, dependency indexes, package/configuration facts and counts. Final graph materialization applies the requested ref and exact SHA.
+
+Syntax artifacts distinguish the TypeScript parser's TS/TSX/JS/JSX modes, extractor/parser versions and syntax schema. Existing syntax artifacts and snapshots remain untouched. A changed parser/analysis/configuration identity cannot reuse an incompatible intelligence manifest.
+
+Ordinary edits encode only changed packs; unchanged packs retain their keys. Full-graph builds still read all required packs and encode the full intelligence index/manifest. This remaining scaling cost is measured as cache I/O rather than attributed to relationship maintenance. The existing lifecycle inventory/GC follows direct manifest references to every pack, without a new database or daemon. Pack logical addresses preserve their fragment keys, allowing missing index/packs to be rebuilt without changing an immutable manifest. Missing artifacts trigger an explicit complete rebuild; malformed artifacts follow the store's corruption error behavior.
+
 ## Observability
 
 `LocalArtifactStore.getStats()` exposes artifact/manifest hits, misses, writes and reuses. These counters are process-local diagnostics; they are not persisted state.

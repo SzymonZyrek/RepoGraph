@@ -228,6 +228,37 @@ export function buildGraph(input: GraphInput): GraphDocument {
   };
 }
 
+/** Compose already normalized facts without rehashing their stable identities. */
+export function assembleGraphFragments(fragments: readonly GraphDocument[]): GraphDocument {
+  const nodes = new Map<string, GraphNode>();
+  const edges = new Map<string, GraphEdge>();
+  const diagnostics = new Map<string, GraphDiagnostic>();
+  for (const fragment of fragments) {
+    for (const node of fragment.nodes) {
+      const existing = nodes.get(node.id);
+      nodes.set(node.id, existing === undefined ? node : mergeNode(existing, node));
+    }
+    for (const edge of fragment.edges) {
+      const existing = edges.get(edge.id);
+      edges.set(edge.id, existing === undefined ? edge : mergeEdge(existing, edge));
+    }
+    for (const diagnostic of fragment.diagnostics) {
+      diagnostics.set(canonicalJson(asJsonValue(diagnostic)), validateDiagnostic(diagnostic));
+    }
+  }
+  for (const edge of edges.values()) {
+    if (!nodes.has(edge.identity.from) || !nodes.has(edge.identity.to)) {
+      throw new GraphValidationError(`Edge ${edge.id} references a missing node endpoint`);
+    }
+  }
+  return {
+    schemaVersion: GRAPH_SCHEMA_VERSION,
+    nodes: [...nodes.values()].sort((a, b) => a.id.localeCompare(b.id)),
+    edges: [...edges.values()].sort((a, b) => a.id.localeCompare(b.id)),
+    diagnostics: [...diagnostics.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, value]) => value),
+  };
+}
+
 export function serializeGraph(graph: GraphDocument): string {
   validateGraphDocument(graph);
   return canonicalJson(asJsonValue(graph));

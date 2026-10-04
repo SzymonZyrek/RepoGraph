@@ -30,7 +30,7 @@ const CODEOWNERS_CANDIDATES = [
 
 type GitTreeEntryType = "blob" | "tree" | "commit";
 
-interface GitTreeEntry {
+export interface GitTreeEntry {
   mode: string;
   type: GitTreeEntryType;
   sha: string;
@@ -96,7 +96,7 @@ function gitBuffer(cwd: string, args: readonly string[]): Buffer {
   }
 }
 
-function parseTree(raw: string): GitTreeEntry[] {
+export function parseTree(raw: string): GitTreeEntry[] {
   if (raw.length === 0) return [];
 
   return raw
@@ -241,6 +241,7 @@ function buildPathRuleNodes(
 
 export function ingestGitRepository(
   options: GitIngestionOptions,
+  cachedEntries?: GitTreeEntry[],
 ): GitIngestionResult {
   const repositoryRoot = realpathSync(
     gitText(options.repositoryPath, ["rev-parse", "--show-toplevel"]),
@@ -254,7 +255,7 @@ export function ingestGitRepository(
   const tree = gitText(repositoryRoot, ["rev-parse", `${commit}^{tree}`]);
   const repository = options.repository ?? `file://${repositoryRoot}`;
 
-  const entries = parseTree(
+  const entries = cachedEntries ?? parseTree(
     gitText(repositoryRoot, ["ls-tree", "-r", "-t", "-z", "--full-tree", commit]),
   );
   const policy = options.policy ?? {};

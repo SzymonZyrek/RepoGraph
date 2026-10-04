@@ -9,6 +9,7 @@ import type {
   GraphEdgeInput,
   GraphNode,
   GraphNodeInput,
+  GraphInput,
   JsonObject,
   Provenance,
 } from "./model.js";
@@ -41,7 +42,7 @@ interface DeclaredEntrypoint {
   relation: EntrypointRelation;
 }
 
-interface PackageFacts {
+export interface PackageFacts {
   path: string;
   directory: string;
   name?: string;
@@ -355,7 +356,7 @@ function resolveLocalDependency(
   return matches.length === 1 ? matches[0] : undefined;
 }
 
-function testSourceCandidates(path: string): string[] {
+export function testSourceCandidates(path: string): string[] {
   const base = posix.basename(path);
   const match = /^(.+)\.(test|spec)(\.(?:ts|tsx|mts|cts|js|jsx|mjs|cjs))$/.exec(base);
   if (match === null) return [];
@@ -408,16 +409,17 @@ function packageMetadata(facts: PackageFacts): JsonObject {
   };
 }
 
-export function extractRepositoryRelationships(
+export function extractRepositoryRelationshipInputs(
   ingestion: GitIngestionResult,
-): RepositoryRelationshipExtractionResult {
-  const inputs = graphInputs(ingestion.graph);
-  const filesByPath = fileNodeByPath(ingestion.graph.nodes);
+  options: { packages?: PackageFacts[]; membershipPaths?: ReadonlySet<string>; testPaths?: ReadonlySet<string>; files?: ReadonlyMap<string, GraphNode> } = {},
+): { inputs: GraphInput; metrics: RepositoryRelationshipMetrics; packages: PackageFacts[] } {
+  const inputs = { nodes: [] as GraphNodeInput[], edges: [] as GraphEdgeInput[], diagnostics: [] as GraphDiagnostic[] };
+  const filesByPath = options.files ?? fileNodeByPath(ingestion.graph.nodes);
   const packagePaths = [...filesByPath.keys()]
     .filter((path) => path === PACKAGE_JSON || path.endsWith(`/${PACKAGE_JSON}`))
     .sort();
 
-  const packages = packagePaths
+  const packages = options.packages ?? packagePaths
     .map((path) => parsePackageFacts(ingestion, path, inputs.diagnostics))
     .filter((facts): facts is PackageFacts => facts !== undefined);
 
@@ -457,7 +459,8 @@ export function extractRepositoryRelationships(
   let packageMemberships = 0;
   let buildEntrypoints = 0;
 
-  for (const [path, fileNode] of filesByPath) {
+  const membershipFiles = options.membershipPaths === undefined ? filesByPath : [...options.membershipPaths].filter((path) => filesByPath.has(path)).map((path) => [path, filesByPath.get(path)!] as const);
+  for (const [path, fileNode] of membershipFiles) {
     const owner = owningPackage(packages, path);
     if (owner === undefined) continue;
     const ownerId = packageNodeIds.get(owner.path);
@@ -565,7 +568,8 @@ export function extractRepositoryRelationships(
     }
   }
 
-  for (const [path, testNode] of filesByPath) {
+  const testFiles = options.testPaths === undefined ? filesByPath : [...options.testPaths].filter((path) => filesByPath.has(path)).map((path) => [path, filesByPath.get(path)!] as const);
+  for (const [path, testNode] of testFiles) {
     const existing = testSourceCandidates(path)
       .map((candidate) => filesByPath.get(candidate))
       .filter((node): node is GraphNode => node !== undefined);
@@ -604,7 +608,8 @@ export function extractRepositoryRelationships(
   }
 
   return {
-    graph: buildGraph(inputs),
+    inputs,
+    packages,
     metrics: {
       packageManifests: packages.length,
       packageNodes: packages.length,
@@ -613,7 +618,22 @@ export function extractRepositoryRelationships(
       buildEntrypoints,
       contractEntrypoints,
       testRelations,
-      diagnostics: inputs.diagnostics.length - ingestion.graph.diagnostics.length,
+      diagnostics: inputs.diagnostics.length,
     },
+  };
+}
+
+export function extractRepositoryRelationships(
+  ingestion: GitIngestionResult,
+): RepositoryRelationshipExtractionResult {
+  const result = extractRepositoryRelationshipInputs(ingestion);
+  const base = graphInputs(ingestion.graph);
+  return {
+    graph: buildGraph({
+      nodes: [...base.nodes, ...(result.inputs.nodes ?? [])],
+      edges: [...base.edges, ...(result.inputs.edges ?? [])],
+      diagnostics: [...base.diagnostics, ...(result.inputs.diagnostics ?? [])],
+    }),
+    metrics: result.metrics,
   };
 }

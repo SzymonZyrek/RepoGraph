@@ -11,7 +11,7 @@ RepoGraph turns a pinned repository revision into reusable facts about files, mo
 
 It is designed as shared infrastructure for products that need repository understanding without making the graph itself a source of policy.
 
-> **Status:** pre-public development. 0.0.x versions are engineering milestones; **1.0.0 is the first public release**. **0.0.5 is the current consumer-integration milestone:** the 0.0.4 extension/protocol foundation now has a full repository-intelligence build for external consumers plus an optional framework-free read-only view over the bounded protocol DTO. 1.0.0 criteria continue to come from real VibeGuard/Hacka integration evidence.
+> **Status:** pre-public development. 0.0.x versions are engineering milestones; **1.0.0 is the first public release**. **0.0.6 is the current incremental-intelligence milestone:** exact-SHA full graphs reuse first-parent Git/source/relationship facts, with separate maintenance, cache and output measurements. 1.0.0 criteria continue to come from real VibeGuard/Hacka integration evidence.
 
 ## The boundary
 
@@ -72,6 +72,7 @@ All CLI output is deterministic JSON. Invalid input exits non-zero and writes a 
 | **0.0.3** | Repository-intelligence semantics: overlays, provenance/authority, traversal policies, consumer proof |
 | **0.0.4** | Extension boundary: extractor contract, cross-repo edges, lifecycle hardening, stable external protocol |
 | **0.0.5** | Consumer integration: full intelligence build + optional generic read-only view |
+| **0.0.6** | Incremental composed intelligence and opt-in multi-size economics evidence |
 | **1.0.0** | First public release, after pre-1.0 contracts are proven by real consumers |
 
 The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/SzymonZyrek/RepoGraph/issues/1).

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.0.6 — 2026-10-04
+
+Pre-public incremental composed-intelligence engineering slice (#61).
+
+- Exact-commit intelligence manifests reuse Git facts, resolved source fragments, package memberships, entrypoints and test conventions across first-parent builds and process restarts.
+- Import candidate indexes include unsuccessful resolution candidates, so additions, deletions and renames invalidate affected importers. Rename-only source moves reuse blob syntax when the parser mode remains compatible.
+- Ordinary source-content edits maintain one source fragment and preserve package/test relationships. Package/configuration/CODEOWNERS changes use explicit conservative cold invalidation.
+- Normalized fragments assemble once into the existing graph schema with current requested-ref/exact-SHA provenance, diagnostic deduplication, endpoint checks and conflict validation.
+- Metrics separate maintenance, cache I/O, full graph materialization and CLI serialization. The opt-in economics harness checks warm/cold equivalence at 240, 960 and 3,840 source files.
+- Fragment packs contain at most 64 facts fragments, so ordinary edits encode only affected packs. Full output, reading referenced packs and snapshot-index/manifest I/O still scale with repository size; this release does not claim a changed-files-only total build cost. See the measured evaluation document for limits.
+
+Graph, protocol, store and snapshot wrapper schemas remain unchanged. `VERSION.txt` remains the release-version source. **1.0.0 remains the first public release.**
+
 ## 0.0.5 — 2026-10-03
 
 Pre-public consumer-integration milestone cut from requirements discovered after the 0.0.4 foundation.
