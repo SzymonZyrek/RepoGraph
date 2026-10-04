@@ -10,13 +10,22 @@ import type {
   GraphNode,
   GraphNodeInput,
   JsonObject,
+  type JsonValue,
   Provenance,
 } from "./model.js";
+import {
+  artifactKey,
+  type ArtifactIdentity,
+  type LocalArtifactStore,
+} from "./store.js";
 
 export const REPOSITORY_RELATIONSHIP_EXTRACTOR = {
   name: "repograph-repository-relations",
   version: "0.0.3",
 } as const;
+
+export const REPOSITORY_PACKAGE_SCHEMA_VERSION =
+  "repograph.repository-package/v1" as const;
 
 const PACKAGE_JSON = "package.json";
 const DEPENDENCY_FIELDS = [
@@ -41,17 +50,22 @@ interface DeclaredEntrypoint {
   relation: EntrypointRelation;
 }
 
-interface PackageFacts {
-  path: string;
-  directory: string;
+interface PackageManifestFacts {
   name?: string;
   version?: string;
   dependencies: DeclaredDependency[];
   entrypoints: DeclaredEntrypoint[];
 }
 
+interface PackageFacts extends PackageManifestFacts {
+  path: string;
+  directory: string;
+}
+
 export interface RepositoryRelationshipMetrics {
   packageManifests: number;
+  parsedPackageManifests: number;
+  reusedPackageArtifacts: number;
   packageNodes: number;
   packageDependencies: number;
   packageMemberships: number;
@@ -59,6 +73,10 @@ export interface RepositoryRelationshipMetrics {
   contractEntrypoints: number;
   testRelations: number;
   diagnostics: number;
+}
+
+export interface RepositoryRelationshipExtractionOptions {
+  store?: LocalArtifactStore;
 }
 
 export interface RepositoryRelationshipExtractionResult {
@@ -293,6 +311,131 @@ function parsePackageFacts(
   };
 }
 
+
+function packageManifestPayload(facts: PackageFacts): JsonValue {
+  return {
+    ...(facts.name === undefined ? {} : { name: facts.name }),
+    ...(facts.version === undefined ? {} : { version: facts.version }),
+    dependencies: facts.dependencies.map((dependency) => ({
+      field: dependency.field,
+      name: dependency.name,
+      specifier: dependency.specifier,
+    })),
+    entrypoints: facts.entrypoints.map((entrypoint) => ({
+      field: entrypoint.field,
+      target: entrypoint.target,
+      relation: entrypoint.relation,
+    })),
+  };
+}
+
+function decodePackageManifest(value: JsonValue): PackageManifestFacts {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    throw new Error("Cached package manifest artifact must be an object");
+  }
+
+  const name = value.name;
+  const version = value.version;
+  const rawDependencies = value.dependencies;
+  const rawEntrypoints = value.entrypoints;
+  if (
+    (name !== undefined && typeof name !== "string") ||
+    (version !== undefined && typeof version !== "string") ||
+    !Array.isArray(rawDependencies) ||
+    !Array.isArray(rawEntrypoints)
+  ) {
+    throw new Error("Cached package manifest artifact has invalid shape");
+  }
+
+  const dependencies = rawDependencies.map((item): DeclaredDependency => {
+    if (typeof item !== "object" || item === null || Array.isArray(item)) {
+      throw new Error("Cached package dependency must be an object");
+    }
+    const field = item.field;
+    const dependencyName = item.name;
+    const specifier = item.specifier;
+    if (
+      !DEPENDENCY_FIELDS.includes(field as DependencyField) ||
+      typeof dependencyName !== "string" ||
+      typeof specifier !== "string"
+    ) {
+      throw new Error("Cached package dependency has invalid fields");
+    }
+    return {
+      field: field as DependencyField,
+      name: dependencyName,
+      specifier,
+    };
+  });
+
+  const entrypoints = rawEntrypoints.map((item): DeclaredEntrypoint => {
+    if (typeof item !== "object" || item === null || Array.isArray(item)) {
+      throw new Error("Cached package entrypoint must be an object");
+    }
+    const field = item.field;
+    const target = item.target;
+    const relation = item.relation;
+    if (
+      typeof field !== "string" ||
+      typeof target !== "string" ||
+      (relation !== "build" && relation !== "contract")
+    ) {
+      throw new Error("Cached package entrypoint has invalid fields");
+    }
+    return { field, target, relation };
+  });
+
+  return {
+    ...(name === undefined ? {} : { name }),
+    ...(version === undefined ? {} : { version }),
+    dependencies,
+    entrypoints,
+  };
+}
+
+function packageManifestArtifactIdentity(node: GraphNode): ArtifactIdentity {
+  const blob = node.metadata?.blobSha ?? node.metadata?.gitObject;
+  if (typeof blob !== "string") {
+    throw new Error(`Package manifest ${node.identity.key} has no Git blob identity`);
+  }
+  return {
+    contentIdentity: `git-blob:${blob}`,
+    artifactKind: "repository-package-manifest",
+    extractor: REPOSITORY_RELATIONSHIP_EXTRACTOR,
+    schemaVersion: REPOSITORY_PACKAGE_SCHEMA_VERSION,
+  };
+}
+
+function getPackageFacts(
+  ingestion: GitIngestionResult,
+  node: GraphNode,
+  diagnostics: GraphDiagnostic[],
+  store: LocalArtifactStore | undefined,
+): { facts?: PackageFacts; reused: boolean } {
+  const path = node.identity.key;
+  const identity = packageManifestArtifactIdentity(node);
+  if (store !== undefined) {
+    const cached = store.getArtifact(artifactKey(identity));
+    if (cached !== undefined) {
+      const manifest = decodePackageManifest(cached.payload);
+      return {
+        facts: {
+          path,
+          directory: packageDirectory(path),
+          ...manifest,
+        },
+        reused: true,
+      };
+    }
+  }
+
+  const facts = parsePackageFacts(ingestion, path, diagnostics);
+  if (facts !== undefined && store !== undefined) {
+    store.putArtifact(identity, packageManifestPayload(facts));
+  }
+  return { facts, reused: false };
+}
+
 function resolveManifestRelativePath(
   manifest: PackageFacts,
   target: string,
@@ -409,6 +552,7 @@ function packageMetadata(facts: PackageFacts): JsonObject {
 
 export function extractRepositoryRelationships(
   ingestion: GitIngestionResult,
+  options: RepositoryRelationshipExtractionOptions = {},
 ): RepositoryRelationshipExtractionResult {
   const inputs = graphInputs(ingestion.graph);
   const filesByPath = fileNodeByPath(ingestion.graph.nodes);
@@ -416,9 +560,22 @@ export function extractRepositoryRelationships(
     .filter((path) => path === PACKAGE_JSON || path.endsWith(`/${PACKAGE_JSON}`))
     .sort();
 
-  const packages = packagePaths
-    .map((path) => parsePackageFacts(ingestion, path, inputs.diagnostics))
-    .filter((facts): facts is PackageFacts => facts !== undefined);
+  const packages: PackageFacts[] = [];
+  let parsedPackageManifests = 0;
+  let reusedPackageArtifacts = 0;
+  for (const path of packagePaths) {
+    const node = filesByPath.get(path);
+    if (node === undefined) continue;
+    const loaded = getPackageFacts(
+      ingestion,
+      node,
+      inputs.diagnostics,
+      options.store,
+    );
+    if (loaded.reused) reusedPackageArtifacts += 1;
+    else parsedPackageManifests += 1;
+    if (loaded.facts !== undefined) packages.push(loaded.facts);
+  }
 
   const packageNodeIds = new Map<string, string>();
   const packagesByDirectory = new Map<string, PackageFacts>();
@@ -608,6 +765,8 @@ export function extractRepositoryRelationships(
     graph: buildGraph(inputs),
     metrics: {
       packageManifests: packages.length,
+      parsedPackageManifests,
+      reusedPackageArtifacts,
       packageNodes: packages.length,
       packageDependencies,
       packageMemberships,
