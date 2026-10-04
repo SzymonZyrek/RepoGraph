@@ -7,7 +7,7 @@
         "platform": "win32",
         "architecture": "x64",
         "git": "git version 2.50.1.windows.1",
-        "measuredAt": "2026-10-04T05:12:41.561Z"
+        "measuredAt": "2026-10-04T05:34:48.319Z"
       },
       "fixture": {
         "sourceFiles": 240,
@@ -17,10 +17,10 @@
       },
       "summary": {
         "initial": {
-          "commit": "fbb6b24b60f7f78ed426258879689696525c7554",
+          "commit": "97073bb893e8851003c2b5d04ac2814fdeb7a981",
           "parent": null,
-          "warmMs": 1931.47,
-          "coldMs": 1271.05,
+          "warmMs": 2017.75,
+          "coldMs": 1192.05,
           "composition": {
             "baseNodes": 268,
             "baseEdges": 267,
@@ -45,20 +45,20 @@
             "materializedEdges": 968
           },
           "timings": {
-            "gitChangeDiscoveryMs": 553.3596000000007,
-            "extractionResolutionMs": 413.4258000000036,
-            "relationshipMaintenanceMs": 137.1815000000006,
-            "cacheIoMs": 741.0464999999976,
-            "graphMaterializationMs": 16.667099999999664,
-            "totalMs": 1929.4496000000008
+            "gitChangeDiscoveryMs": 680.6761999999981,
+            "extractionResolutionMs": 518.3618000000006,
+            "relationshipMaintenanceMs": 87.22359999999935,
+            "cacheIoMs": 674.9379999999983,
+            "graphMaterializationMs": 14.554900000000998,
+            "totalMs": 2014.9724999999999
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 659.3405000000012,
-            "extractionResolutionMs": 484.0087999999996,
-            "relationshipMaintenanceMs": 80.08129999999983,
-            "cacheIoMs": 0.003800000000410364,
-            "graphMaterializationMs": 16.852200000001176,
-            "totalMs": 1271.0277000000006
+            "gitChangeDiscoveryMs": 615.4226999999992,
+            "extractionResolutionMs": 459.1061000000009,
+            "relationshipMaintenanceMs": 74.2492000000002,
+            "cacheIoMs": 0.003500000000713044,
+            "graphMaterializationMs": 13.148800000000847,
+            "totalMs": 1192.0329999999994
           },
           "sourceFiles": 240,
           "reparsedFiles": 33,
@@ -72,16 +72,16 @@
           },
           "warmColdEqual": true
         },
-        "tinyMedianWarmMs": 698.19,
-        "tinyMedianColdMs": 1015.61,
-        "tinyMedianWarmToColdRatio": 0.68,
+        "tinyMedianWarmMs": 860.44,
+        "tinyMedianColdMs": 1242.42,
+        "tinyMedianWarmToColdRatio": 0.7,
         "tinyMedianReparsedFiles": 1,
         "staleExactShaPinned": true,
         "stale": {
-          "commit": "2f29cdc4f9034153a170792ee0f23e3c8d95f77a",
-          "parent": "1febcf30724fa77ebbe997ad5569d2bfb56b0d49",
-          "warmMs": 288.73,
-          "coldMs": 1032.34,
+          "commit": "4f6a75b05c9b41e614920da14f581cf959d0f429",
+          "parent": "4f4dba5d0695dafb08b40edad976d5ace77a709a",
+          "warmMs": 335.7,
+          "coldMs": 1127.87,
           "composition": {
             "baseNodes": 268,
             "baseEdges": 267,
@@ -104,12 +104,12 @@
             "materializedEdges": 968
           },
           "timings": {
-            "gitChangeDiscoveryMs": 240.47159999999712,
+            "gitChangeDiscoveryMs": 281.0136999999959,
             "extractionResolutionMs": 0,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 38.04990000000544,
-            "graphMaterializationMs": 9.666799999999057,
-            "totalMs": 288.71370000000024
+            "cacheIoMs": 43.70850000000064,
+            "graphMaterializationMs": 10.001499999998487,
+            "totalMs": 335.6748000000007
           },
           "warmColdEqual": true
         }
@@ -117,9 +117,9 @@
       "samples": [
         {
           "kind": "tiny-edit",
-          "base": "fbb6b24b60f7f78ed426258879689696525c7554",
-          "parent": "fbb6b24b60f7f78ed426258879689696525c7554",
-          "target": "1febcf30724fa77ebbe997ad5569d2bfb56b0d49",
+          "base": "97073bb893e8851003c2b5d04ac2814fdeb7a981",
+          "parent": "97073bb893e8851003c2b5d04ac2814fdeb7a981",
+          "target": "4f4dba5d0695dafb08b40edad976d5ace77a709a",
           "changedPaths": 1,
           "changes": [
             {
@@ -131,12 +131,17 @@
             }
           ],
           "sourceFiles": 240,
-          "warmMs": 807.73,
-          "coldMs": 1350.59,
-          "warmToColdRatio": 0.6,
+          "warmMs": 904.36,
+          "coldMs": 1323.33,
+          "warmToColdRatio": 0.68,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 242,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 509,
           "graphEdges": 968,
           "structuralEdgeDelta": {
@@ -145,7 +150,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 15.34,
+          "serializationMs": 17.83,
           "serializedBytes": 902846,
           "artifactHits": 13,
           "artifactMisses": 1,
@@ -160,7 +165,7 @@
             "skippedDuplicateRelationshipNodes": 268,
             "skippedDuplicateRelationshipEdges": 267,
             "mode": "incremental",
-            "baseCommit": "fbb6b24b60f7f78ed426258879689696525c7554",
+            "baseCommit": "97073bb893e8851003c2b5d04ac2814fdeb7a981",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c01/m9.ts"
@@ -177,28 +182,28 @@
             "materializedEdges": 968
           },
           "timings": {
-            "gitChangeDiscoveryMs": 616.9715000000015,
-            "extractionResolutionMs": 71.77039999999943,
+            "gitChangeDiscoveryMs": 694.3552000000018,
+            "extractionResolutionMs": 80.90610000000015,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 99.15020000000186,
-            "graphMaterializationMs": 17.054799999999886,
-            "totalMs": 807.7067999999999
+            "cacheIoMs": 110.91480000000229,
+            "graphMaterializationMs": 15.634799999999814,
+            "totalMs": 904.3298000000013
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 685.5627000000004,
-            "extractionResolutionMs": 529.1477000000014,
-            "relationshipMaintenanceMs": 79.00799999999981,
-            "cacheIoMs": 0.01569999999992433,
-            "graphMaterializationMs": 18.79519999999866,
-            "totalMs": 1350.5650999999998
+            "gitChangeDiscoveryMs": 723.6423999999988,
+            "extractionResolutionMs": 487.5591999999997,
+            "relationshipMaintenanceMs": 79.97789999999986,
+            "cacheIoMs": 0.002599999999802094,
+            "graphMaterializationMs": 9.483000000000175,
+            "totalMs": 1323.3102
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "1febcf30724fa77ebbe997ad5569d2bfb56b0d49",
-          "parent": "1febcf30724fa77ebbe997ad5569d2bfb56b0d49",
-          "target": "2f29cdc4f9034153a170792ee0f23e3c8d95f77a",
+          "base": "4f4dba5d0695dafb08b40edad976d5ace77a709a",
+          "parent": "4f4dba5d0695dafb08b40edad976d5ace77a709a",
+          "target": "4f6a75b05c9b41e614920da14f581cf959d0f429",
           "changedPaths": 1,
           "changes": [
             {
@@ -210,12 +215,17 @@
             }
           ],
           "sourceFiles": 240,
-          "warmMs": 728.81,
-          "coldMs": 1294.07,
-          "warmToColdRatio": 0.56,
+          "warmMs": 943.13,
+          "coldMs": 1187.94,
+          "warmToColdRatio": 0.79,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 242,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 509,
           "graphEdges": 968,
           "structuralEdgeDelta": {
@@ -224,7 +234,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 15.6,
+          "serializationMs": 17.33,
           "serializedBytes": 902846,
           "artifactHits": 13,
           "artifactMisses": 1,
@@ -239,7 +249,7 @@
             "skippedDuplicateRelationshipNodes": 268,
             "skippedDuplicateRelationshipEdges": 267,
             "mode": "incremental",
-            "baseCommit": "1febcf30724fa77ebbe997ad5569d2bfb56b0d49",
+            "baseCommit": "4f4dba5d0695dafb08b40edad976d5ace77a709a",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c02/m9.ts"
@@ -256,28 +266,28 @@
             "materializedEdges": 968
           },
           "timings": {
-            "gitChangeDiscoveryMs": 564.0680999999986,
-            "extractionResolutionMs": 70.3077000000012,
+            "gitChangeDiscoveryMs": 756.5161000000007,
+            "extractionResolutionMs": 77.20219999999972,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 80.82489999999962,
-            "graphMaterializationMs": 11.792500000001382,
-            "totalMs": 728.7865000000002
+            "cacheIoMs": 95.14429999999629,
+            "graphMaterializationMs": 12.893900000002759,
+            "totalMs": 943.0938000000024
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 601.473399999999,
-            "extractionResolutionMs": 577.0485000000008,
-            "relationshipMaintenanceMs": 81.9273000000012,
-            "cacheIoMs": 0.002599999999802094,
-            "graphMaterializationMs": 10.599100000001272,
-            "totalMs": 1294.0459999999985
+            "gitChangeDiscoveryMs": 610.1660999999986,
+            "extractionResolutionMs": 439.34729999999763,
+            "relationshipMaintenanceMs": 99.54390000000058,
+            "cacheIoMs": 0.0009000000027299393,
+            "graphMaterializationMs": 10.631000000001222,
+            "totalMs": 1187.9171999999999
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "2f29cdc4f9034153a170792ee0f23e3c8d95f77a",
-          "parent": "2f29cdc4f9034153a170792ee0f23e3c8d95f77a",
-          "target": "ef640c36033b54950862a8149d42446a501f29ee",
+          "base": "4f6a75b05c9b41e614920da14f581cf959d0f429",
+          "parent": "4f6a75b05c9b41e614920da14f581cf959d0f429",
+          "target": "c200aad8fd31f960f3cd099c0d017fe883846f8d",
           "changedPaths": 1,
           "changes": [
             {
@@ -289,12 +299,17 @@
             }
           ],
           "sourceFiles": 240,
-          "warmMs": 650.78,
-          "coldMs": 1931.12,
-          "warmToColdRatio": 0.34,
+          "warmMs": 849.35,
+          "coldMs": 1163.57,
+          "warmToColdRatio": 0.73,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 242,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 509,
           "graphEdges": 968,
           "structuralEdgeDelta": {
@@ -303,7 +318,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 14.84,
+          "serializationMs": 13.47,
           "serializedBytes": 902846,
           "artifactHits": 13,
           "artifactMisses": 1,
@@ -318,7 +333,7 @@
             "skippedDuplicateRelationshipNodes": 268,
             "skippedDuplicateRelationshipEdges": 267,
             "mode": "incremental",
-            "baseCommit": "2f29cdc4f9034153a170792ee0f23e3c8d95f77a",
+            "baseCommit": "4f6a75b05c9b41e614920da14f581cf959d0f429",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c03/m9.ts"
@@ -335,28 +350,28 @@
             "materializedEdges": 968
           },
           "timings": {
-            "gitChangeDiscoveryMs": 505.01690000000235,
-            "extractionResolutionMs": 63.62659999999414,
+            "gitChangeDiscoveryMs": 664.1744000000072,
+            "extractionResolutionMs": 81.99749999999767,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 69.85080000000016,
-            "graphMaterializationMs": 11.164600000000064,
-            "totalMs": 650.7453000000005
+            "cacheIoMs": 86.02790000000095,
+            "graphMaterializationMs": 16.10489999999845,
+            "totalMs": 849.3045999999995
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 484.4064000000035,
-            "extractionResolutionMs": 472.71559999999954,
-            "relationshipMaintenanceMs": 422.97350000000006,
-            "cacheIoMs": 0.044799999999668216,
-            "graphMaterializationMs": 271.5701000000008,
-            "totalMs": 1931.0761999999995
+            "gitChangeDiscoveryMs": 661.2357999999986,
+            "extractionResolutionMs": 389.46870000000126,
+            "relationshipMaintenanceMs": 81.23519999999917,
+            "cacheIoMs": 0.05310000000099535,
+            "graphMaterializationMs": 9.567999999999302,
+            "totalMs": 1163.5541000000012
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "ef640c36033b54950862a8149d42446a501f29ee",
-          "parent": "ef640c36033b54950862a8149d42446a501f29ee",
-          "target": "071883d5eda6a1688bccdf75ca04e423a2315270",
+          "base": "c200aad8fd31f960f3cd099c0d017fe883846f8d",
+          "parent": "c200aad8fd31f960f3cd099c0d017fe883846f8d",
+          "target": "c8583d062faefd7fa9a201c3d4068eb35e85a7f4",
           "changedPaths": 1,
           "changes": [
             {
@@ -368,12 +383,17 @@
             }
           ],
           "sourceFiles": 240,
-          "warmMs": 660.61,
-          "coldMs": 943.83,
-          "warmToColdRatio": 0.7,
+          "warmMs": 871.53,
+          "coldMs": 1256.71,
+          "warmToColdRatio": 0.69,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 242,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 509,
           "graphEdges": 968,
           "structuralEdgeDelta": {
@@ -382,7 +402,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 9.2,
+          "serializationMs": 18.86,
           "serializedBytes": 902846,
           "artifactHits": 13,
           "artifactMisses": 1,
@@ -397,7 +417,7 @@
             "skippedDuplicateRelationshipNodes": 268,
             "skippedDuplicateRelationshipEdges": 267,
             "mode": "incremental",
-            "baseCommit": "ef640c36033b54950862a8149d42446a501f29ee",
+            "baseCommit": "c200aad8fd31f960f3cd099c0d017fe883846f8d",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c04/m9.ts"
@@ -414,28 +434,28 @@
             "materializedEdges": 968
           },
           "timings": {
-            "gitChangeDiscoveryMs": 517.6850999999988,
-            "extractionResolutionMs": 57.965000000000146,
+            "gitChangeDiscoveryMs": 642.8066999999974,
+            "extractionResolutionMs": 71.90689999999813,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 72.30650000000605,
-            "graphMaterializationMs": 11.776400000002468,
-            "totalMs": 660.593499999999
+            "cacheIoMs": 141.08730000000287,
+            "graphMaterializationMs": 14.644400000001042,
+            "totalMs": 871.5142000000014
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 525.3113000000012,
-            "extractionResolutionMs": 318.52289999999994,
-            "relationshipMaintenanceMs": 81.71659999999974,
-            "cacheIoMs": 0.0012000000024272595,
-            "graphMaterializationMs": 6.097300000001269,
-            "totalMs": 943.818299999999
+            "gitChangeDiscoveryMs": 683.7172999999966,
+            "extractionResolutionMs": 429.0313999999962,
+            "relationshipMaintenanceMs": 105.26039999999921,
+            "cacheIoMs": 0.0014000000010128133,
+            "graphMaterializationMs": 11.514600000002247,
+            "totalMs": 1256.6946000000025
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "071883d5eda6a1688bccdf75ca04e423a2315270",
-          "parent": "071883d5eda6a1688bccdf75ca04e423a2315270",
-          "target": "28a2fbbc1770ea5c20f8d8554e09e16375c36118",
+          "base": "c8583d062faefd7fa9a201c3d4068eb35e85a7f4",
+          "parent": "c8583d062faefd7fa9a201c3d4068eb35e85a7f4",
+          "target": "c978547e43a4a7f8ca45195fdd0ec1b9c7bd5e41",
           "changedPaths": 1,
           "changes": [
             {
@@ -447,12 +467,17 @@
             }
           ],
           "sourceFiles": 240,
-          "warmMs": 698.29,
-          "coldMs": 1023.5,
-          "warmToColdRatio": 0.68,
+          "warmMs": 1039.77,
+          "coldMs": 1466.08,
+          "warmToColdRatio": 0.71,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 242,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 509,
           "graphEdges": 968,
           "structuralEdgeDelta": {
@@ -461,7 +486,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 9.17,
+          "serializationMs": 19.09,
           "serializedBytes": 902846,
           "artifactHits": 13,
           "artifactMisses": 1,
@@ -476,7 +501,7 @@
             "skippedDuplicateRelationshipNodes": 268,
             "skippedDuplicateRelationshipEdges": 267,
             "mode": "incremental",
-            "baseCommit": "071883d5eda6a1688bccdf75ca04e423a2315270",
+            "baseCommit": "c8583d062faefd7fa9a201c3d4068eb35e85a7f4",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c05/m9.ts"
@@ -493,28 +518,28 @@
             "materializedEdges": 968
           },
           "timings": {
-            "gitChangeDiscoveryMs": 523.7375999999931,
-            "extractionResolutionMs": 80.53009999999631,
+            "gitChangeDiscoveryMs": 840.0105999999978,
+            "extractionResolutionMs": 81.82140000000072,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 82.60100000000239,
-            "graphMaterializationMs": 10.552700000000186,
-            "totalMs": 698.2791999999972
+            "cacheIoMs": 105.33079999999973,
+            "graphMaterializationMs": 11.411200000002282,
+            "totalMs": 1039.7498000000014
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 541.5269000000008,
-            "extractionResolutionMs": 373.24229999999807,
-            "relationshipMaintenanceMs": 77.92169999999896,
-            "cacheIoMs": 0.0009000000027299393,
-            "graphMaterializationMs": 10.78729999999996,
-            "totalMs": 1023.4919000000009
+            "gitChangeDiscoveryMs": 801.3822,
+            "extractionResolutionMs": 517.129200000003,
+            "relationshipMaintenanceMs": 99.17450000000099,
+            "cacheIoMs": 0.0015000000021245796,
+            "graphMaterializationMs": 18.221999999997934,
+            "totalMs": 1466.0565000000024
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "28a2fbbc1770ea5c20f8d8554e09e16375c36118",
-          "parent": "28a2fbbc1770ea5c20f8d8554e09e16375c36118",
-          "target": "dbee06bb3614550d1c0a9a66f4c5e0971d35472c",
+          "base": "c978547e43a4a7f8ca45195fdd0ec1b9c7bd5e41",
+          "parent": "c978547e43a4a7f8ca45195fdd0ec1b9c7bd5e41",
+          "target": "5b58bed763ec0a79d79408c6a02dbb0e2d316136",
           "changedPaths": 1,
           "changes": [
             {
@@ -526,12 +551,17 @@
             }
           ],
           "sourceFiles": 240,
-          "warmMs": 776.66,
-          "coldMs": 937.81,
-          "warmToColdRatio": 0.83,
+          "warmMs": 783.27,
+          "coldMs": 1228.12,
+          "warmToColdRatio": 0.64,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 242,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 509,
           "graphEdges": 968,
           "structuralEdgeDelta": {
@@ -540,7 +570,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 17.57,
+          "serializationMs": 11.57,
           "serializedBytes": 902846,
           "artifactHits": 13,
           "artifactMisses": 1,
@@ -555,7 +585,7 @@
             "skippedDuplicateRelationshipNodes": 268,
             "skippedDuplicateRelationshipEdges": 267,
             "mode": "incremental",
-            "baseCommit": "28a2fbbc1770ea5c20f8d8554e09e16375c36118",
+            "baseCommit": "c978547e43a4a7f8ca45195fdd0ec1b9c7bd5e41",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c06/m9.ts"
@@ -572,28 +602,28 @@
             "materializedEdges": 968
           },
           "timings": {
-            "gitChangeDiscoveryMs": 622.7668000000012,
-            "extractionResolutionMs": 55.62029999999868,
+            "gitChangeDiscoveryMs": 618.0900000000038,
+            "extractionResolutionMs": 70.81219999999666,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 89.16159999999581,
-            "graphMaterializationMs": 8.226900000001478,
-            "totalMs": 776.6486999999979
+            "cacheIoMs": 81.71760000000359,
+            "graphMaterializationMs": 11.753500000002532,
+            "totalMs": 783.2515000000021
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 514.4746999999988,
-            "extractionResolutionMs": 326.6699000000008,
-            "relationshipMaintenanceMs": 72.47880000000077,
-            "cacheIoMs": 0.0008999999990919605,
-            "graphMaterializationMs": 7.307499999998981,
-            "totalMs": 937.8042999999998
+            "gitChangeDiscoveryMs": 678.9529000000002,
+            "extractionResolutionMs": 430.5663999999997,
+            "relationshipMaintenanceMs": 87.22540000000299,
+            "cacheIoMs": 0.0007000000005064066,
+            "graphMaterializationMs": 8.887399999999616,
+            "totalMs": 1228.1118999999999
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "dbee06bb3614550d1c0a9a66f4c5e0971d35472c",
-          "parent": "dbee06bb3614550d1c0a9a66f4c5e0971d35472c",
-          "target": "60a58e3d71029d4fd428f787c7fead497aff1020",
+          "base": "5b58bed763ec0a79d79408c6a02dbb0e2d316136",
+          "parent": "5b58bed763ec0a79d79408c6a02dbb0e2d316136",
+          "target": "bf5fddb3f29553ea6a8735ff3958a4ec4ade7d53",
           "changedPaths": 1,
           "changes": [
             {
@@ -605,12 +635,17 @@
             }
           ],
           "sourceFiles": 240,
-          "warmMs": 698.08,
-          "coldMs": 1007.71,
-          "warmToColdRatio": 0.69,
+          "warmMs": 839.4,
+          "coldMs": 1460.59,
+          "warmToColdRatio": 0.57,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 242,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 509,
           "graphEdges": 968,
           "structuralEdgeDelta": {
@@ -619,7 +654,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 8.17,
+          "serializationMs": 14.18,
           "serializedBytes": 902846,
           "artifactHits": 13,
           "artifactMisses": 1,
@@ -634,7 +669,7 @@
             "skippedDuplicateRelationshipNodes": 268,
             "skippedDuplicateRelationshipEdges": 267,
             "mode": "incremental",
-            "baseCommit": "dbee06bb3614550d1c0a9a66f4c5e0971d35472c",
+            "baseCommit": "5b58bed763ec0a79d79408c6a02dbb0e2d316136",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c07/m9.ts"
@@ -651,28 +686,28 @@
             "materializedEdges": 968
           },
           "timings": {
-            "gitChangeDiscoveryMs": 532.9268999999949,
-            "extractionResolutionMs": 62.68739999999889,
+            "gitChangeDiscoveryMs": 663.2210999999952,
+            "extractionResolutionMs": 75.47549999999319,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 90.04630000000179,
-            "graphMaterializationMs": 11.484300000000076,
-            "totalMs": 698.0650999999998
+            "cacheIoMs": 89.86190000000352,
+            "graphMaterializationMs": 9.869399999995949,
+            "totalMs": 839.3824000000022
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 543.5715999999993,
-            "extractionResolutionMs": 369.2099999999991,
-            "relationshipMaintenanceMs": 69.8637000000017,
-            "cacheIoMs": 0.0010999999976775143,
-            "graphMaterializationMs": 8.325800000002346,
-            "totalMs": 1007.702699999998
+            "gitChangeDiscoveryMs": 680.0629000000117,
+            "extractionResolutionMs": 650.6848000000027,
+            "relationshipMaintenanceMs": 87.07510000000184,
+            "cacheIoMs": 0.0008999999990919605,
+            "graphMaterializationMs": 12.416299999997136,
+            "totalMs": 1460.5805000000037
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "60a58e3d71029d4fd428f787c7fead497aff1020",
-          "parent": "60a58e3d71029d4fd428f787c7fead497aff1020",
-          "target": "d3768b8931c5d153c07d20b7603c90bb13cdf233",
+          "base": "bf5fddb3f29553ea6a8735ff3958a4ec4ade7d53",
+          "parent": "bf5fddb3f29553ea6a8735ff3958a4ec4ade7d53",
+          "target": "92907057a48a0307e8352f4fc318bad77cc8e7df",
           "changedPaths": 1,
           "changes": [
             {
@@ -684,12 +719,17 @@
             }
           ],
           "sourceFiles": 240,
-          "warmMs": 640.21,
-          "coldMs": 938.73,
-          "warmToColdRatio": 0.68,
+          "warmMs": 822.35,
+          "coldMs": 1098.11,
+          "warmToColdRatio": 0.75,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 242,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 509,
           "graphEdges": 968,
           "structuralEdgeDelta": {
@@ -698,7 +738,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 9.3,
+          "serializationMs": 17.8,
           "serializedBytes": 902846,
           "artifactHits": 13,
           "artifactMisses": 1,
@@ -713,7 +753,7 @@
             "skippedDuplicateRelationshipNodes": 268,
             "skippedDuplicateRelationshipEdges": 267,
             "mode": "incremental",
-            "baseCommit": "60a58e3d71029d4fd428f787c7fead497aff1020",
+            "baseCommit": "bf5fddb3f29553ea6a8735ff3958a4ec4ade7d53",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c08/m9.ts"
@@ -730,28 +770,28 @@
             "materializedEdges": 968
           },
           "timings": {
-            "gitChangeDiscoveryMs": 500.75260000000344,
-            "extractionResolutionMs": 58.311100000002625,
+            "gitChangeDiscoveryMs": 642.0198999999993,
+            "extractionResolutionMs": 73.41500000000087,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 71.46240000000034,
-            "graphMaterializationMs": 8.856999999999971,
-            "totalMs": 640.1921000000002
+            "cacheIoMs": 93.4719999999943,
+            "graphMaterializationMs": 12.172899999997753,
+            "totalMs": 822.3283999999985
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 504.7654999999977,
-            "extractionResolutionMs": 344.8878000000004,
-            "relationshipMaintenanceMs": 62.6820000000007,
-            "cacheIoMs": 0.000800000001618173,
-            "graphMaterializationMs": 6.705500000000029,
-            "totalMs": 938.7213999999985
+            "gitChangeDiscoveryMs": 593.1237000000037,
+            "extractionResolutionMs": 401.50300000000425,
+            "relationshipMaintenanceMs": 76.17260000000533,
+            "cacheIoMs": 0.0006999999968684278,
+            "graphMaterializationMs": 7.238199999999779,
+            "totalMs": 1098.0953999999983
           },
           "warmColdEqual": true
         },
         {
           "kind": "rename-only",
-          "base": "d3768b8931c5d153c07d20b7603c90bb13cdf233",
-          "parent": "d3768b8931c5d153c07d20b7603c90bb13cdf233",
-          "target": "2c3ddd079e524f3f3e5147c248ce45ee503db6ff",
+          "base": "92907057a48a0307e8352f4fc318bad77cc8e7df",
+          "parent": "92907057a48a0307e8352f4fc318bad77cc8e7df",
+          "target": "67155979c4bf9fae30941d98f346dc16bacaddce",
           "changedPaths": 1,
           "changes": [
             {
@@ -765,12 +805,17 @@
             }
           ],
           "sourceFiles": 240,
-          "warmMs": 618.82,
-          "coldMs": 964.14,
-          "warmToColdRatio": 0.64,
+          "warmMs": 743.1,
+          "coldMs": 1134.71,
+          "warmToColdRatio": 0.65,
           "reparsedFiles": 0,
           "reusedSyntaxArtifacts": 1,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 242,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 1,
           "graphNodes": 509,
           "graphEdges": 966,
           "structuralEdgeDelta": {
@@ -779,7 +824,7 @@
             "total": 10
           },
           "affectedNodes": 0,
-          "serializationMs": 10.48,
+          "serializationMs": 12.65,
           "serializedBytes": 902721,
           "artifactHits": 14,
           "artifactMisses": 0,
@@ -794,7 +839,7 @@
             "skippedDuplicateRelationshipNodes": 268,
             "skippedDuplicateRelationshipEdges": 267,
             "mode": "incremental",
-            "baseCommit": "d3768b8931c5d153c07d20b7603c90bb13cdf233",
+            "baseCommit": "92907057a48a0307e8352f4fc318bad77cc8e7df",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c00/m9-renamed.ts",
@@ -812,28 +857,28 @@
             "materializedEdges": 966
           },
           "timings": {
-            "gitChangeDiscoveryMs": 519.3894,
-            "extractionResolutionMs": 0.10419999999430729,
-            "relationshipMaintenanceMs": 0.708200000000943,
-            "cacheIoMs": 87.35590000000957,
-            "graphMaterializationMs": 9.671300000001793,
-            "totalMs": 618.8117999999995
+            "gitChangeDiscoveryMs": 624.4354999999996,
+            "extractionResolutionMs": 0.2003000000040629,
+            "relationshipMaintenanceMs": 0.7328999999954249,
+            "cacheIoMs": 101.60680000000139,
+            "graphMaterializationMs": 14.174599999991187,
+            "totalMs": 743.0814000000028
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 525.8826000000045,
-            "extractionResolutionMs": 346.414300000004,
-            "relationshipMaintenanceMs": 66.66320000000269,
-            "cacheIoMs": 0.007299999997485429,
-            "graphMaterializationMs": 7.304100000001199,
-            "totalMs": 964.133600000001
+            "gitChangeDiscoveryMs": 624.0679000000091,
+            "extractionResolutionMs": 394.9712999999974,
+            "relationshipMaintenanceMs": 86.08139999999548,
+            "cacheIoMs": 0.000800000001618173,
+            "graphMaterializationMs": 10.405899999997928,
+            "totalMs": 1134.6969000000026
           },
           "warmColdEqual": true
         },
         {
           "kind": "dependency-edit",
-          "base": "2c3ddd079e524f3f3e5147c248ce45ee503db6ff",
-          "parent": "2c3ddd079e524f3f3e5147c248ce45ee503db6ff",
-          "target": "27c763365f3565561d3979edd26dc76644aa08da",
+          "base": "67155979c4bf9fae30941d98f346dc16bacaddce",
+          "parent": "67155979c4bf9fae30941d98f346dc16bacaddce",
+          "target": "5741e45c1a5f2ab2d535c2c89d5262e49f57bf06",
           "changedPaths": 1,
           "changes": [
             {
@@ -845,12 +890,17 @@
             }
           ],
           "sourceFiles": 240,
-          "warmMs": 796.08,
-          "coldMs": 1026.19,
-          "warmToColdRatio": 0.78,
+          "warmMs": 777.95,
+          "coldMs": 1109.79,
+          "warmToColdRatio": 0.7,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 242,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 509,
           "graphEdges": 966,
           "structuralEdgeDelta": {
@@ -859,7 +909,7 @@
             "total": 2
           },
           "affectedNodes": 4,
-          "serializationMs": 9.83,
+          "serializationMs": 18.45,
           "serializedBytes": 902721,
           "artifactHits": 14,
           "artifactMisses": 1,
@@ -874,7 +924,7 @@
             "skippedDuplicateRelationshipNodes": 268,
             "skippedDuplicateRelationshipEdges": 267,
             "mode": "incremental",
-            "baseCommit": "2c3ddd079e524f3f3e5147c248ce45ee503db6ff",
+            "baseCommit": "67155979c4bf9fae30941d98f346dc16bacaddce",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c01/m5.ts"
@@ -891,28 +941,28 @@
             "materializedEdges": 966
           },
           "timings": {
-            "gitChangeDiscoveryMs": 567.0941000000093,
-            "extractionResolutionMs": 109.80429999998887,
+            "gitChangeDiscoveryMs": 609.2007999999987,
+            "extractionResolutionMs": 74.16589999999269,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 98.03300000002491,
-            "graphMaterializationMs": 19.554000000003725,
-            "totalMs": 796.0614999999962
+            "cacheIoMs": 80.53080000000045,
+            "graphMaterializationMs": 12.762300000002142,
+            "totalMs": 777.9386999999988
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 583.4342999999935,
-            "extractionResolutionMs": 354.0564000000013,
-            "relationshipMaintenanceMs": 63.44470000000001,
-            "cacheIoMs": 0.0005999999993946403,
-            "graphMaterializationMs": 7.464700000004086,
-            "totalMs": 1026.1824000000051
+            "gitChangeDiscoveryMs": 610.4618999999948,
+            "extractionResolutionMs": 396.375,
+            "relationshipMaintenanceMs": 74.30099999999948,
+            "cacheIoMs": 0.000800000001618173,
+            "graphMaterializationMs": 10.646999999997206,
+            "totalMs": 1109.7775000000038
           },
           "warmColdEqual": true
         },
         {
           "kind": "broad-edit",
-          "base": "27c763365f3565561d3979edd26dc76644aa08da",
-          "parent": "27c763365f3565561d3979edd26dc76644aa08da",
-          "target": "8dfc5c9a386c253e585bb6ca36e6148292dd09ae",
+          "base": "5741e45c1a5f2ab2d535c2c89d5262e49f57bf06",
+          "parent": "5741e45c1a5f2ab2d535c2c89d5262e49f57bf06",
+          "target": "706a3e16976622c76d4a36adf55bc059ffe01ea5",
           "changedPaths": 240,
           "changes": [
             {
@@ -2597,12 +2647,17 @@
             }
           ],
           "sourceFiles": 240,
-          "warmMs": 1315.63,
-          "coldMs": 1036.73,
-          "warmToColdRatio": 1.27,
+          "warmMs": 1579,
+          "coldMs": 1145.53,
+          "warmToColdRatio": 1.38,
           "reparsedFiles": 42,
           "reusedSyntaxArtifacts": 198,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 242,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 509,
           "graphEdges": 966,
           "structuralEdgeDelta": {
@@ -2611,7 +2666,7 @@
             "total": 0
           },
           "affectedNodes": 216,
-          "serializationMs": 9.16,
+          "serializationMs": 14.9,
           "serializedBytes": 902721,
           "artifactHits": 212,
           "artifactMisses": 42,
@@ -2626,7 +2681,7 @@
             "skippedDuplicateRelationshipNodes": 268,
             "skippedDuplicateRelationshipEdges": 267,
             "mode": "incremental",
-            "baseCommit": "27c763365f3565561d3979edd26dc76644aa08da",
+            "baseCommit": "5741e45c1a5f2ab2d535c2c89d5262e49f57bf06",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c00/m0.ts",
@@ -2882,20 +2937,20 @@
             "materializedEdges": 966
           },
           "timings": {
-            "gitChangeDiscoveryMs": 526.7987999999968,
-            "extractionResolutionMs": 298.24700000009034,
+            "gitChangeDiscoveryMs": 633.3716999999888,
+            "extractionResolutionMs": 329.26929999993445,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 464.9007999999085,
-            "graphMaterializationMs": 10.810899999996764,
-            "totalMs": 1315.6174000000028
+            "cacheIoMs": 584.8833000000668,
+            "graphMaterializationMs": 12.791900000003807,
+            "totalMs": 1578.986499999999
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 548.9677999999985,
-            "extractionResolutionMs": 394.12719999999536,
-            "relationshipMaintenanceMs": 71.34489999999641,
-            "cacheIoMs": 0.0006999999968684278,
-            "graphMaterializationMs": 7.211599999995087,
-            "totalMs": 1036.7229000000007
+            "gitChangeDiscoveryMs": 616.7784999999931,
+            "extractionResolutionMs": 417.4675999999963,
+            "relationshipMaintenanceMs": 81.65760000000591,
+            "cacheIoMs": 0.0007000000041443855,
+            "graphMaterializationMs": 7.945299999999406,
+            "totalMs": 1145.5174000000043
           },
           "warmColdEqual": true
         }
@@ -2907,7 +2962,7 @@
         "platform": "win32",
         "architecture": "x64",
         "git": "git version 2.50.1.windows.1",
-        "measuredAt": "2026-10-04T05:13:43.657Z"
+        "measuredAt": "2026-10-04T05:36:03.683Z"
       },
       "fixture": {
         "sourceFiles": 960,
@@ -2917,10 +2972,10 @@
       },
       "summary": {
         "initial": {
-          "commit": "64348f239ab26e097ce8169e86f625440a961b84",
+          "commit": "7623290bc14c84a5ee6bfb53ed2908d9bdd5fd5c",
           "parent": null,
-          "warmMs": 3360.13,
-          "coldMs": 1548.34,
+          "warmMs": 4042.56,
+          "coldMs": 1789.07,
           "composition": {
             "baseNodes": 1060,
             "baseEdges": 1059,
@@ -2945,20 +3000,20 @@
             "materializedEdges": 3848
           },
           "timings": {
-            "gitChangeDiscoveryMs": 536.9003000000012,
-            "extractionResolutionMs": 845.5487999999823,
-            "relationshipMaintenanceMs": 78.78880000000208,
-            "cacheIoMs": 1803.1402000000162,
-            "graphMaterializationMs": 31.179599999995844,
-            "totalMs": 3360.1178
+            "gitChangeDiscoveryMs": 658.3900000000067,
+            "extractionResolutionMs": 985.1749999999811,
+            "relationshipMaintenanceMs": 84.23240000000078,
+            "cacheIoMs": 2175.777300000016,
+            "graphMaterializationMs": 43.5396000000037,
+            "totalMs": 4042.5341000000044
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 518.277900000001,
-            "extractionResolutionMs": 869.8146000000052,
-            "relationshipMaintenanceMs": 61.18669999999838,
-            "cacheIoMs": 0.0031000000017229468,
-            "graphMaterializationMs": 31.154799999996612,
-            "totalMs": 1548.3228999999992
+            "gitChangeDiscoveryMs": 644.7473000000027,
+            "extractionResolutionMs": 931.2365000000063,
+            "relationshipMaintenanceMs": 77.91270000000077,
+            "cacheIoMs": 0.0011000000013154931,
+            "graphMaterializationMs": 45.111000000004424,
+            "totalMs": 1789.0547000000079
           },
           "sourceFiles": 960,
           "reparsedFiles": 105,
@@ -2972,16 +3027,16 @@
           },
           "warmColdEqual": true
         },
-        "tinyMedianWarmMs": 884.05,
-        "tinyMedianColdMs": 1600.21,
-        "tinyMedianWarmToColdRatio": 0.56,
+        "tinyMedianWarmMs": 1068.5,
+        "tinyMedianColdMs": 2004.03,
+        "tinyMedianWarmToColdRatio": 0.54,
         "tinyMedianReparsedFiles": 1,
         "staleExactShaPinned": true,
         "stale": {
-          "commit": "2a54c1b3c0dcd1f6f0d2f3234a8d374938b7fc56",
-          "parent": "e0bfcbc8161c93e99bea47aac7638a5b89a0932a",
-          "warmMs": 433.23,
-          "coldMs": 1549.29,
+          "commit": "3b4e7507c6985c50f2241f621bdabfa6047b0ba0",
+          "parent": "b65e018a4f8f611129f252291018af39dea55eb1",
+          "warmMs": 489.89,
+          "coldMs": 1777.35,
           "composition": {
             "baseNodes": 1060,
             "baseEdges": 1059,
@@ -3004,12 +3059,12 @@
             "materializedEdges": 3848
           },
           "timings": {
-            "gitChangeDiscoveryMs": 242.75320000000647,
+            "gitChangeDiscoveryMs": 284.2595999999903,
             "extractionResolutionMs": 0,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 149.35269999998854,
-            "graphMaterializationMs": 39.028899999990244,
-            "totalMs": 433.21229999999923
+            "cacheIoMs": 164.608899999992,
+            "graphMaterializationMs": 38.157500000001164,
+            "totalMs": 489.87369999999646
           },
           "warmColdEqual": true
         }
@@ -3017,9 +3072,9 @@
       "samples": [
         {
           "kind": "tiny-edit",
-          "base": "64348f239ab26e097ce8169e86f625440a961b84",
-          "parent": "64348f239ab26e097ce8169e86f625440a961b84",
-          "target": "e0bfcbc8161c93e99bea47aac7638a5b89a0932a",
+          "base": "7623290bc14c84a5ee6bfb53ed2908d9bdd5fd5c",
+          "parent": "7623290bc14c84a5ee6bfb53ed2908d9bdd5fd5c",
+          "target": "b65e018a4f8f611129f252291018af39dea55eb1",
           "changedPaths": 1,
           "changes": [
             {
@@ -3031,12 +3086,17 @@
             }
           ],
           "sourceFiles": 960,
-          "warmMs": 764.7,
-          "coldMs": 1524.54,
-          "warmToColdRatio": 0.5,
+          "warmMs": 1004.48,
+          "coldMs": 1871.62,
+          "warmToColdRatio": 0.54,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 962,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 2021,
           "graphEdges": 3848,
           "structuralEdgeDelta": {
@@ -3045,7 +3105,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 42.42,
+          "serializationMs": 51.08,
           "serializedBytes": 3587438,
           "artifactHits": 48,
           "artifactMisses": 1,
@@ -3060,7 +3120,7 @@
             "skippedDuplicateRelationshipNodes": 1060,
             "skippedDuplicateRelationshipEdges": 1059,
             "mode": "incremental",
-            "baseCommit": "64348f239ab26e097ce8169e86f625440a961b84",
+            "baseCommit": "7623290bc14c84a5ee6bfb53ed2908d9bdd5fd5c",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c01/m9.ts"
@@ -3077,28 +3137,28 @@
             "materializedEdges": 3848
           },
           "timings": {
-            "gitChangeDiscoveryMs": 488.02649999999994,
-            "extractionResolutionMs": 56.1420999999973,
+            "gitChangeDiscoveryMs": 607.9300999999978,
+            "extractionResolutionMs": 75.19440000000759,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 183.0619000000006,
-            "graphMaterializationMs": 34.92749999999796,
-            "totalMs": 764.6886999999988
+            "cacheIoMs": 267.6554999999935,
+            "graphMaterializationMs": 49.97619999999006,
+            "totalMs": 1004.4664000000048
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 539.0452000000005,
-            "extractionResolutionMs": 811.9150999999983,
-            "relationshipMaintenanceMs": 76.6475999999966,
-            "cacheIoMs": 0.002599999999802094,
-            "graphMaterializationMs": 37.27350000000297,
-            "totalMs": 1524.5343999999968
+            "gitChangeDiscoveryMs": 662.6598999999987,
+            "extractionResolutionMs": 1017.3487000000023,
+            "relationshipMaintenanceMs": 76.10439999999653,
+            "cacheIoMs": 0.0008999999990919605,
+            "graphMaterializationMs": 44.567900000009104,
+            "totalMs": 1871.6109999999899
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "e0bfcbc8161c93e99bea47aac7638a5b89a0932a",
-          "parent": "e0bfcbc8161c93e99bea47aac7638a5b89a0932a",
-          "target": "2a54c1b3c0dcd1f6f0d2f3234a8d374938b7fc56",
+          "base": "b65e018a4f8f611129f252291018af39dea55eb1",
+          "parent": "b65e018a4f8f611129f252291018af39dea55eb1",
+          "target": "3b4e7507c6985c50f2241f621bdabfa6047b0ba0",
           "changedPaths": 1,
           "changes": [
             {
@@ -3110,12 +3170,17 @@
             }
           ],
           "sourceFiles": 960,
-          "warmMs": 938.74,
-          "coldMs": 1616.93,
-          "warmToColdRatio": 0.58,
+          "warmMs": 1085.6,
+          "coldMs": 1944.07,
+          "warmToColdRatio": 0.56,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 962,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 2021,
           "graphEdges": 3848,
           "structuralEdgeDelta": {
@@ -3124,7 +3189,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 39.8,
+          "serializationMs": 49.76,
           "serializedBytes": 3587438,
           "artifactHits": 48,
           "artifactMisses": 1,
@@ -3139,7 +3204,7 @@
             "skippedDuplicateRelationshipNodes": 1060,
             "skippedDuplicateRelationshipEdges": 1059,
             "mode": "incremental",
-            "baseCommit": "e0bfcbc8161c93e99bea47aac7638a5b89a0932a",
+            "baseCommit": "b65e018a4f8f611129f252291018af39dea55eb1",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c02/m9.ts"
@@ -3156,28 +3221,28 @@
             "materializedEdges": 3848
           },
           "timings": {
-            "gitChangeDiscoveryMs": 532.4389999999985,
-            "extractionResolutionMs": 67.65370000000257,
+            "gitChangeDiscoveryMs": 659.2793000000238,
+            "extractionResolutionMs": 89.11730000001262,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 299.7175999999963,
-            "graphMaterializationMs": 36.63850000000093,
-            "totalMs": 938.7316999999966
+            "cacheIoMs": 280.6359000000084,
+            "graphMaterializationMs": 53.723500000007334,
+            "totalMs": 1085.5917000000045
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 537.7767999999924,
-            "extractionResolutionMs": 909.549800000008,
-            "relationshipMaintenanceMs": 66.2294000000038,
-            "cacheIoMs": 0.0017000000007101335,
-            "graphMaterializationMs": 29.660400000000664,
-            "totalMs": 1616.9205999999976
+            "gitChangeDiscoveryMs": 704.4695999999967,
+            "extractionResolutionMs": 952.0755999999965,
+            "relationshipMaintenanceMs": 113.068299999999,
+            "cacheIoMs": 0.0010000000038417056,
+            "graphMaterializationMs": 62.56819999999425,
+            "totalMs": 1944.0559999999969
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "2a54c1b3c0dcd1f6f0d2f3234a8d374938b7fc56",
-          "parent": "2a54c1b3c0dcd1f6f0d2f3234a8d374938b7fc56",
-          "target": "f202054be2891d6f49ca25aa3c5784431c7bc356",
+          "base": "3b4e7507c6985c50f2241f621bdabfa6047b0ba0",
+          "parent": "3b4e7507c6985c50f2241f621bdabfa6047b0ba0",
+          "target": "925de19ae9adc69a05cab2508257c568bfa341fb",
           "changedPaths": 1,
           "changes": [
             {
@@ -3189,12 +3254,17 @@
             }
           ],
           "sourceFiles": 960,
-          "warmMs": 902.49,
-          "coldMs": 1577.05,
-          "warmToColdRatio": 0.57,
+          "warmMs": 1051.4,
+          "coldMs": 2063.99,
+          "warmToColdRatio": 0.51,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 962,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 2021,
           "graphEdges": 3848,
           "structuralEdgeDelta": {
@@ -3203,7 +3273,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 49.51,
+          "serializationMs": 61.48,
           "serializedBytes": 3587438,
           "artifactHits": 48,
           "artifactMisses": 1,
@@ -3218,7 +3288,7 @@
             "skippedDuplicateRelationshipNodes": 1060,
             "skippedDuplicateRelationshipEdges": 1059,
             "mode": "incremental",
-            "baseCommit": "2a54c1b3c0dcd1f6f0d2f3234a8d374938b7fc56",
+            "baseCommit": "3b4e7507c6985c50f2241f621bdabfa6047b0ba0",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c03/m9.ts"
@@ -3235,28 +3305,28 @@
             "materializedEdges": 3848
           },
           "timings": {
-            "gitChangeDiscoveryMs": 527.9680000000008,
-            "extractionResolutionMs": 78.29679999999644,
+            "gitChangeDiscoveryMs": 651.7548000000097,
+            "extractionResolutionMs": 83.68920000002254,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 259.90619999999035,
-            "graphMaterializationMs": 34.041100000009465,
-            "totalMs": 902.4752000000008
+            "cacheIoMs": 251.97319999996398,
+            "graphMaterializationMs": 60.73519999999553,
+            "totalMs": 1051.3896000000095
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 523.556899999996,
-            "extractionResolutionMs": 870.8323999999993,
-            "relationshipMaintenanceMs": 75.65559999999823,
-            "cacheIoMs": 0.0019000000029336661,
-            "graphMaterializationMs": 30.969799999991665,
-            "totalMs": 1577.040399999998
+            "gitChangeDiscoveryMs": 733.2849000000133,
+            "extractionResolutionMs": 1054.7636999999959,
+            "relationshipMaintenanceMs": 117.2664999999979,
+            "cacheIoMs": 0.0012999999889871106,
+            "graphMaterializationMs": 52.35570000000007,
+            "totalMs": 2063.9800000000105
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "f202054be2891d6f49ca25aa3c5784431c7bc356",
-          "parent": "f202054be2891d6f49ca25aa3c5784431c7bc356",
-          "target": "3f05a8cfd0029a5ced0d6c43dd8c7078155cbf09",
+          "base": "925de19ae9adc69a05cab2508257c568bfa341fb",
+          "parent": "925de19ae9adc69a05cab2508257c568bfa341fb",
+          "target": "ff4aadb6463328940c714ef7600aed7416c5f22e",
           "changedPaths": 1,
           "changes": [
             {
@@ -3268,12 +3338,17 @@
             }
           ],
           "sourceFiles": 960,
-          "warmMs": 780.44,
-          "coldMs": 1622.9,
-          "warmToColdRatio": 0.48,
+          "warmMs": 1298.75,
+          "coldMs": 2432.5,
+          "warmToColdRatio": 0.53,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 962,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 2021,
           "graphEdges": 3848,
           "structuralEdgeDelta": {
@@ -3282,7 +3357,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 46.4,
+          "serializationMs": 101.6,
           "serializedBytes": 3587438,
           "artifactHits": 48,
           "artifactMisses": 1,
@@ -3297,7 +3372,7 @@
             "skippedDuplicateRelationshipNodes": 1060,
             "skippedDuplicateRelationshipEdges": 1059,
             "mode": "incremental",
-            "baseCommit": "f202054be2891d6f49ca25aa3c5784431c7bc356",
+            "baseCommit": "925de19ae9adc69a05cab2508257c568bfa341fb",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c04/m9.ts"
@@ -3314,28 +3389,28 @@
             "materializedEdges": 3848
           },
           "timings": {
-            "gitChangeDiscoveryMs": 489.6783999999898,
-            "extractionResolutionMs": 59.31600000000617,
+            "gitChangeDiscoveryMs": 829.8438000000024,
+            "extractionResolutionMs": 77.15250000001106,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 194.20419999999285,
-            "graphMaterializationMs": 34.697999999989406,
-            "totalMs": 780.4336000000039
+            "cacheIoMs": 322.75019999999495,
+            "graphMaterializationMs": 65.12669999999343,
+            "totalMs": 1298.736499999999
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 614.6563999999926,
-            "extractionResolutionMs": 858.0596000000078,
-            "relationshipMaintenanceMs": 63.80680000000575,
-            "cacheIoMs": 0.001799999998183921,
-            "graphMaterializationMs": 29.190299999987474,
-            "totalMs": 1622.892200000002
+            "gitChangeDiscoveryMs": 868.0156000000134,
+            "extractionResolutionMs": 1272.2340000000113,
+            "relationshipMaintenanceMs": 115.06870000000345,
+            "cacheIoMs": 0.001400000008288771,
+            "graphMaterializationMs": 68.94800000000396,
+            "totalMs": 2432.489400000006
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "3f05a8cfd0029a5ced0d6c43dd8c7078155cbf09",
-          "parent": "3f05a8cfd0029a5ced0d6c43dd8c7078155cbf09",
-          "target": "4dcc6bf7d7bdcbd30c775c2803cad5f778a1d9d4",
+          "base": "ff4aadb6463328940c714ef7600aed7416c5f22e",
+          "parent": "ff4aadb6463328940c714ef7600aed7416c5f22e",
+          "target": "1687775e7bc0e94a5d9bdb9c6fc7775ea0c7acbd",
           "changedPaths": 1,
           "changes": [
             {
@@ -3347,12 +3422,17 @@
             }
           ],
           "sourceFiles": 960,
-          "warmMs": 957.34,
-          "coldMs": 1708.11,
+          "warmMs": 1373.74,
+          "coldMs": 2432.17,
           "warmToColdRatio": 0.56,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 962,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 2021,
           "graphEdges": 3848,
           "structuralEdgeDelta": {
@@ -3361,7 +3441,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 44.52,
+          "serializationMs": 56.11,
           "serializedBytes": 3587438,
           "artifactHits": 48,
           "artifactMisses": 1,
@@ -3376,7 +3456,7 @@
             "skippedDuplicateRelationshipNodes": 1060,
             "skippedDuplicateRelationshipEdges": 1059,
             "mode": "incremental",
-            "baseCommit": "3f05a8cfd0029a5ced0d6c43dd8c7078155cbf09",
+            "baseCommit": "ff4aadb6463328940c714ef7600aed7416c5f22e",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c05/m9.ts"
@@ -3393,28 +3473,28 @@
             "materializedEdges": 3848
           },
           "timings": {
-            "gitChangeDiscoveryMs": 524.2877000000008,
-            "extractionResolutionMs": 74.79089999999269,
+            "gitChangeDiscoveryMs": 836.2932000000146,
+            "extractionResolutionMs": 79.56929999998829,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 291.3396999999968,
-            "graphMaterializationMs": 63.88649999999325,
-            "totalMs": 957.3276000000042
+            "cacheIoMs": 368.9982000000309,
+            "graphMaterializationMs": 83.57080000000133,
+            "totalMs": 1373.7223000000085
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 698.4145000000135,
-            "extractionResolutionMs": 825.6371999999974,
-            "relationshipMaintenanceMs": 70.62840000000142,
-            "cacheIoMs": 0.001400000008288771,
-            "graphMaterializationMs": 36.465500000005704,
-            "totalMs": 1708.0994999999966
+            "gitChangeDiscoveryMs": 965.7037000000128,
+            "extractionResolutionMs": 1199.5679999999993,
+            "relationshipMaintenanceMs": 95.72970000001078,
+            "cacheIoMs": 0.0018999999883817509,
+            "graphMaterializationMs": 52.27019999999902,
+            "totalMs": 2432.1618000000017
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "4dcc6bf7d7bdcbd30c775c2803cad5f778a1d9d4",
-          "parent": "4dcc6bf7d7bdcbd30c775c2803cad5f778a1d9d4",
-          "target": "1466e8ce85127f1595610693d69d61b7e7418bdb",
+          "base": "1687775e7bc0e94a5d9bdb9c6fc7775ea0c7acbd",
+          "parent": "1687775e7bc0e94a5d9bdb9c6fc7775ea0c7acbd",
+          "target": "8e32fc62769c4c60865543e9f9b0a62ec437a9f6",
           "changedPaths": 1,
           "changes": [
             {
@@ -3426,12 +3506,17 @@
             }
           ],
           "sourceFiles": 960,
-          "warmMs": 805.82,
-          "coldMs": 1575.94,
-          "warmToColdRatio": 0.51,
+          "warmMs": 1025.95,
+          "coldMs": 1900.56,
+          "warmToColdRatio": 0.54,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 962,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 2021,
           "graphEdges": 3848,
           "structuralEdgeDelta": {
@@ -3440,7 +3525,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 56.84,
+          "serializationMs": 65.43,
           "serializedBytes": 3587438,
           "artifactHits": 48,
           "artifactMisses": 1,
@@ -3455,7 +3540,7 @@
             "skippedDuplicateRelationshipNodes": 1060,
             "skippedDuplicateRelationshipEdges": 1059,
             "mode": "incremental",
-            "baseCommit": "4dcc6bf7d7bdcbd30c775c2803cad5f778a1d9d4",
+            "baseCommit": "1687775e7bc0e94a5d9bdb9c6fc7775ea0c7acbd",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c06/m9.ts"
@@ -3472,28 +3557,28 @@
             "materializedEdges": 3848
           },
           "timings": {
-            "gitChangeDiscoveryMs": 491.83060000000114,
-            "extractionResolutionMs": 57.896300000007614,
+            "gitChangeDiscoveryMs": 639.8820000000123,
+            "extractionResolutionMs": 72.57750000001397,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 220.10400000000664,
-            "graphMaterializationMs": 33.64559999998892,
-            "totalMs": 805.8125
+            "cacheIoMs": 266.964799999987,
+            "graphMaterializationMs": 43.509799999999814,
+            "totalMs": 1025.9342999999935
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 522.3225999999995,
-            "extractionResolutionMs": 875.0181999999913,
-            "relationshipMaintenanceMs": 79.87930000000051,
-            "cacheIoMs": 0.0026000000070780516,
-            "graphMaterializationMs": 35.025500000003376,
-            "totalMs": 1575.9328999999998
+            "gitChangeDiscoveryMs": 737.7668000000122,
+            "extractionResolutionMs": 956.1819000000105,
+            "relationshipMaintenanceMs": 79.90069999999832,
+            "cacheIoMs": 0.0023999999975785613,
+            "graphMaterializationMs": 36.37870000000112,
+            "totalMs": 1900.550700000007
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "1466e8ce85127f1595610693d69d61b7e7418bdb",
-          "parent": "1466e8ce85127f1595610693d69d61b7e7418bdb",
-          "target": "741860f4827e6b8c6af4c544091948f3af5abf1f",
+          "base": "8e32fc62769c4c60865543e9f9b0a62ec437a9f6",
+          "parent": "8e32fc62769c4c60865543e9f9b0a62ec437a9f6",
+          "target": "7ac9a80a77c6583c619f64f0280302ab8b3daa34",
           "changedPaths": 1,
           "changes": [
             {
@@ -3505,12 +3590,17 @@
             }
           ],
           "sourceFiles": 960,
-          "warmMs": 904.21,
-          "coldMs": 1625.11,
-          "warmToColdRatio": 0.56,
+          "warmMs": 1050.75,
+          "coldMs": 2105.01,
+          "warmToColdRatio": 0.5,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 962,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 2021,
           "graphEdges": 3848,
           "structuralEdgeDelta": {
@@ -3519,7 +3609,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 40.37,
+          "serializationMs": 54.5,
           "serializedBytes": 3587438,
           "artifactHits": 48,
           "artifactMisses": 1,
@@ -3534,7 +3624,7 @@
             "skippedDuplicateRelationshipNodes": 1060,
             "skippedDuplicateRelationshipEdges": 1059,
             "mode": "incremental",
-            "baseCommit": "1466e8ce85127f1595610693d69d61b7e7418bdb",
+            "baseCommit": "8e32fc62769c4c60865543e9f9b0a62ec437a9f6",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c07/m9.ts"
@@ -3551,28 +3641,28 @@
             "materializedEdges": 3848
           },
           "timings": {
-            "gitChangeDiscoveryMs": 564.6355999999942,
-            "extractionResolutionMs": 59.07170000000042,
+            "gitChangeDiscoveryMs": 641.64390000001,
+            "extractionResolutionMs": 73.99390000001586,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 241.53280000000086,
-            "graphMaterializationMs": 36.71300000001793,
-            "totalMs": 904.19739999999
+            "cacheIoMs": 278.74039999999513,
+            "graphMaterializationMs": 52.83400000000256,
+            "totalMs": 1050.7398000000103
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 566.1703999999881,
-            "extractionResolutionMs": 890.2394000000058,
-            "relationshipMaintenanceMs": 69.3683999999921,
-            "cacheIoMs": 0.001600000003236346,
-            "graphMaterializationMs": 29.774499999999534,
-            "totalMs": 1625.1070000000036
+            "gitChangeDiscoveryMs": 688.0384999999951,
+            "extractionResolutionMs": 1143.5752000000066,
+            "relationshipMaintenanceMs": 92.87739999999758,
+            "cacheIoMs": 0.0478000000002794,
+            "graphMaterializationMs": 48.4829000000027,
+            "totalMs": 2104.999199999991
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "741860f4827e6b8c6af4c544091948f3af5abf1f",
-          "parent": "741860f4827e6b8c6af4c544091948f3af5abf1f",
-          "target": "49d45ccf826e343bf5863b6cb4c30d43d130337c",
+          "base": "7ac9a80a77c6583c619f64f0280302ab8b3daa34",
+          "parent": "7ac9a80a77c6583c619f64f0280302ab8b3daa34",
+          "target": "5c4d8c392caea5e4c8b7dbab6738d10672cc6e90",
           "changedPaths": 1,
           "changes": [
             {
@@ -3584,12 +3674,17 @@
             }
           ],
           "sourceFiles": 960,
-          "warmMs": 865.6,
-          "coldMs": 1583.48,
-          "warmToColdRatio": 0.55,
+          "warmMs": 1092.76,
+          "coldMs": 1894.54,
+          "warmToColdRatio": 0.58,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 962,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 2021,
           "graphEdges": 3848,
           "structuralEdgeDelta": {
@@ -3598,7 +3693,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 43.25,
+          "serializationMs": 62.11,
           "serializedBytes": 3587438,
           "artifactHits": 48,
           "artifactMisses": 1,
@@ -3613,7 +3708,7 @@
             "skippedDuplicateRelationshipNodes": 1060,
             "skippedDuplicateRelationshipEdges": 1059,
             "mode": "incremental",
-            "baseCommit": "741860f4827e6b8c6af4c544091948f3af5abf1f",
+            "baseCommit": "7ac9a80a77c6583c619f64f0280302ab8b3daa34",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c08/m9.ts"
@@ -3630,28 +3725,28 @@
             "materializedEdges": 3848
           },
           "timings": {
-            "gitChangeDiscoveryMs": 499.6542999999947,
-            "extractionResolutionMs": 61.10670000000391,
+            "gitChangeDiscoveryMs": 647.8484000000026,
+            "extractionResolutionMs": 81.23339999999735,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 268.1290000000008,
-            "graphMaterializationMs": 33.70679999999993,
-            "totalMs": 865.5654000000068
+            "cacheIoMs": 296.88660000001255,
+            "graphMaterializationMs": 57.152200000025914,
+            "totalMs": 1092.7485000000015
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 576.7281000000221,
-            "extractionResolutionMs": 837.9051999999938,
-            "relationshipMaintenanceMs": 65.39850000001024,
-            "cacheIoMs": 0.04800000000977889,
-            "graphMaterializationMs": 36.41559999999299,
-            "totalMs": 1583.4688000000024
+            "gitChangeDiscoveryMs": 663.9360000000015,
+            "extractionResolutionMs": 994.6549999999988,
+            "relationshipMaintenanceMs": 95.51660000000265,
+            "cacheIoMs": 0.0007999999943422154,
+            "graphMaterializationMs": 57.48070000000007,
+            "totalMs": 1894.531600000002
           },
           "warmColdEqual": true
         },
         {
           "kind": "rename-only",
-          "base": "49d45ccf826e343bf5863b6cb4c30d43d130337c",
-          "parent": "49d45ccf826e343bf5863b6cb4c30d43d130337c",
-          "target": "9fabc1d2a226eb93bb2e28315c357cfa6e2e27c8",
+          "base": "5c4d8c392caea5e4c8b7dbab6738d10672cc6e90",
+          "parent": "5c4d8c392caea5e4c8b7dbab6738d10672cc6e90",
+          "target": "db4b902d4b75230164c182893169a738ca50e520",
           "changedPaths": 1,
           "changes": [
             {
@@ -3665,12 +3760,17 @@
             }
           ],
           "sourceFiles": 960,
-          "warmMs": 720.55,
-          "coldMs": 1550.18,
-          "warmToColdRatio": 0.46,
+          "warmMs": 916.63,
+          "coldMs": 1769.49,
+          "warmToColdRatio": 0.52,
           "reparsedFiles": 0,
           "reusedSyntaxArtifacts": 1,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 962,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 1,
           "graphNodes": 2021,
           "graphEdges": 3846,
           "structuralEdgeDelta": {
@@ -3679,7 +3779,7 @@
             "total": 10
           },
           "affectedNodes": 0,
-          "serializationMs": 79.58,
+          "serializationMs": 43.01,
           "serializedBytes": 3587313,
           "artifactHits": 49,
           "artifactMisses": 0,
@@ -3694,7 +3794,7 @@
             "skippedDuplicateRelationshipNodes": 1060,
             "skippedDuplicateRelationshipEdges": 1059,
             "mode": "incremental",
-            "baseCommit": "49d45ccf826e343bf5863b6cb4c30d43d130337c",
+            "baseCommit": "5c4d8c392caea5e4c8b7dbab6738d10672cc6e90",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c00/m9-renamed.ts",
@@ -3712,28 +3812,28 @@
             "materializedEdges": 3846
           },
           "timings": {
-            "gitChangeDiscoveryMs": 477.6046999999962,
-            "extractionResolutionMs": 0.25800000001618173,
-            "relationshipMaintenanceMs": 0.13269999998738058,
-            "cacheIoMs": 205.3284999999887,
-            "graphMaterializationMs": 34.39670000001206,
-            "totalMs": 720.5365999999922
+            "gitChangeDiscoveryMs": 612.7170999999798,
+            "extractionResolutionMs": 0.2514999999984866,
+            "relationshipMaintenanceMs": 0.1753000000026077,
+            "cacheIoMs": 248.78100000001723,
+            "graphMaterializationMs": 51.4720000000234,
+            "totalMs": 916.6235000000015
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 524.0106999999989,
-            "extractionResolutionMs": 839.8506000000052,
-            "relationshipMaintenanceMs": 70.85689999999886,
-            "cacheIoMs": 0.0008000000088941306,
-            "graphMaterializationMs": 36.932300000000396,
-            "totalMs": 1550.1705999999976
+            "gitChangeDiscoveryMs": 701.5788999999932,
+            "extractionResolutionMs": 873.691599999991,
+            "relationshipMaintenanceMs": 77.81489999999758,
+            "cacheIoMs": 0.0014999999984866008,
+            "graphMaterializationMs": 29.45219999999972,
+            "totalMs": 1769.4798999999912
           },
           "warmColdEqual": true
         },
         {
           "kind": "dependency-edit",
-          "base": "9fabc1d2a226eb93bb2e28315c357cfa6e2e27c8",
-          "parent": "9fabc1d2a226eb93bb2e28315c357cfa6e2e27c8",
-          "target": "70064047a7a388627c42bf7261140f238576b758",
+          "base": "db4b902d4b75230164c182893169a738ca50e520",
+          "parent": "db4b902d4b75230164c182893169a738ca50e520",
+          "target": "5699a294052109fe718f54c6ce45024e34554d2c",
           "changedPaths": 1,
           "changes": [
             {
@@ -3745,12 +3845,17 @@
             }
           ],
           "sourceFiles": 960,
-          "warmMs": 853.33,
-          "coldMs": 1603.9,
-          "warmToColdRatio": 0.53,
+          "warmMs": 905.89,
+          "coldMs": 1726.15,
+          "warmToColdRatio": 0.52,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 962,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 2021,
           "graphEdges": 3846,
           "structuralEdgeDelta": {
@@ -3759,7 +3864,7 @@
             "total": 2
           },
           "affectedNodes": 4,
-          "serializationMs": 46.57,
+          "serializationMs": 43.25,
           "serializedBytes": 3587313,
           "artifactHits": 49,
           "artifactMisses": 1,
@@ -3774,7 +3879,7 @@
             "skippedDuplicateRelationshipNodes": 1060,
             "skippedDuplicateRelationshipEdges": 1059,
             "mode": "incremental",
-            "baseCommit": "9fabc1d2a226eb93bb2e28315c357cfa6e2e27c8",
+            "baseCommit": "db4b902d4b75230164c182893169a738ca50e520",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c01/m5.ts"
@@ -3791,28 +3896,28 @@
             "materializedEdges": 3846
           },
           "timings": {
-            "gitChangeDiscoveryMs": 521.6895999999979,
-            "extractionResolutionMs": 61.57640000000538,
+            "gitChangeDiscoveryMs": 577.3874999999971,
+            "extractionResolutionMs": 72.96740000000864,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 218.66740000000573,
-            "graphMaterializationMs": 48.8920000000071,
-            "totalMs": 853.3255000000063
+            "cacheIoMs": 215.79510000001756,
+            "graphMaterializationMs": 37.542900000014924,
+            "totalMs": 905.8834999999963
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 555.4913000000088,
-            "extractionResolutionMs": 864.3123999999953,
-            "relationshipMaintenanceMs": 68.65230000000156,
-            "cacheIoMs": 0.001700000007986091,
-            "graphMaterializationMs": 36.269699999989825,
-            "totalMs": 1603.892200000002
+            "gitChangeDiscoveryMs": 689.2886999999901,
+            "extractionResolutionMs": 840.3063999999868,
+            "relationshipMaintenanceMs": 84.49259999999776,
+            "cacheIoMs": 0.0008999999990919605,
+            "graphMaterializationMs": 33.56569999999192,
+            "totalMs": 1726.1435999999958
           },
           "warmColdEqual": true
         },
         {
           "kind": "broad-edit",
-          "base": "70064047a7a388627c42bf7261140f238576b758",
-          "parent": "70064047a7a388627c42bf7261140f238576b758",
-          "target": "b9ec5877410304ed90d15520afa79d0526e62876",
+          "base": "5699a294052109fe718f54c6ce45024e34554d2c",
+          "parent": "5699a294052109fe718f54c6ce45024e34554d2c",
+          "target": "a2ebc3cf3118178cfec8125af849cd076376dd9a",
           "changedPaths": 960,
           "changes": [
             {
@@ -10537,12 +10642,17 @@
             }
           ],
           "sourceFiles": 960,
-          "warmMs": 3611.78,
-          "coldMs": 1648.38,
-          "warmToColdRatio": 2.19,
+          "warmMs": 3837.36,
+          "coldMs": 1844.11,
+          "warmToColdRatio": 2.08,
           "reparsedFiles": 114,
           "reusedSyntaxArtifacts": 846,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 962,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 2021,
           "graphEdges": 3846,
           "structuralEdgeDelta": {
@@ -10551,7 +10661,7 @@
             "total": 0
           },
           "affectedNodes": 864,
-          "serializationMs": 58.24,
+          "serializationMs": 49.1,
           "serializedBytes": 3587313,
           "artifactHits": 895,
           "artifactMisses": 114,
@@ -10566,7 +10676,7 @@
             "skippedDuplicateRelationshipNodes": 1060,
             "skippedDuplicateRelationshipEdges": 1059,
             "mode": "incremental",
-            "baseCommit": "70064047a7a388627c42bf7261140f238576b758",
+            "baseCommit": "5699a294052109fe718f54c6ce45024e34554d2c",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c00/m0.ts",
@@ -11542,20 +11652,20 @@
             "materializedEdges": 3846
           },
           "timings": {
-            "gitChangeDiscoveryMs": 592.0619999999908,
-            "extractionResolutionMs": 809.6315999999642,
+            "gitChangeDiscoveryMs": 644.0346000000136,
+            "extractionResolutionMs": 902.6687999998976,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 2078.2769000000553,
-            "graphMaterializationMs": 45.769799999994575,
-            "totalMs": 3611.7727000000014
+            "cacheIoMs": 2161.6551000001054,
+            "graphMaterializationMs": 48.76580000000831,
+            "totalMs": 3837.3443000000116
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 607.9118999999919,
-            "extractionResolutionMs": 857.881899999993,
-            "relationshipMaintenanceMs": 62.76140000000305,
-            "cacheIoMs": 0.0011999999987892807,
-            "graphMaterializationMs": 37.846100000009756,
-            "totalMs": 1648.3686000000016
+            "gitChangeDiscoveryMs": 667.5648000000074,
+            "extractionResolutionMs": 971.5056999999942,
+            "relationshipMaintenanceMs": 79.78620000000228,
+            "cacheIoMs": 0.0006999999895924702,
+            "graphMaterializationMs": 36.847099999999045,
+            "totalMs": 1844.0960999999952
           },
           "warmColdEqual": true
         }
@@ -11567,7 +11677,7 @@
         "platform": "win32",
         "architecture": "x64",
         "git": "git version 2.50.1.windows.1",
-        "measuredAt": "2026-10-04T05:16:41.218Z"
+        "measuredAt": "2026-10-04T05:43:21.839Z"
       },
       "fixture": {
         "sourceFiles": 3840,
@@ -11577,10 +11687,10 @@
       },
       "summary": {
         "initial": {
-          "commit": "3485c4c653ac7acc27e58f041929bd8c66708e69",
+          "commit": "d092c96bf6f5afca0f4a91a8d3cf2886b9adb974",
           "parent": null,
-          "warmMs": 13588.9,
-          "coldMs": 4293.68,
+          "warmMs": 56808.6,
+          "coldMs": 19223.78,
           "composition": {
             "baseNodes": 4228,
             "baseEdges": 4227,
@@ -11605,20 +11715,20 @@
             "materializedEdges": 15368
           },
           "timings": {
-            "gitChangeDiscoveryMs": 777.976399999985,
-            "extractionResolutionMs": 2952.5844000008074,
-            "relationshipMaintenanceMs": 82.49830000000657,
-            "cacheIoMs": 9176.245699999214,
-            "graphMaterializationMs": 246.24319999999716,
-            "totalMs": 13588.821299999981
+            "gitChangeDiscoveryMs": 1524.3684999999823,
+            "extractionResolutionMs": 6178.889000002237,
+            "relationshipMaintenanceMs": 569.6639999999898,
+            "cacheIoMs": 46261.575899997784,
+            "graphMaterializationMs": 521.405299999984,
+            "totalMs": 56808.51630000002
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 737.4906999999948,
-            "extractionResolutionMs": 3046.9293999999936,
-            "relationshipMaintenanceMs": 83.2265999999945,
-            "cacheIoMs": 0.0035000000207219273,
-            "graphMaterializationMs": 143.73509999999078,
-            "totalMs": 4293.667499999981
+            "gitChangeDiscoveryMs": 4155.176700000011,
+            "extractionResolutionMs": 11642.392899999977,
+            "relationshipMaintenanceMs": 625.1815999999817,
+            "cacheIoMs": 0.007299999997485429,
+            "graphMaterializationMs": 660.0688000000082,
+            "totalMs": 19223.76569999999
           },
           "sourceFiles": 3840,
           "reparsedFiles": 393,
@@ -11632,16 +11742,16 @@
           },
           "warmColdEqual": true
         },
-        "tinyMedianWarmMs": 1660.14,
-        "tinyMedianColdMs": 4170.27,
-        "tinyMedianWarmToColdRatio": 0.38,
+        "tinyMedianWarmMs": 6291.21,
+        "tinyMedianColdMs": 12796.11,
+        "tinyMedianWarmToColdRatio": 0.57,
         "tinyMedianReparsedFiles": 1,
         "staleExactShaPinned": true,
         "stale": {
-          "commit": "ac41c785d4bd4776590af12296cdb591f71232dc",
-          "parent": "e8fc4bad8727a2d478ff33ef4fdd834c6e385d6b",
-          "warmMs": 1016.61,
-          "coldMs": 5177.38,
+          "commit": "9e26fd8a772b04cfe83c0e8ce58b1b094a85fd01",
+          "parent": "aeba0b1c584c5e0b281242d3de4ac5a73788749b",
+          "warmMs": 1346.23,
+          "coldMs": 5072.35,
           "composition": {
             "baseNodes": 4228,
             "baseEdges": 4227,
@@ -11664,12 +11774,12 @@
             "materializedEdges": 15368
           },
           "timings": {
-            "gitChangeDiscoveryMs": 239.4363000000012,
+            "gitChangeDiscoveryMs": 322.11040000000503,
             "extractionResolutionMs": 0,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 627.9605999999912,
-            "graphMaterializationMs": 139.70449999999255,
-            "totalMs": 1016.5934000000125
+            "cacheIoMs": 790.5352999999886,
+            "graphMaterializationMs": 219.37529999995604,
+            "totalMs": 1346.2057000000495
           },
           "warmColdEqual": true
         }
@@ -11677,9 +11787,9 @@
       "samples": [
         {
           "kind": "tiny-edit",
-          "base": "3485c4c653ac7acc27e58f041929bd8c66708e69",
-          "parent": "3485c4c653ac7acc27e58f041929bd8c66708e69",
-          "target": "e8fc4bad8727a2d478ff33ef4fdd834c6e385d6b",
+          "base": "d092c96bf6f5afca0f4a91a8d3cf2886b9adb974",
+          "parent": "d092c96bf6f5afca0f4a91a8d3cf2886b9adb974",
+          "target": "aeba0b1c584c5e0b281242d3de4ac5a73788749b",
           "changedPaths": 1,
           "changes": [
             {
@@ -11691,12 +11801,17 @@
             }
           ],
           "sourceFiles": 3840,
-          "warmMs": 1748.05,
-          "coldMs": 4963.55,
-          "warmToColdRatio": 0.35,
+          "warmMs": 8105.91,
+          "coldMs": 13583.38,
+          "warmToColdRatio": 0.6,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 3842,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 8069,
           "graphEdges": 15368,
           "structuralEdgeDelta": {
@@ -11705,7 +11820,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 218.34,
+          "serializationMs": 872.66,
           "serializedBytes": 14349094,
           "artifactHits": 188,
           "artifactMisses": 1,
@@ -11720,7 +11835,7 @@
             "skippedDuplicateRelationshipNodes": 4228,
             "skippedDuplicateRelationshipEdges": 4227,
             "mode": "incremental",
-            "baseCommit": "3485c4c653ac7acc27e58f041929bd8c66708e69",
+            "baseCommit": "d092c96bf6f5afca0f4a91a8d3cf2886b9adb974",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c01/m9.ts"
@@ -11737,28 +11852,28 @@
             "materializedEdges": 15368
           },
           "timings": {
-            "gitChangeDiscoveryMs": 567.4756000000052,
-            "extractionResolutionMs": 76.62190000002738,
+            "gitChangeDiscoveryMs": 1779.2627999999095,
+            "extractionResolutionMs": 178.3798999999999,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 873.6415999999736,
-            "graphMaterializationMs": 216.12180000002263,
-            "totalMs": 1748.0420000000158
+            "cacheIoMs": 5172.747099999979,
+            "graphMaterializationMs": 916.7265999999945,
+            "totalMs": 8105.886600000027
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 977.480499999976,
-            "extractionResolutionMs": 3281.4623999999894,
-            "relationshipMaintenanceMs": 98.50649999998859,
-            "cacheIoMs": 0.0020000000076834112,
-            "graphMaterializationMs": 213.48029999999562,
-            "totalMs": 4963.533400000015
+            "gitChangeDiscoveryMs": 2370.488699999987,
+            "extractionResolutionMs": 10288.089999999967,
+            "relationshipMaintenanceMs": 118.06959999998799,
+            "cacheIoMs": 0.0032999999821186066,
+            "graphMaterializationMs": 245.8621999999741,
+            "totalMs": 13583.368400000036
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "e8fc4bad8727a2d478ff33ef4fdd834c6e385d6b",
-          "parent": "e8fc4bad8727a2d478ff33ef4fdd834c6e385d6b",
-          "target": "ac41c785d4bd4776590af12296cdb591f71232dc",
+          "base": "aeba0b1c584c5e0b281242d3de4ac5a73788749b",
+          "parent": "aeba0b1c584c5e0b281242d3de4ac5a73788749b",
+          "target": "9e26fd8a772b04cfe83c0e8ce58b1b094a85fd01",
           "changedPaths": 1,
           "changes": [
             {
@@ -11770,12 +11885,17 @@
             }
           ],
           "sourceFiles": 3840,
-          "warmMs": 1813.47,
-          "coldMs": 4012.09,
-          "warmToColdRatio": 0.45,
+          "warmMs": 5660.17,
+          "coldMs": 13830.04,
+          "warmToColdRatio": 0.41,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 3842,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 8069,
           "graphEdges": 15368,
           "structuralEdgeDelta": {
@@ -11784,7 +11904,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 216.98,
+          "serializationMs": 523.49,
           "serializedBytes": 14349094,
           "artifactHits": 188,
           "artifactMisses": 1,
@@ -11799,7 +11919,7 @@
             "skippedDuplicateRelationshipNodes": 4228,
             "skippedDuplicateRelationshipEdges": 4227,
             "mode": "incremental",
-            "baseCommit": "e8fc4bad8727a2d478ff33ef4fdd834c6e385d6b",
+            "baseCommit": "aeba0b1c584c5e0b281242d3de4ac5a73788749b",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c02/m9.ts"
@@ -11816,28 +11936,28 @@
             "materializedEdges": 15368
           },
           "timings": {
-            "gitChangeDiscoveryMs": 622.4483999999939,
-            "extractionResolutionMs": 69.7035999999789,
+            "gitChangeDiscoveryMs": 1746.6473000000115,
+            "extractionResolutionMs": 121.98320000001695,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 914.0455000000366,
-            "graphMaterializationMs": 194.79449999998906,
-            "totalMs": 1813.460699999996
+            "cacheIoMs": 3225.2567999999737,
+            "graphMaterializationMs": 529.040800000017,
+            "totalMs": 5660.154800000018
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 721.8416000000143,
-            "extractionResolutionMs": 2740.9542000000074,
-            "relationshipMaintenanceMs": 105.88779999999679,
-            "cacheIoMs": 0.0008000000088941306,
-            "graphMaterializationMs": 144.34339999998338,
-            "totalMs": 4012.0813999999955
+            "gitChangeDiscoveryMs": 2170.7486999999383,
+            "extractionResolutionMs": 9197.890100000019,
+            "relationshipMaintenanceMs": 227.3630000000121,
+            "cacheIoMs": 0.0025000000023283064,
+            "graphMaterializationMs": 885.687799999956,
+            "totalMs": 13830.022300000011
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "ac41c785d4bd4776590af12296cdb591f71232dc",
-          "parent": "ac41c785d4bd4776590af12296cdb591f71232dc",
-          "target": "34e83ba22a9eca156cca70a729732b695215b957",
+          "base": "9e26fd8a772b04cfe83c0e8ce58b1b094a85fd01",
+          "parent": "9e26fd8a772b04cfe83c0e8ce58b1b094a85fd01",
+          "target": "d47c825c39a75a966da6422a5a5950d995e08833",
           "changedPaths": 1,
           "changes": [
             {
@@ -11849,12 +11969,17 @@
             }
           ],
           "sourceFiles": 3840,
-          "warmMs": 1540.53,
-          "coldMs": 3962.77,
-          "warmToColdRatio": 0.39,
+          "warmMs": 4435.08,
+          "coldMs": 11749.43,
+          "warmToColdRatio": 0.38,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 3842,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 8069,
           "graphEdges": 15368,
           "structuralEdgeDelta": {
@@ -11863,7 +11988,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 260.73,
+          "serializationMs": 743.95,
           "serializedBytes": 14349094,
           "artifactHits": 188,
           "artifactMisses": 1,
@@ -11878,7 +12003,7 @@
             "skippedDuplicateRelationshipNodes": 4228,
             "skippedDuplicateRelationshipEdges": 4227,
             "mode": "incremental",
-            "baseCommit": "ac41c785d4bd4776590af12296cdb591f71232dc",
+            "baseCommit": "9e26fd8a772b04cfe83c0e8ce58b1b094a85fd01",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c03/m9.ts"
@@ -11895,28 +12020,28 @@
             "materializedEdges": 15368
           },
           "timings": {
-            "gitChangeDiscoveryMs": 494.76740000001155,
-            "extractionResolutionMs": 62.99120000001858,
+            "gitChangeDiscoveryMs": 1220.0072999999393,
+            "extractionResolutionMs": 276.2485999999917,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 796.1632999999856,
-            "graphMaterializationMs": 176.05120000004536,
-            "totalMs": 1540.5149999999849
+            "cacheIoMs": 2232.6714999999967,
+            "graphMaterializationMs": 672.5603999999003,
+            "totalMs": 4434.900400000042
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 704.3121999999858,
-            "extractionResolutionMs": 2787.122699999978,
-            "relationshipMaintenanceMs": 73.76310000001104,
-            "cacheIoMs": 0.0008000000088941306,
-            "graphMaterializationMs": 140.55439999999362,
-            "totalMs": 3962.760500000004
+            "gitChangeDiscoveryMs": 1904.7011000000057,
+            "extractionResolutionMs": 7905.962500000023,
+            "relationshipMaintenanceMs": 170.07760000001872,
+            "cacheIoMs": 0.00829999998677522,
+            "graphMaterializationMs": 673.2931000000099,
+            "totalMs": 11749.414699999965
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "34e83ba22a9eca156cca70a729732b695215b957",
-          "parent": "34e83ba22a9eca156cca70a729732b695215b957",
-          "target": "99f629572e95cc85f43dc056eea8eb8cbde61874",
+          "base": "d47c825c39a75a966da6422a5a5950d995e08833",
+          "parent": "d47c825c39a75a966da6422a5a5950d995e08833",
+          "target": "79f81ade9e5f7157adea608f3c2394285c03641a",
           "changedPaths": 1,
           "changes": [
             {
@@ -11928,12 +12053,17 @@
             }
           ],
           "sourceFiles": 3840,
-          "warmMs": 1655.34,
-          "coldMs": 4703.92,
-          "warmToColdRatio": 0.35,
+          "warmMs": 6922.25,
+          "coldMs": 13911.53,
+          "warmToColdRatio": 0.5,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 3842,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 8069,
           "graphEdges": 15368,
           "structuralEdgeDelta": {
@@ -11942,7 +12072,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 228.27,
+          "serializationMs": 675.48,
           "serializedBytes": 14349094,
           "artifactHits": 188,
           "artifactMisses": 1,
@@ -11957,7 +12087,7 @@
             "skippedDuplicateRelationshipNodes": 4228,
             "skippedDuplicateRelationshipEdges": 4227,
             "mode": "incremental",
-            "baseCommit": "34e83ba22a9eca156cca70a729732b695215b957",
+            "baseCommit": "d47c825c39a75a966da6422a5a5950d995e08833",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c04/m9.ts"
@@ -11974,28 +12104,28 @@
             "materializedEdges": 15368
           },
           "timings": {
-            "gitChangeDiscoveryMs": 514.3371999999799,
-            "extractionResolutionMs": 65.18189999999595,
+            "gitChangeDiscoveryMs": 2849.7816999999923,
+            "extractionResolutionMs": 189.8407999999472,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 845.5280000000203,
-            "graphMaterializationMs": 218.78490000002785,
-            "totalMs": 1655.3301999999967
+            "cacheIoMs": 3221.1359999999986,
+            "graphMaterializationMs": 631.6618000000599,
+            "totalMs": 6922.235400000005
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 891.012699999992,
-            "extractionResolutionMs": 3217.7888000000094,
-            "relationshipMaintenanceMs": 86.8701000000001,
-            "cacheIoMs": 0.002599999977974221,
-            "graphMaterializationMs": 176.85039999999572,
-            "totalMs": 4703.906499999983
+            "gitChangeDiscoveryMs": 4406.138199999987,
+            "extractionResolutionMs": 8458.751900000032,
+            "relationshipMaintenanceMs": 153.81429999996908,
+            "cacheIoMs": 0.09399999998277053,
+            "graphMaterializationMs": 307.9009000000078,
+            "totalMs": 13911.517700000026
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "99f629572e95cc85f43dc056eea8eb8cbde61874",
-          "parent": "99f629572e95cc85f43dc056eea8eb8cbde61874",
-          "target": "46747093250c0527a639587c5baf209d2bcd2cf5",
+          "base": "79f81ade9e5f7157adea608f3c2394285c03641a",
+          "parent": "79f81ade9e5f7157adea608f3c2394285c03641a",
+          "target": "a750f45a64ff161feb61068705011a114c939ff4",
           "changedPaths": 1,
           "changes": [
             {
@@ -12007,12 +12137,17 @@
             }
           ],
           "sourceFiles": 3840,
-          "warmMs": 1829.39,
-          "coldMs": 4055.61,
-          "warmToColdRatio": 0.45,
+          "warmMs": 8201.17,
+          "coldMs": 14450.3,
+          "warmToColdRatio": 0.57,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 3842,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 8069,
           "graphEdges": 15368,
           "structuralEdgeDelta": {
@@ -12021,7 +12156,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 275.17,
+          "serializationMs": 923.26,
           "serializedBytes": 14349094,
           "artifactHits": 188,
           "artifactMisses": 1,
@@ -12036,7 +12171,7 @@
             "skippedDuplicateRelationshipNodes": 4228,
             "skippedDuplicateRelationshipEdges": 4227,
             "mode": "incremental",
-            "baseCommit": "99f629572e95cc85f43dc056eea8eb8cbde61874",
+            "baseCommit": "79f81ade9e5f7157adea608f3c2394285c03641a",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c05/m9.ts"
@@ -12053,28 +12188,28 @@
             "materializedEdges": 15368
           },
           "timings": {
-            "gitChangeDiscoveryMs": 630.4257000000216,
-            "extractionResolutionMs": 60.58709999997518,
+            "gitChangeDiscoveryMs": 2536.6291999999085,
+            "extractionResolutionMs": 207.83929999993416,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 935.8354000000108,
-            "graphMaterializationMs": 189.30239999995683,
-            "totalMs": 1829.3742999999959
+            "cacheIoMs": 4633.724300000002,
+            "graphMaterializationMs": 788.445000000007,
+            "totalMs": 8201.15029999998
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 846.2814999999828,
-            "extractionResolutionMs": 2607.3543000000063,
-            "relationshipMaintenanceMs": 73.12619999999879,
-            "cacheIoMs": 0.0020000000076834112,
-            "graphMaterializationMs": 248.44779999999446,
-            "totalMs": 4055.566700000025
+            "gitChangeDiscoveryMs": 2633.1763999999384,
+            "extractionResolutionMs": 9713.700699999987,
+            "relationshipMaintenanceMs": 367.40320000000065,
+            "cacheIoMs": 0.0015999999595806003,
+            "graphMaterializationMs": 642.3041000000085,
+            "totalMs": 14450.291400000046
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "46747093250c0527a639587c5baf209d2bcd2cf5",
-          "parent": "46747093250c0527a639587c5baf209d2bcd2cf5",
-          "target": "997b6bf17901a039d64cd6246fd8d765a1320769",
+          "base": "a750f45a64ff161feb61068705011a114c939ff4",
+          "parent": "a750f45a64ff161feb61068705011a114c939ff4",
+          "target": "ad8b544e385245b4f46082c797e2a191dcc3a2cd",
           "changedPaths": 1,
           "changes": [
             {
@@ -12086,12 +12221,17 @@
             }
           ],
           "sourceFiles": 3840,
-          "warmMs": 1544.25,
-          "coldMs": 4138.2,
-          "warmToColdRatio": 0.37,
+          "warmMs": 7007.35,
+          "coldMs": 12008.83,
+          "warmToColdRatio": 0.58,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 3842,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 8069,
           "graphEdges": 15368,
           "structuralEdgeDelta": {
@@ -12100,7 +12240,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 196.16,
+          "serializationMs": 472.83,
           "serializedBytes": 14349094,
           "artifactHits": 188,
           "artifactMisses": 1,
@@ -12115,7 +12255,7 @@
             "skippedDuplicateRelationshipNodes": 4228,
             "skippedDuplicateRelationshipEdges": 4227,
             "mode": "incremental",
-            "baseCommit": "46747093250c0527a639587c5baf209d2bcd2cf5",
+            "baseCommit": "a750f45a64ff161feb61068705011a114c939ff4",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c06/m9.ts"
@@ -12132,28 +12272,28 @@
             "materializedEdges": 15368
           },
           "timings": {
-            "gitChangeDiscoveryMs": 518.4619999999995,
-            "extractionResolutionMs": 59.20350000000326,
+            "gitChangeDiscoveryMs": 1796.5486000000383,
+            "extractionResolutionMs": 124.95829999999842,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 773.7686000000103,
-            "graphMaterializationMs": 182.20770000002813,
-            "totalMs": 1544.2348000000056
+            "cacheIoMs": 4509.152699999919,
+            "graphMaterializationMs": 555.6220999999205,
+            "totalMs": 7007.331500000029
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 736.7071000000287,
-            "extractionResolutionMs": 2909.3182999999844,
-            "relationshipMaintenanceMs": 71.43290000001434,
-            "cacheIoMs": 0.001799999998183921,
-            "graphMaterializationMs": 140.99040000000969,
-            "totalMs": 4138.1892000000225
+            "gitChangeDiscoveryMs": 2094.303099999961,
+            "extractionResolutionMs": 7547.55290000001,
+            "relationshipMaintenanceMs": 1321.8789000000106,
+            "cacheIoMs": 0.0020000000367872417,
+            "graphMaterializationMs": 370.46769999997923,
+            "totalMs": 12008.814799999993
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "997b6bf17901a039d64cd6246fd8d765a1320769",
-          "parent": "997b6bf17901a039d64cd6246fd8d765a1320769",
-          "target": "437ea663e2e715b11462850802784e898f8e0f27",
+          "base": "ad8b544e385245b4f46082c797e2a191dcc3a2cd",
+          "parent": "ad8b544e385245b4f46082c797e2a191dcc3a2cd",
+          "target": "7975d57fb5df236617f6fa129f024badcd28b6af",
           "changedPaths": 1,
           "changes": [
             {
@@ -12165,12 +12305,17 @@
             }
           ],
           "sourceFiles": 3840,
-          "warmMs": 1664.93,
-          "coldMs": 4202.35,
-          "warmToColdRatio": 0.4,
+          "warmMs": 3596.82,
+          "coldMs": 5541.61,
+          "warmToColdRatio": 0.65,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 3842,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 8069,
           "graphEdges": 15368,
           "structuralEdgeDelta": {
@@ -12179,7 +12324,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 200.82,
+          "serializationMs": 327.97,
           "serializedBytes": 14349094,
           "artifactHits": 188,
           "artifactMisses": 1,
@@ -12194,7 +12339,7 @@
             "skippedDuplicateRelationshipNodes": 4228,
             "skippedDuplicateRelationshipEdges": 4227,
             "mode": "incremental",
-            "baseCommit": "997b6bf17901a039d64cd6246fd8d765a1320769",
+            "baseCommit": "ad8b544e385245b4f46082c797e2a191dcc3a2cd",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c07/m9.ts"
@@ -12211,28 +12356,28 @@
             "materializedEdges": 15368
           },
           "timings": {
-            "gitChangeDiscoveryMs": 527.1312999999791,
-            "extractionResolutionMs": 63.393699999985984,
+            "gitChangeDiscoveryMs": 1873.641799999983,
+            "extractionResolutionMs": 105.70859999995446,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 863.3089000000036,
-            "graphMaterializationMs": 200.1698000000033,
-            "totalMs": 1664.9181999999855
+            "cacheIoMs": 1225.6368999999831,
+            "graphMaterializationMs": 374.4629999999888,
+            "totalMs": 3596.7993000000133
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 778.6093999999575,
-            "extractionResolutionMs": 2791.842399999994,
-            "relationshipMaintenanceMs": 73.4544000000169,
-            "cacheIoMs": 0.0026000000070780516,
-            "graphMaterializationMs": 224.8917000000074,
-            "totalMs": 4202.3369999999995
+            "gitChangeDiscoveryMs": 1132.7956000000122,
+            "extractionResolutionMs": 3625.803799999994,
+            "relationshipMaintenanceMs": 101.16860000003362,
+            "cacheIoMs": 0.002099999983329326,
+            "graphMaterializationMs": 238.2322999999742,
+            "totalMs": 5541.595799999952
           },
           "warmColdEqual": true
         },
         {
           "kind": "tiny-edit",
-          "base": "437ea663e2e715b11462850802784e898f8e0f27",
-          "parent": "437ea663e2e715b11462850802784e898f8e0f27",
-          "target": "91968aa8a8935750fd1dd9792d96b648137fa29f",
+          "base": "7975d57fb5df236617f6fa129f024badcd28b6af",
+          "parent": "7975d57fb5df236617f6fa129f024badcd28b6af",
+          "target": "cc4f2856b143a987056d5adbe3ef3f988d931a7a",
           "changedPaths": 1,
           "changes": [
             {
@@ -12244,12 +12389,17 @@
             }
           ],
           "sourceFiles": 3840,
-          "warmMs": 1485.73,
-          "coldMs": 5206.68,
-          "warmToColdRatio": 0.29,
+          "warmMs": 4372.59,
+          "coldMs": 6956.75,
+          "warmToColdRatio": 0.63,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 3842,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 8069,
           "graphEdges": 15368,
           "structuralEdgeDelta": {
@@ -12258,7 +12408,7 @@
             "total": 0
           },
           "affectedNodes": 0,
-          "serializationMs": 194.02,
+          "serializationMs": 334.7,
           "serializedBytes": 14349094,
           "artifactHits": 188,
           "artifactMisses": 1,
@@ -12273,7 +12423,7 @@
             "skippedDuplicateRelationshipNodes": 4228,
             "skippedDuplicateRelationshipEdges": 4227,
             "mode": "incremental",
-            "baseCommit": "437ea663e2e715b11462850802784e898f8e0f27",
+            "baseCommit": "7975d57fb5df236617f6fa129f024badcd28b6af",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c08/m9.ts"
@@ -12290,28 +12440,28 @@
             "materializedEdges": 15368
           },
           "timings": {
-            "gitChangeDiscoveryMs": 498.0713000000105,
-            "extractionResolutionMs": 64.45689999999013,
+            "gitChangeDiscoveryMs": 2584.8485999999684,
+            "extractionResolutionMs": 90.19490000006044,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 757.2767000000167,
-            "graphMaterializationMs": 155.6984999999986,
-            "totalMs": 1485.7220999999845
+            "cacheIoMs": 1318.2099999999045,
+            "graphMaterializationMs": 358.42029999993974,
+            "totalMs": 4372.569200000027
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 1002.744800000015,
-            "extractionResolutionMs": 3720.8675999999978,
-            "relationshipMaintenanceMs": 79.04650000002584,
-            "cacheIoMs": 0.0025000000023283064,
-            "graphMaterializationMs": 128.5176999999967,
-            "totalMs": 5206.674899999984
+            "gitChangeDiscoveryMs": 1060.0990999999922,
+            "extractionResolutionMs": 5072.47649999999,
+            "relationshipMaintenanceMs": 96.0346000000136,
+            "cacheIoMs": 0.000800000037997961,
+            "graphMaterializationMs": 270.5835000000079,
+            "totalMs": 6956.736300000048
           },
           "warmColdEqual": true
         },
         {
           "kind": "rename-only",
-          "base": "91968aa8a8935750fd1dd9792d96b648137fa29f",
-          "parent": "91968aa8a8935750fd1dd9792d96b648137fa29f",
-          "target": "53516692557c3d432945aa5ac7ae023c2a6d83ab",
+          "base": "cc4f2856b143a987056d5adbe3ef3f988d931a7a",
+          "parent": "cc4f2856b143a987056d5adbe3ef3f988d931a7a",
+          "target": "066c44c364d561983eaf27c05a67bfdf99dfce6a",
           "changedPaths": 1,
           "changes": [
             {
@@ -12325,12 +12475,17 @@
             }
           ],
           "sourceFiles": 3840,
-          "warmMs": 1780.35,
-          "coldMs": 4378.41,
-          "warmToColdRatio": 0.41,
+          "warmMs": 2561.89,
+          "coldMs": 5223.9,
+          "warmToColdRatio": 0.49,
           "reparsedFiles": 0,
           "reusedSyntaxArtifacts": 1,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 3842,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 1,
           "graphNodes": 8069,
           "graphEdges": 15366,
           "structuralEdgeDelta": {
@@ -12339,7 +12494,7 @@
             "total": 10
           },
           "affectedNodes": 0,
-          "serializationMs": 211.74,
+          "serializationMs": 261.13,
           "serializedBytes": 14348969,
           "artifactHits": 189,
           "artifactMisses": 0,
@@ -12354,7 +12509,7 @@
             "skippedDuplicateRelationshipNodes": 4228,
             "skippedDuplicateRelationshipEdges": 4227,
             "mode": "incremental",
-            "baseCommit": "91968aa8a8935750fd1dd9792d96b648137fa29f",
+            "baseCommit": "cc4f2856b143a987056d5adbe3ef3f988d931a7a",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c00/m9-renamed.ts",
@@ -12372,28 +12527,28 @@
             "materializedEdges": 15366
           },
           "timings": {
-            "gitChangeDiscoveryMs": 631.6161000000138,
-            "extractionResolutionMs": 0.1023999999742955,
-            "relationshipMaintenanceMs": 0.7229999999981374,
-            "cacheIoMs": 970.9872000000323,
-            "graphMaterializationMs": 162.93249999999534,
-            "totalMs": 1780.3362999999954
+            "gitChangeDiscoveryMs": 860.4045000000042,
+            "extractionResolutionMs": 0.20769999996991828,
+            "relationshipMaintenanceMs": 1.415900000021793,
+            "cacheIoMs": 1338.1330000000307,
+            "graphMaterializationMs": 344.06750000006286,
+            "totalMs": 2561.8770999999833
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 818.0022999999928,
-            "extractionResolutionMs": 3083.47980000003,
-            "relationshipMaintenanceMs": 68.41740000000573,
-            "cacheIoMs": 0.0019000000029336661,
-            "graphMaterializationMs": 130.1404999999795,
-            "totalMs": 4378.400800000003
+            "gitChangeDiscoveryMs": 1047.4189999999944,
+            "extractionResolutionMs": 3398.8098999999347,
+            "relationshipMaintenanceMs": 88.21360000001732,
+            "cacheIoMs": 0.002299999992828816,
+            "graphMaterializationMs": 255.74869999999646,
+            "totalMs": 5223.888600000006
           },
           "warmColdEqual": true
         },
         {
           "kind": "dependency-edit",
-          "base": "53516692557c3d432945aa5ac7ae023c2a6d83ab",
-          "parent": "53516692557c3d432945aa5ac7ae023c2a6d83ab",
-          "target": "6bdf719fae3cb09c1da82032684dd3bf915a304f",
+          "base": "066c44c364d561983eaf27c05a67bfdf99dfce6a",
+          "parent": "066c44c364d561983eaf27c05a67bfdf99dfce6a",
+          "target": "9b5826ec9ea5ff351ef25734eb30c0b9e206a254",
           "changedPaths": 1,
           "changes": [
             {
@@ -12405,12 +12560,17 @@
             }
           ],
           "sourceFiles": 3840,
-          "warmMs": 1598.79,
-          "coldMs": 4226.31,
-          "warmToColdRatio": 0.38,
+          "warmMs": 4771.95,
+          "coldMs": 5325.26,
+          "warmToColdRatio": 0.9,
           "reparsedFiles": 1,
           "reusedSyntaxArtifacts": 0,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 3842,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 8069,
           "graphEdges": 15366,
           "structuralEdgeDelta": {
@@ -12419,7 +12579,7 @@
             "total": 2
           },
           "affectedNodes": 4,
-          "serializationMs": 235.02,
+          "serializationMs": 317.17,
           "serializedBytes": 14348969,
           "artifactHits": 189,
           "artifactMisses": 1,
@@ -12434,7 +12594,7 @@
             "skippedDuplicateRelationshipNodes": 4228,
             "skippedDuplicateRelationshipEdges": 4227,
             "mode": "incremental",
-            "baseCommit": "53516692557c3d432945aa5ac7ae023c2a6d83ab",
+            "baseCommit": "066c44c364d561983eaf27c05a67bfdf99dfce6a",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c01/m5.ts"
@@ -12451,28 +12611,28 @@
             "materializedEdges": 15366
           },
           "timings": {
-            "gitChangeDiscoveryMs": 509.54099999999744,
-            "extractionResolutionMs": 56.500700000004144,
+            "gitChangeDiscoveryMs": 2991.443499999994,
+            "extractionResolutionMs": 128.476800000004,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 857.6858000000066,
-            "graphMaterializationMs": 165.641100000008,
-            "totalMs": 1598.773599999986
+            "cacheIoMs": 1283.7715000000317,
+            "graphMaterializationMs": 348.2948000000324,
+            "totalMs": 4771.929200000013
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 707.381400000013,
-            "extractionResolutionMs": 2986.466000000015,
-            "relationshipMaintenanceMs": 96.00659999999334,
-            "cacheIoMs": 0.0017000000225380063,
-            "graphMaterializationMs": 149.98519999999553,
-            "totalMs": 4226.303599999985
+            "gitChangeDiscoveryMs": 1048.651200000022,
+            "extractionResolutionMs": 3476.098400000017,
+            "relationshipMaintenanceMs": 97.1416999999783,
+            "cacheIoMs": 0.0020000000367872417,
+            "graphMaterializationMs": 245.02069999999367,
+            "totalMs": 5325.251799999969
           },
           "warmColdEqual": true
         },
         {
           "kind": "broad-edit",
-          "base": "6bdf719fae3cb09c1da82032684dd3bf915a304f",
-          "parent": "6bdf719fae3cb09c1da82032684dd3bf915a304f",
-          "target": "17d387f5bf99b9dd0c517771c548178f207b594c",
+          "base": "9b5826ec9ea5ff351ef25734eb30c0b9e206a254",
+          "parent": "9b5826ec9ea5ff351ef25734eb30c0b9e206a254",
+          "target": "8e7ea7564be67c0bc978f2b5c3e2c43de35e8f1b",
           "changedPaths": 3840,
           "changes": [
             {
@@ -39357,12 +39517,17 @@
             }
           ],
           "sourceFiles": 3840,
-          "warmMs": 11847.3,
-          "coldMs": 4279.44,
-          "warmToColdRatio": 2.77,
+          "warmMs": 17948.88,
+          "coldMs": 5354.68,
+          "warmToColdRatio": 3.35,
           "reparsedFiles": 402,
           "reusedSyntaxArtifacts": 3438,
           "packageManifests": 1,
+          "parsedPackageManifests": 0,
+          "reusedPackageArtifacts": 1,
+          "relationshipIndexedFiles": 3842,
+          "relationshipTestCandidates": 0,
+          "relationshipMembershipFilesVisited": 0,
           "graphNodes": 8069,
           "graphEdges": 15366,
           "structuralEdgeDelta": {
@@ -39371,7 +39536,7 @@
             "total": 0
           },
           "affectedNodes": 3456,
-          "serializationMs": 188.9,
+          "serializationMs": 329.81,
           "serializedBytes": 14348969,
           "artifactHits": 3627,
           "artifactMisses": 402,
@@ -39386,7 +39551,7 @@
             "skippedDuplicateRelationshipNodes": 4228,
             "skippedDuplicateRelationshipEdges": 4227,
             "mode": "incremental",
-            "baseCommit": "6bdf719fae3cb09c1da82032684dd3bf915a304f",
+            "baseCommit": "9b5826ec9ea5ff351ef25734eb30c0b9e206a254",
             "invalidationReasons": [],
             "changedPaths": [
               "src/c00/m0.ts",
@@ -43242,20 +43407,20 @@
             "materializedEdges": 15366
           },
           "timings": {
-            "gitChangeDiscoveryMs": 960.2998999999836,
-            "extractionResolutionMs": 3018.572700001212,
+            "gitChangeDiscoveryMs": 1239.2004000000888,
+            "extractionResolutionMs": 5104.955099997111,
             "relationshipMaintenanceMs": 0,
-            "cacheIoMs": 7426.27189999877,
-            "graphMaterializationMs": 166.79260000001523,
-            "totalMs": 11847.276699999988
+            "cacheIoMs": 10935.783900002949,
+            "graphMaterializationMs": 276.3244999999879,
+            "totalMs": 17948.866099999985
           },
           "coldTimings": {
-            "gitChangeDiscoveryMs": 1008.2885999999708,
-            "extractionResolutionMs": 2721.8126000000047,
-            "relationshipMaintenanceMs": 73.6928000000189,
-            "cacheIoMs": 0.0017000000225380063,
-            "graphMaterializationMs": 152.8340999999782,
-            "totalMs": 4244.607699999993
+            "gitChangeDiscoveryMs": 899.8371999999508,
+            "extractionResolutionMs": 3606.9037000000244,
+            "relationshipMaintenanceMs": 95.2153999999864,
+            "cacheIoMs": 0.002300000051036477,
+            "graphMaterializationMs": 270.280199999921,
+            "totalMs": 5354.606599999941
           },
           "warmColdEqual": true
         }
