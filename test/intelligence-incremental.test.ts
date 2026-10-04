@@ -211,6 +211,30 @@ test("composed fragment output preserves standalone-extractor semantics includin
   assert.equal(graphEquals(buildRepositoryIntelligence({ ...options, ref: target, store }).graph, buildRepositoryIntelligence({ ...options, ref: target }).graph), true);
 });
 
+test("merge revisions follow the first parent while materializing the exact merge tree", () => {
+  const f = fixture();
+  f.build(f.first);
+  git(f.root, "checkout", "-b", "side");
+  write(f.root, "src/side.ts", "export const side = 1;\n");
+  commit(f.root);
+  git(f.root, "checkout", "main");
+  write(f.root, "src/main-only.ts", "export const mainOnly = 1;\n");
+  const firstParent = commit(f.root);
+  f.equivalent(firstParent);
+  git(f.root, "merge", "--no-ff", "side", "-m", "merge");
+  const merge = git(f.root, "rev-parse", "HEAD");
+
+  const warm = f.equivalent(merge);
+  assert.equal(warm.metrics.composition.mode, "incremental");
+  assert.equal(warm.metrics.composition.baseCommit, firstParent);
+  assert.equal(warm.commit, merge);
+  assert.ok(warm.graph.nodes.some((node) => node.identity.kind === "file" && node.identity.key === "src/main-only.ts"));
+  assert.ok(warm.graph.nodes.some((node) => node.identity.kind === "file" && node.identity.key === "src/side.ts"));
+  for (const fact of [...warm.graph.nodes, ...warm.graph.edges]) {
+    assert.ok(fact.provenance.every((provenance) => provenance.commit === merge));
+  }
+});
+
 test("cold batched extraction retains the per-blob limit without adding an aggregate 64 MiB source limit", () => {
   const f = fixture();
   for (let index = 0; index < 4; index++) write(f.root, `large/m${index}.ts`, `/*${"x".repeat(17 * 1024 * 1024)}*/\nexport const value = ${index};\n`);
