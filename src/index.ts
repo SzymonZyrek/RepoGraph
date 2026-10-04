@@ -149,8 +149,10 @@ export {
 } from "./policy.js";
 
 export {
+  REPOSITORY_PACKAGE_SCHEMA_VERSION,
   REPOSITORY_RELATIONSHIP_EXTRACTOR,
   extractRepositoryRelationships,
+  type RepositoryRelationshipExtractionOptions,
   type RepositoryRelationshipExtractionResult,
   type RepositoryRelationshipMetrics,
 } from "./repository-relations.js";
