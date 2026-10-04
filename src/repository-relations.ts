@@ -634,8 +634,8 @@ export function extractRepositoryRelationshipInputs(
       options.store,
     );
     if (loaded.reused) reusedPackageArtifacts += 1;
-    packageCacheIoMs += loaded.cacheIoMs;
     else parsedPackageManifests += 1;
+    packageCacheIoMs += loaded.cacheIoMs;
     if (loaded.facts !== undefined) packages.push(loaded.facts);
   }
 
