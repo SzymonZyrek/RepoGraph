@@ -323,7 +323,7 @@ function resolveManifestRelativePath(
 function resolveLocalDependency(
   source: PackageFacts,
   dependency: DeclaredDependency,
-  packages: readonly PackageFacts[],
+  byDirectory: ReadonlyMap<string, PackageFacts>,
   byName: ReadonlyMap<string, readonly PackageFacts[]>,
 ): PackageFacts | undefined {
   if (dependency.specifier.startsWith("workspace:")) {
@@ -351,8 +351,7 @@ function resolveLocalDependency(
     return undefined;
   }
   const directory = resolved === "." ? "." : resolved.replace(/^\.\//, "");
-  const matches = packages.filter((candidate) => candidate.directory === directory);
-  return matches.length === 1 ? matches[0] : undefined;
+  return byDirectory.get(directory);
 }
 
 function testSourceCandidates(path: string): string[] {
@@ -374,21 +373,21 @@ function testSourceCandidates(path: string): string[] {
   return [...candidates].sort();
 }
 
-function containsPath(directory: string, path: string): boolean {
-  return directory === "." || path.startsWith(`${directory}/`);
-}
-
 function owningPackage(
-  packages: readonly PackageFacts[],
+  byDirectory: ReadonlyMap<string, PackageFacts>,
   path: string,
 ): PackageFacts | undefined {
-  return [...packages]
-    .filter((facts) => containsPath(facts.directory, path))
-    .sort(
-      (left, right) =>
-        right.directory.length - left.directory.length ||
-        left.path.localeCompare(right.path),
-    )[0];
+  let directory = posix.dirname(path);
+
+  while (true) {
+    const owner = byDirectory.get(directory);
+    if (owner !== undefined) return owner;
+    if (directory === ".") return undefined;
+
+    const parent = posix.dirname(directory);
+    if (parent === directory) return undefined;
+    directory = parent;
+  }
 }
 
 function fileNodeByPath(nodes: readonly GraphNode[]): Map<string, GraphNode> {
@@ -422,11 +421,13 @@ export function extractRepositoryRelationships(
     .filter((facts): facts is PackageFacts => facts !== undefined);
 
   const packageNodeIds = new Map<string, string>();
+  const packagesByDirectory = new Map<string, PackageFacts>();
   const packagesByName = new Map<string, PackageFacts[]>();
 
   for (const facts of packages) {
     const identity = packageIdentity(ingestion.repository, facts.path);
     packageNodeIds.set(facts.path, nodeId(identity));
+    packagesByDirectory.set(facts.directory, facts);
     inputs.nodes.push({
       identity,
       metadata: packageMetadata(facts),
@@ -458,7 +459,7 @@ export function extractRepositoryRelationships(
   let buildEntrypoints = 0;
 
   for (const [path, fileNode] of filesByPath) {
-    const owner = owningPackage(packages, path);
+    const owner = owningPackage(packagesByDirectory, path);
     if (owner === undefined) continue;
     const ownerId = packageNodeIds.get(owner.path);
     if (ownerId === undefined) continue;
@@ -484,7 +485,7 @@ export function extractRepositoryRelationships(
       const target = resolveLocalDependency(
         source,
         dependency,
-        packages,
+        packagesByDirectory,
         packagesByName,
       );
       if (target === undefined) {
