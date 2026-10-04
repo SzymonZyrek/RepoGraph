@@ -152,7 +152,9 @@ export function buildRepositoryIntelligence(
       ? {}
       : { tsconfigPath: options.tsconfigPath }),
   });
-  const relationships = extractRepositoryRelationships(ingestion);
+  const relationships = extractRepositoryRelationships(ingestion, {
+    ...(options.store === undefined ? {} : { store: options.store }),
+  });
   const composition = composeRepositoryIntelligenceGraphs(
     ingestion.graph,
     tsjs.graph,
@@ -177,6 +179,6 @@ export function buildRepositoryIntelligence(
       relationships: relationships.metrics,
       composition: composition.metrics,
     },
-    ...(tsjs.cache === undefined ? {} : { cache: tsjs.cache }),
+    ...(options.store === undefined ? {} : { cache: options.store.getStats() }),
   };
 }
