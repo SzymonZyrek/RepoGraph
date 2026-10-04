@@ -229,6 +229,7 @@ for (const scenario of scenarios) {
     reparsedFiles: warm.metrics.tsjs.parsedFiles,
     reusedSyntaxArtifacts: warm.metrics.tsjs.reusedSyntaxArtifacts,
     packageManifests: warm.metrics.relationships.packageManifests,
+    composition: warm.metrics.composition,
     graphNodes: warm.graph.nodes.length,
     graphEdges: warm.graph.edges.length,
     structuralEdgeDelta: delta,

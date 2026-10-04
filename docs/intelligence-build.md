@@ -66,6 +66,7 @@ The metrics file records:
 - total graph nodes/edges/diagnostics;
 - TS/JS parse/reuse metrics;
 - deterministic repository-relationship metrics;
+- composition metrics showing how many base Git nodes/edges were reused instead of rebuilt from the relationship stage;
 - cache stats when a cache is used.
 - composition mode (`cold`, `incremental`, `exact`), first-parent base commit, fallback/invalidation reasons and changed paths;
 - inspected Git path/blob identities, resolved source fragments, recomposed relationship fragments, reused fragments and materialized nodes/edges;
@@ -76,6 +77,8 @@ The metrics file records:
 `parsedFiles` and `reusedSyntaxArtifacts` count actual parser/cache work performed in this call. An exact manifest hit reports zero for both: it skips syntax extraction entirely. Dependency and relationship counts describe the full result, while composition counters describe maintenance work. Syntax-cache I/O is included in the overall cache phase and excluded from extraction/resolution time. `inspectedBlobs` counts changed Git blob identities, rather than claiming every such blob was reparsed.
 
 Run `npm run eval:intelligence` explicitly to reproduce the 240/960/3,840-source evaluation. It holds cluster size constant, exercises eight sequential edits, unchanged-blob rename, dependency edit, broad edit and stale SHA, and asserts warm/cold graph equality at every revision. It remains opt-in, outside required CI.
+
+The built-in TS/JS and relationship extractors each expose a complete standalone graph, so both contain the pinned base Git facts. The composed `build-intelligence` path recognizes those shared base fact identities and feeds them into final graph construction only once. Relationship-only package/test/build/contract facts are still added normally. This avoids redundant hashing, validation and provenance merging for the unchanged base graph without changing the resulting `repograph.graph/v1` document.
 
 ## Boundary
 
