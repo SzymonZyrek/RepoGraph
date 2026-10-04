@@ -157,6 +157,115 @@ test("extracts explicit local package dependencies plus build and contract entry
   );
 });
 
+test("indexes nearest package ownership plus file and link local dependencies", () => {
+  const root = repository();
+
+  file(
+    root,
+    "package.json",
+    JSON.stringify({
+      name: "@fixture/root",
+      version: "1.0.0",
+    }),
+  );
+  file(root, "src/root.ts", "export const rootValue = 1;\n");
+
+  file(
+    root,
+    "packages/core/package.json",
+    JSON.stringify({
+      name: "@fixture/core",
+      version: "1.0.0",
+    }),
+  );
+  file(root, "packages/core/src/core.ts", "export const core = 1;\n");
+
+  file(
+    root,
+    "packages/app/package.json",
+    JSON.stringify({
+      name: "@fixture/app",
+      version: "1.0.0",
+      dependencies: {
+        "@fixture/core": "file:../core",
+        "@fixture/inner": "link:./plugins/inner",
+      },
+    }),
+  );
+  file(root, "packages/app/src/app.ts", "export const app = 1;\n");
+
+  file(
+    root,
+    "packages/app/plugins/inner/package.json",
+    JSON.stringify({
+      name: "@fixture/inner",
+      version: "1.0.0",
+    }),
+  );
+  file(
+    root,
+    "packages/app/plugins/inner/src/inner.ts",
+    "export const inner = 1;\n",
+  );
+
+  const ref = commit(root, "indexed package relationships");
+  const result = extract(root, ref);
+
+  const memberships = result.graph.edges.filter(
+    (edge) => edge.identity.kind === "belongs-to-package",
+  );
+
+  assert.equal(
+    memberships.some(
+      (edge) =>
+        edge.identity.from === fileId("src/root.ts") &&
+        edge.identity.to === packageId("package.json"),
+    ),
+    true,
+  );
+  assert.equal(
+    memberships.some(
+      (edge) =>
+        edge.identity.from === fileId("packages/app/src/app.ts") &&
+        edge.identity.to === packageId("packages/app/package.json"),
+    ),
+    true,
+  );
+  assert.equal(
+    memberships.some(
+      (edge) =>
+        edge.identity.from === fileId("packages/app/plugins/inner/src/inner.ts") &&
+        edge.identity.to ===
+          packageId("packages/app/plugins/inner/package.json"),
+    ),
+    true,
+  );
+
+  const dependencies = result.graph.edges.filter(
+    (edge) => edge.identity.kind === "package-dependency",
+  );
+  assert.equal(dependencies.length, 2);
+  assert.equal(
+    dependencies.some(
+      (edge) =>
+        edge.identity.from === packageId("packages/app/package.json") &&
+        edge.identity.to === packageId("packages/core/package.json") &&
+        edge.metadata?.specifier === "file:../core",
+    ),
+    true,
+  );
+  assert.equal(
+    dependencies.some(
+      (edge) =>
+        edge.identity.from === packageId("packages/app/package.json") &&
+        edge.identity.to ===
+          packageId("packages/app/plugins/inner/package.json") &&
+        edge.metadata?.specifier === "link:./plugins/inner",
+    ),
+    true,
+  );
+});
+
 test("emits test-to-source edges only for an unambiguous filename convention", () => {
   const root = repository();
 
