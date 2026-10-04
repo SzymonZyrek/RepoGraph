@@ -433,7 +433,9 @@ function getPackageFacts(
   if (facts !== undefined && store !== undefined) {
     store.putArtifact(identity, packageManifestPayload(facts));
   }
-  return { facts, reused: false };
+  return facts === undefined
+    ? { reused: false }
+    : { facts, reused: false };
 }
 
 function resolveManifestRelativePath(
