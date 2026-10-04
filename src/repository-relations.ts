@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { posix } from "node:path";
+import { performance } from "node:perf_hooks";
 
 import { buildGraph, nodeId } from "./graph.js";
 import type { GitIngestionResult } from "./git.js";
@@ -9,6 +10,7 @@ import type {
   GraphEdgeInput,
   GraphNode,
   GraphNodeInput,
+  GraphInput,
   JsonObject,
   JsonValue,
   Provenance,
@@ -57,7 +59,7 @@ interface PackageManifestFacts {
   entrypoints: DeclaredEntrypoint[];
 }
 
-interface PackageFacts extends PackageManifestFacts {
+export interface PackageFacts extends PackageManifestFacts {
   path: string;
   directory: string;
 }
@@ -70,6 +72,7 @@ export interface RepositoryRelationshipMetrics {
   packageManifests: number;
   parsedPackageManifests: number;
   reusedPackageArtifacts: number;
+  packageCacheIoMs?: number;
   packageNodes: number;
   packageDependencies: number;
   packageMemberships: number;
@@ -81,6 +84,11 @@ export interface RepositoryRelationshipMetrics {
 
 export interface RepositoryRelationshipExtractionOptions {
   store?: LocalArtifactStore;
+  packages?: PackageFacts[];
+  membershipPaths?: ReadonlySet<string>;
+  testPaths?: ReadonlySet<string>;
+  packagePaths?: ReadonlySet<string>;
+  files?: ReadonlyMap<string, GraphNode>;
 }
 
 export interface RepositoryRelationshipExtractionResult {
@@ -215,7 +223,7 @@ function collectExportTargets(
   }
 }
 
-function parsePackageFacts(
+export function parsePackageFacts(
   ingestion: GitIngestionResult,
   path: string,
   diagnostics: GraphDiagnostic[],
@@ -410,16 +418,19 @@ function packageManifestArtifactIdentity(node: GraphNode): ArtifactIdentity {
   };
 }
 
-function getPackageFacts(
+export function getPackageFacts(
   ingestion: GitIngestionResult,
   node: GraphNode,
   diagnostics: GraphDiagnostic[],
   store: LocalArtifactStore | undefined,
-): { facts?: PackageFacts; reused: boolean } {
+): { facts?: PackageFacts; reused: boolean; cacheIoMs: number } {
   const path = node.identity.key;
   const identity = packageManifestArtifactIdentity(node);
+  let cacheIoMs = 0;
   if (store !== undefined) {
+    const before = performance.now();
     const cached = store.getArtifact(artifactKey(identity));
+    cacheIoMs += performance.now() - before;
     if (cached !== undefined) {
       const manifest = decodePackageManifest(cached.payload);
       return {
@@ -429,17 +440,20 @@ function getPackageFacts(
           ...manifest,
         },
         reused: true,
+        cacheIoMs,
       };
     }
   }
 
   const facts = parsePackageFacts(ingestion, path, diagnostics);
   if (facts !== undefined && store !== undefined) {
+    const before = performance.now();
     store.putArtifact(identity, packageManifestPayload(facts));
+    cacheIoMs += performance.now() - before;
   }
   return facts === undefined
-    ? { reused: false }
-    : { facts, reused: false };
+    ? { reused: false, cacheIoMs }
+    : { facts, reused: false, cacheIoMs };
 }
 
 function resolveManifestRelativePath(
@@ -503,7 +517,21 @@ function resolveLocalDependency(
   return byDirectory.get(directory);
 }
 
-function testSourceCandidates(path: string): string[] {
+/** Successful and unsuccessful relationship-resolution dependencies. */
+export function packageResolutionCandidates(facts: PackageFacts): string[] {
+  const candidates = new Set<string>();
+  for (const dependency of facts.dependencies) {
+    if (dependency.specifier.startsWith("workspace:")) candidates.add(`name:${dependency.name}`);
+    else if (dependency.specifier.startsWith("file:") || dependency.specifier.startsWith("link:")) candidates.add(`directory:${posix.normalize(posix.join(facts.directory, dependency.specifier.slice(5)))}`);
+  }
+  for (const entrypoint of facts.entrypoints) {
+    const path = resolveManifestRelativePath(facts, entrypoint.target);
+    if (path !== undefined) candidates.add(`file:${path}`);
+  }
+  return [...candidates].sort();
+}
+
+export function testSourceCandidates(path: string): string[] {
   const base = posix.basename(path);
   const match = /^(.+)\.(test|spec)(\.(?:ts|tsx|mts|cts|js|jsx|mjs|cjs))$/.exec(base);
   if (match === null) return [];
@@ -580,19 +608,23 @@ function packageMetadata(facts: PackageFacts): JsonObject {
   };
 }
 
-export function extractRepositoryRelationships(
+export function extractRepositoryRelationshipInputs(
   ingestion: GitIngestionResult,
   options: RepositoryRelationshipExtractionOptions = {},
-): RepositoryRelationshipExtractionResult {
-  const inputs = graphInputs(ingestion.graph);
-  const { filesByPath, packagePaths, testFiles } = indexRepositoryFiles(
-    ingestion.graph.nodes,
-  );
+): { inputs: GraphInput; metrics: RepositoryRelationshipMetrics; packages: PackageFacts[] } {
+  const inputs = { nodes: [] as GraphNodeInput[], edges: [] as GraphEdgeInput[], diagnostics: [] as GraphDiagnostic[] };
+  const indexed = options.files === undefined ? indexRepositoryFiles(ingestion.graph.nodes) : undefined;
+  const filesByPath = options.files ?? indexed!.filesByPath;
+  const packagePaths = options.packages?.map((facts) => facts.path) ?? indexed?.packagePaths ?? [...filesByPath.keys()].filter(isPackageManifestPath).sort();
+  const testFiles = options.testPaths === undefined
+    ? indexed?.testFiles ?? [...filesByPath.entries()].filter(([path]) => isTestFilePath(path))
+    : [...options.testPaths].filter((path) => filesByPath.has(path) && isTestFilePath(path)).map((path) => [path, filesByPath.get(path)!] as const);
 
-  const packages: PackageFacts[] = [];
+  const packages: PackageFacts[] = options.packages ?? [];
   let parsedPackageManifests = 0;
   let reusedPackageArtifacts = 0;
-  for (const path of packagePaths) {
+  let packageCacheIoMs = 0;
+  for (const path of options.packages === undefined ? packagePaths : []) {
     const node = filesByPath.get(path);
     if (node === undefined) continue;
     const loaded = getPackageFacts(
@@ -603,6 +635,7 @@ export function extractRepositoryRelationships(
     );
     if (loaded.reused) reusedPackageArtifacts += 1;
     else parsedPackageManifests += 1;
+    packageCacheIoMs += loaded.cacheIoMs;
     if (loaded.facts !== undefined) packages.push(loaded.facts);
   }
 
@@ -614,14 +647,14 @@ export function extractRepositoryRelationships(
     const identity = packageIdentity(ingestion.repository, facts.path);
     packageNodeIds.set(facts.path, nodeId(identity));
     packagesByDirectory.set(facts.directory, facts);
-    inputs.nodes.push({
+    if (options.packagePaths === undefined || options.packagePaths.has(facts.path)) inputs.nodes.push({
       identity,
       metadata: packageMetadata(facts),
       provenance: [factProvenance(ingestion, facts.path)],
     });
 
     const manifestNode = filesByPath.get(facts.path);
-    if (manifestNode !== undefined) {
+    if (manifestNode !== undefined && (options.packagePaths === undefined || options.packagePaths.has(facts.path))) {
       inputs.edges.push({
         identity: {
           kind: "declares-package",
@@ -645,7 +678,8 @@ export function extractRepositoryRelationships(
   let membershipFilesVisited = 0;
   let buildEntrypoints = 0;
 
-  for (const [path, fileNode] of filesByPath) {
+  const membershipFiles = options.membershipPaths === undefined ? filesByPath : [...options.membershipPaths].filter((path) => filesByPath.has(path)).map((path) => [path, filesByPath.get(path)!] as const);
+  for (const [path, fileNode] of membershipFiles) {
     membershipFilesVisited += 1;
     const owner = owningPackage(packagesByDirectory, path);
     if (owner === undefined) continue;
@@ -666,6 +700,7 @@ export function extractRepositoryRelationships(
   let testRelations = 0;
 
   for (const source of packages) {
+    if (options.packagePaths !== undefined && !options.packagePaths.has(source.path)) continue;
     const sourceId = packageNodeIds.get(source.path);
     if (sourceId === undefined) continue;
 
@@ -793,7 +828,8 @@ export function extractRepositoryRelationships(
   }
 
   return {
-    graph: buildGraph(inputs),
+    inputs,
+    packages,
     metrics: {
       indexedFiles: filesByPath.size,
       packageManifestCandidates: packagePaths.length,
@@ -802,13 +838,31 @@ export function extractRepositoryRelationships(
       packageManifests: packages.length,
       parsedPackageManifests,
       reusedPackageArtifacts,
+      packageCacheIoMs,
       packageNodes: packages.length,
       packageDependencies,
       packageMemberships,
       buildEntrypoints,
       contractEntrypoints,
       testRelations,
-      diagnostics: inputs.diagnostics.length - ingestion.graph.diagnostics.length,
+      diagnostics: inputs.diagnostics.length,
     },
+  };
+}
+
+/** Standalone graph and blob-manifest cache preserve their original public surface. */
+export function extractRepositoryRelationships(
+  ingestion: GitIngestionResult,
+  options: RepositoryRelationshipExtractionOptions = {},
+): RepositoryRelationshipExtractionResult {
+  const result = extractRepositoryRelationshipInputs(ingestion, options);
+  const base = graphInputs(ingestion.graph);
+  return {
+    graph: buildGraph({
+      nodes: [...base.nodes, ...(result.inputs.nodes ?? [])],
+      edges: [...base.edges, ...(result.inputs.edges ?? [])],
+      diagnostics: [...base.diagnostics, ...(result.inputs.diagnostics ?? [])],
+    }),
+    metrics: result.metrics,
   };
 }

@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { posix } from "node:path";
+import { performance } from "node:perf_hooks";
 
 import * as ts from "typescript";
 
@@ -11,6 +12,7 @@ import type {
   GraphEdgeInput,
   GraphNode,
   GraphNodeInput,
+  GraphInput,
   JsonValue,
   Provenance,
 } from "./model.js";
@@ -57,7 +59,7 @@ interface SyntaxFacts {
   exports: string[];
 }
 
-interface TsConfigResolution {
+export interface TsConfigResolution {
   baseUrl: string;
   paths: Record<string, string[]>;
 }
@@ -69,6 +71,7 @@ export interface TsJsExtractionMetrics {
   resolvedDependencies: number;
   unresolvedDependencies: number;
   externalDependencies: number;
+  syntaxCacheIoMs?: number;
 }
 
 export interface TsJsExtractionOptions {
@@ -99,7 +102,7 @@ function gitText(root: string, commit: string, path: string): string {
   }
 }
 
-function isSourcePath(path: string): boolean {
+export function isSourcePath(path: string): boolean {
   return SOURCE_EXTENSIONS.some((extension) => path.endsWith(extension));
 }
 
@@ -321,7 +324,7 @@ function syntaxArtifactIdentity(node: GraphNode): ArtifactIdentity {
   }
   return {
     contentIdentity: `git-blob:${blob}`,
-    artifactKind: "tsjs-syntax",
+    artifactKind: `tsjs-syntax/${scriptKind(node.identity.key)}`,
     extractor: TSJS_EXTRACTOR,
     parser: { name: "typescript", version: ts.version },
     schemaVersion: TSJS_SYNTAX_SCHEMA_VERSION,
@@ -332,23 +335,29 @@ function getSyntaxFacts(
   ingestion: GitIngestionResult,
   node: GraphNode,
   store: LocalArtifactStore | undefined,
-): { facts: SyntaxFacts; reused: boolean } {
+  readSource?: (path: string) => string,
+): { facts: SyntaxFacts; reused: boolean; cacheIoMs: number } {
   const identity = syntaxArtifactIdentity(node);
+  let cacheIoMs = 0;
   if (store !== undefined) {
+    const before = performance.now();
     const cached = store.getArtifact(artifactKey(identity));
+    cacheIoMs += performance.now() - before;
     if (cached !== undefined) {
-      return { facts: decodeSyntax(cached.payload), reused: true };
+      return { facts: decodeSyntax(cached.payload), reused: true, cacheIoMs };
     }
   }
 
   const facts = parseSyntax(
     node.identity.key,
-    gitText(ingestion.repositoryRoot, ingestion.commit, node.identity.key),
+    readSource === undefined ? gitText(ingestion.repositoryRoot, ingestion.commit, node.identity.key) : readSource(node.identity.key),
   );
   if (store !== undefined) {
+    const before = performance.now();
     store.putArtifact(identity, syntaxPayload(facts));
+    cacheIoMs += performance.now() - before;
   }
-  return { facts, reused: false };
+  return { facts, reused: false, cacheIoMs };
 }
 
 function normalizeRepoPath(path: string): string | undefined {
@@ -409,7 +418,7 @@ function matchPathPattern(
   return specifier.slice(prefix.length, specifier.length - suffix.length);
 }
 
-function readTsConfig(
+export function readTsConfig(
   ingestion: GitIngestionResult,
   paths: ReadonlySet<string>,
   requestedPath: string,
@@ -465,7 +474,9 @@ function readTsConfig(
 function firstExisting(
   candidate: string,
   paths: ReadonlySet<string>,
+  candidates?: Set<string>,
 ): string | undefined {
+  for (const path of candidatePaths(candidate)) candidates?.add(path);
   return candidatePaths(candidate).find((path) => paths.has(path));
 }
 
@@ -474,17 +485,18 @@ function resolveSpecifier(
   specifier: string,
   files: ReadonlySet<string>,
   config: TsConfigResolution,
+  candidates?: Set<string>,
 ): { path?: string; external: boolean } {
   if (specifier.startsWith(".")) {
     const candidate = posix.join(posix.dirname(importerPath), specifier);
-    const resolved = firstExisting(candidate, files);
+    const resolved = firstExisting(candidate, files, candidates);
     return resolved === undefined
       ? { external: false }
       : { path: resolved, external: false };
   }
 
   if (specifier.startsWith("/")) {
-    const resolved = firstExisting(specifier.slice(1), files);
+    const resolved = firstExisting(specifier.slice(1), files, candidates);
     return resolved === undefined
       ? { external: false }
       : { path: resolved, external: false };
@@ -501,7 +513,7 @@ function resolveSpecifier(
     for (const target of targets) {
       const expanded = target.replace("*", wildcard);
       const candidate = posix.join(config.baseUrl, expanded);
-      const resolved = firstExisting(candidate, files);
+      const resolved = firstExisting(candidate, files, candidates);
       if (resolved !== undefined) return { path: resolved, external: false };
     }
     return { external: false };
@@ -549,28 +561,38 @@ function factProvenance(
   };
 }
 
-export function extractTypeScriptJavaScriptDependencies(
+export function extractTypeScriptJavaScriptFragments(
   ingestion: GitIngestionResult,
   options: TsJsExtractionOptions = {},
-): TsJsExtractionResult {
-  const inputs = graphInputs(ingestion.graph);
-  const fileNodes = ingestion.graph.nodes.filter(
-    (node) => node.identity.kind === "file",
-  );
-  const files = new Set(fileNodes.map((node) => node.identity.key));
-  const sourceNodes = fileNodes.filter((node) => isSourcePath(node.identity.key));
-  const byPath = new Map(fileNodes.map((node) => [node.identity.key, node]));
+  selectedPaths?: ReadonlySet<string>,
+  resolutionConfig?: TsConfigResolution,
+  fileIndex?: ReadonlyMap<string, GraphNode>,
+  readSource?: (path: string) => string,
+): { inputs: GraphInput; metrics: TsJsExtractionMetrics; candidates: Record<string, string[]>; configSources: string[] } {
+  const inputs = { nodes: [] as GraphNodeInput[], edges: [] as GraphEdgeInput[], diagnostics: [] as GraphDiagnostic[] };
+  const candidates: Record<string, string[]> = {};
+  const configSources: string[] = [];
+  const byPath = fileIndex ?? new Map(ingestion.graph.nodes.filter((node) => node.identity.kind === "file").map((node) => [node.identity.key, node]));
+  const files = { has: (path: string) => byPath.has(path) } as ReadonlySet<string>;
+  const sourceNodes = selectedPaths === undefined
+    ? [...byPath.values()].filter((node) => isSourcePath(node.identity.key))
+    : [...selectedPaths].map((path) => byPath.get(path)).filter((node): node is GraphNode => node !== undefined && isSourcePath(node.identity.key));
   const tsconfigPath = options.tsconfigPath ?? "tsconfig.json";
-  const config = readTsConfig(ingestion, files, tsconfigPath, inputs.diagnostics);
+  const config = resolutionConfig ?? readTsConfig(ingestion, files, tsconfigPath, inputs.diagnostics);
 
   let parsedFiles = 0;
   let reusedSyntaxArtifacts = 0;
   let resolvedDependencies = 0;
   let unresolvedDependencies = 0;
   let externalDependencies = 0;
+  let syntaxCacheIoMs = 0;
 
   for (const sourceNode of sourceNodes) {
-    const syntax = getSyntaxFacts(ingestion, sourceNode, options.store);
+    if (selectedPaths !== undefined && !selectedPaths.has(sourceNode.identity.key)) continue;
+    const resolutionCandidates = new Set<string>();
+    const syntax = getSyntaxFacts(ingestion, sourceNode, options.store, readSource);
+    if (syntax.facts.imports.some((dependency) => !dependency.specifier.startsWith(".") && !dependency.specifier.startsWith("/"))) configSources.push(sourceNode.identity.key);
+    syntaxCacheIoMs += syntax.cacheIoMs;
     if (syntax.reused) reusedSyntaxArtifacts += 1;
     else parsedFiles += 1;
 
@@ -607,6 +629,7 @@ export function extractTypeScriptJavaScriptDependencies(
         dependency.specifier,
         files,
         config,
+        resolutionCandidates,
       );
 
       if (resolution.path !== undefined) {
@@ -660,10 +683,13 @@ export function extractTypeScriptJavaScriptDependencies(
         });
       }
     }
+    candidates[sourceNode.identity.key] = [...resolutionCandidates].sort();
   }
 
   return {
-    graph: buildGraph(inputs),
+    inputs,
+    candidates,
+    configSources: configSources.sort(),
     metrics: {
       sourceFiles: sourceNodes.length,
       parsedFiles,
@@ -671,7 +697,25 @@ export function extractTypeScriptJavaScriptDependencies(
       resolvedDependencies,
       unresolvedDependencies,
       externalDependencies,
+      syntaxCacheIoMs,
     },
+  };
+}
+
+/** Standalone extractor retains its original graph contract. */
+export function extractTypeScriptJavaScriptDependencies(
+  ingestion: GitIngestionResult,
+  options: TsJsExtractionOptions = {},
+): TsJsExtractionResult {
+  const result = extractTypeScriptJavaScriptFragments(ingestion, options);
+  const base = graphInputs(ingestion.graph);
+  return {
+    graph: buildGraph({
+      nodes: [...base.nodes, ...(result.inputs.nodes ?? [])],
+      edges: [...base.edges, ...(result.inputs.edges ?? [])],
+      diagnostics: [...base.diagnostics, ...(result.inputs.diagnostics ?? [])],
+    }),
+    metrics: result.metrics,
     ...(options.store === undefined ? {} : { cache: options.store.getStats() }),
   };
 }

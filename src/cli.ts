@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { readFileSync, writeFileSync } from "node:fs";
+import { performance } from "node:perf_hooks";
 
 import { canonicalJsonUnknown } from "./canonical.js";
 import { ingestGitRepository } from "./git.js";
@@ -182,6 +183,13 @@ function run(argv: readonly string[]): void {
       },
     });
 
+    const serializationStart = performance.now();
+    const serializedGraph = canonicalJsonUnknown(result.graph) + "\n";
+    const cliSerializationMs = performance.now() - serializationStart;
+    const outputStart = performance.now();
+    if (out === undefined) process.stdout.write(serializedGraph);
+    else writeFileSync(out, serializedGraph);
+    const cliOutputMs = performance.now() - outputStart;
     if (metricsOut !== undefined) {
       output(
         {
@@ -189,13 +197,12 @@ function run(argv: readonly string[]): void {
           repository: result.repository,
           requestedRef: result.requestedRef,
           commit: result.commit,
-          metrics: result.metrics,
+          metrics: { ...result.metrics, timings: { ...result.metrics.timings, cliSerializationMs, cliOutputMs } },
           ...(result.cache === undefined ? {} : { cache: result.cache }),
         },
         metricsOut,
       );
     }
-    output(result.graph, out);
     return;
   }
 

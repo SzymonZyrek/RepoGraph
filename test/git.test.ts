@@ -3,7 +3,6 @@ import { execFileSync } from "node:child_process";
 import {
   mkdirSync,
   mkdtempSync,
-  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -61,9 +60,14 @@ test("ingests a pinned nested tree with filters, CODEOWNERS precedence and symli
     join(root, "CODEOWNERS"),
     "* @all\n/src/** @src\n/src/nested/** @nested\n",
   );
-  symlinkSync("src/a.ts", join(root, "link-to-a"));
-
-  const pinned = commitAll(root, "fixture");
+  commitAll(root, "fixture");
+  // Test the pinned Git symlink mode without requiring OS symlink privileges.
+  const symlinkBlob = execFileSync("git", ["hash-object", "-w", "--stdin"], {
+    cwd: root, encoding: "utf8", input: "src/a.ts", stdio: ["pipe", "pipe", "pipe"],
+  }).trim();
+  git(root, "update-index", "--add", "--cacheinfo", `120000,${symlinkBlob},link-to-a`);
+  git(root, "commit", "-m", "symlink fixture");
+  const pinned = git(root, "rev-parse", "HEAD");
 
   const first = ingestGitRepository({
     repositoryPath: root,
