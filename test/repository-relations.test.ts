@@ -6,6 +6,7 @@ import { dirname, join } from "node:path";
 import test from "node:test";
 
 import {
+  LocalArtifactStore,
   extractRepositoryRelationships,
   ingestGitRepository,
   nodeId,
@@ -38,7 +39,7 @@ function commit(root: string, message: string): string {
   return git(root, "rev-parse", "HEAD");
 }
 
-function extract(root: string, ref: string) {
+function extract(root: string, ref: string, store?: LocalArtifactStore) {
   return extractRepositoryRelationships(
     ingestGitRepository({
       repositoryPath: root,
@@ -46,6 +47,9 @@ function extract(root: string, ref: string) {
       ref,
       discoverCodeowners: false,
     }),
+    {
+      ...(store === undefined ? {} : { store }),
+    },
   );
 }
 
@@ -157,6 +161,174 @@ test("extracts explicit local package dependencies plus build and contract entry
   );
 });
 
+test("indexes nearest package ownership plus file and link local dependencies", () => {
+  const root = repository();
+
+  file(
+    root,
+    "package.json",
+    JSON.stringify({
+      name: "@fixture/root",
+      version: "1.0.0",
+    }),
+  );
+  file(root, "src/root.ts", "export const rootValue = 1;\n");
+
+  file(
+    root,
+    "packages/core/package.json",
+    JSON.stringify({
+      name: "@fixture/core",
+      version: "1.0.0",
+    }),
+  );
+  file(root, "packages/core/src/core.ts", "export const core = 1;\n");
+
+  file(
+    root,
+    "packages/app/package.json",
+    JSON.stringify({
+      name: "@fixture/app",
+      version: "1.0.0",
+      dependencies: {
+        "@fixture/core": "file:../core",
+        "@fixture/inner": "link:./plugins/inner",
+      },
+    }),
+  );
+  file(root, "packages/app/src/app.ts", "export const app = 1;\n");
+
+  file(
+    root,
+    "packages/app/plugins/inner/package.json",
+    JSON.stringify({
+      name: "@fixture/inner",
+      version: "1.0.0",
+    }),
+  );
+  file(
+    root,
+    "packages/app/plugins/inner/src/inner.ts",
+    "export const inner = 1;\n",
+  );
+
+  const ref = commit(root, "indexed package relationships");
+  const result = extract(root, ref);
+
+  const memberships = result.graph.edges.filter(
+    (edge) => edge.identity.kind === "belongs-to-package",
+  );
+
+  assert.equal(
+    memberships.some(
+      (edge) =>
+        edge.identity.from === fileId("src/root.ts") &&
+        edge.identity.to === packageId("package.json"),
+    ),
+    true,
+  );
+  assert.equal(
+    memberships.some(
+      (edge) =>
+        edge.identity.from === fileId("packages/app/src/app.ts") &&
+        edge.identity.to === packageId("packages/app/package.json"),
+    ),
+    true,
+  );
+  assert.equal(
+    memberships.some(
+      (edge) =>
+        edge.identity.from === fileId("packages/app/plugins/inner/src/inner.ts") &&
+        edge.identity.to ===
+          packageId("packages/app/plugins/inner/package.json"),
+    ),
+    true,
+  );
+
+  const dependencies = result.graph.edges.filter(
+    (edge) => edge.identity.kind === "package-dependency",
+  );
+  assert.equal(dependencies.length, 2);
+  assert.equal(
+    dependencies.some(
+      (edge) =>
+        edge.identity.from === packageId("packages/app/package.json") &&
+        edge.identity.to === packageId("packages/core/package.json") &&
+        edge.metadata?.specifier === "file:../core",
+    ),
+    true,
+  );
+  assert.equal(
+    dependencies.some(
+      (edge) =>
+        edge.identity.from === packageId("packages/app/package.json") &&
+        edge.identity.to ===
+          packageId("packages/app/plugins/inner/package.json") &&
+        edge.metadata?.specifier === "link:./plugins/inner",
+    ),
+    true,
+  );
+});
+
+test("content-addressed package cache reuses unchanged manifest blobs", () => {
+  const root = repository();
+  const cache = new LocalArtifactStore(
+    mkdtempSync(join(tmpdir(), "repograph-relations-cache-")),
+  );
+
+  file(
+    root,
+    "package.json",
+    JSON.stringify({
+      name: "@fixture/root",
+      version: "1.0.0",
+    }),
+  );
+  file(
+    root,
+    "packages/app/package.json",
+    JSON.stringify({
+      name: "@fixture/app",
+      version: "1.0.0",
+    }),
+  );
+  file(root, "packages/app/src/app.ts", "export const app = 1;\n");
+  const base = commit(root, "base manifests");
+
+  const first = extract(root, base, cache);
+  assert.equal(first.metrics.packageManifests, 2);
+  assert.equal(first.metrics.parsedPackageManifests, 2);
+  assert.equal(first.metrics.reusedPackageArtifacts, 0);
+
+  file(root, "packages/app/src/app.ts", "export const app = 2;\n");
+  const sourceOnly = commit(root, "source only");
+  const second = extract(root, sourceOnly, cache);
+  assert.equal(second.metrics.parsedPackageManifests, 0);
+  assert.equal(second.metrics.reusedPackageArtifacts, 2);
+
+  file(
+    root,
+    "packages/app/package.json",
+    JSON.stringify({
+      name: "@fixture/app",
+      version: "2.0.0",
+    }),
+  );
+  const manifestChange = commit(root, "manifest change");
+  const third = extract(root, manifestChange, cache);
+  assert.equal(third.metrics.parsedPackageManifests, 1);
+  assert.equal(third.metrics.reusedPackageArtifacts, 1);
+  assert.equal(
+    third.graph.nodes.some(
+      (node) =>
+        node.identity.kind === "package" &&
+        node.identity.key === "packages/app/package.json" &&
+        node.metadata?.version === "2.0.0",
+    ),
+    true,
+  );
+});
+
 test("emits test-to-source edges only for an unambiguous filename convention", () => {
   const root = repository();
 
@@ -193,6 +365,39 @@ test("emits test-to-source edges only for an unambiguous filename convention", (
     testEdges.some((edge) => edge.identity.from === fileId("test/math.test.ts")),
     false,
   );
+  assert.equal(result.metrics.testRelations, 2);
+});
+
+test("indexes relationship candidates once and limits test work to test-shaped paths", () => {
+  const root = repository();
+
+  file(
+    root,
+    "package.json",
+    JSON.stringify({
+      name: "@fixture/root",
+      version: "1.0.0",
+    }),
+  );
+  for (let index = 0; index < 40; index += 1) {
+    file(
+      root,
+      `src/plain-${index}.ts`,
+      `export const value${index} = ${index};\n`,
+    );
+  }
+  file(root, "src/math.ts", "export const math = 1;\n");
+  file(root, "src/math.test.ts", "export const testCase = true;\n");
+  file(root, "src/parser.ts", "export const parser = 1;\n");
+  file(root, "src/__tests__/parser.spec.ts", "export const testCase = true;\n");
+
+  const ref = commit(root, "candidate indexing");
+  const result = extract(root, ref);
+
+  assert.equal(result.metrics.indexedFiles, 45);
+  assert.equal(result.metrics.packageManifestCandidates, 1);
+  assert.equal(result.metrics.testFileCandidates, 2);
+  assert.equal(result.metrics.membershipFilesVisited, 45);
   assert.equal(result.metrics.testRelations, 2);
 });
 

@@ -155,6 +155,8 @@ test("same revision is deterministic and unchanged syntax reuses content-address
 
   assert.equal(graphEquals(first.graph, second.graph), true);
   assert.equal(first.metrics.tsjs.parsedFiles > 0, true);
+  assert.equal(first.metrics.relationships.parsedPackageManifests, 1);
+  assert.equal(first.metrics.relationships.reusedPackageArtifacts, 0);
   assert.equal(second.metrics.tsjs.parsedFiles, 0);
   assert.equal(
     second.metrics.tsjs.reusedSyntaxArtifacts,
@@ -162,6 +164,9 @@ test("same revision is deterministic and unchanged syntax reuses content-address
   );
   assert.equal(second.metrics.composition.mode, "exact");
   assert.equal(second.metrics.composition.resolvedSourceFragments, 0);
+  assert.equal(second.metrics.relationships.parsedPackageManifests, 0);
+  assert.equal(second.metrics.relationships.reusedPackageArtifacts, 1);
+  assert.equal(second.metrics.relationships.membershipFilesVisited, 0);
 });
 
 test("full intelligence graph can be consumed directly by protocol v1", () => {

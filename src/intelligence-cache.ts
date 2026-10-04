@@ -9,14 +9,14 @@ import { assembleGraphFragments, makeNode, makeEdge, nodeId } from "./graph.js";
 import { posix } from "node:path";
 import { ingestGitRepository, parseTree, type GitTreeEntry, type GitIngestionResult } from "./git.js";
 import { GRAPH_SCHEMA_VERSION, type GraphDocument, type GraphInput, type GraphNode, type Provenance } from "./model.js";
-import { extractRepositoryRelationshipInputs, REPOSITORY_RELATIONSHIP_EXTRACTOR, testSourceCandidates, parsePackageFacts, packageResolutionCandidates, type PackageFacts, type RepositoryRelationshipMetrics } from "./repository-relations.js";
+import { extractRepositoryRelationshipInputs, REPOSITORY_RELATIONSHIP_EXTRACTOR, testSourceCandidates, getPackageFacts, packageResolutionCandidates, type PackageFacts, type RepositoryRelationshipMetrics } from "./repository-relations.js";
 import { StoreCorruptionError } from "./store.js";
 import { extractTypeScriptJavaScriptFragments, isSourcePath, readTsConfig, TSJS_EXTRACTOR, type TsConfigResolution, type TsJsExtractionMetrics } from "./tsjs.js";
 import type { RepositoryIntelligenceOptions, RepositoryIntelligenceResult } from "./intelligence.js";
 import type { PathRuleInput } from "./path-rules.js";
 
-const FACT_REF = "$intelligence-facts/v5";
-const CACHE_VERSION = "repograph.intelligence/v5";
+const FACT_REF = "$intelligence-facts/v6";
+const CACHE_VERSION = "repograph.intelligence/v6";
 const PACK_SIZE = 64;
 type Fragments = Record<string, GraphDocument>;
 type ReverseIndex = Record<string, string[]>;
@@ -203,6 +203,10 @@ function totals(state: IntelligenceState): void {
   const edges = Object.values(state.relationships).flatMap((fragment) => fragment.edges);
   const count = (kind: string) => edges.filter((edge) => edge.identity.kind === kind).length;
   state.relationshipMetrics = {
+    indexedFiles: Object.values(state.git).reduce((n, fragment) => n + fragment.nodes.filter((node) => node.identity.kind === "file").length, 0),
+    packageManifestCandidates: Object.values(state.git).reduce((n, fragment) => n + fragment.nodes.filter((node) => node.identity.kind === "file" && /(^|\/)package\.json$/.test(node.identity.key)).length, 0),
+    testFileCandidates: new Set(Object.values(state.tests).flat()).size,
+    membershipFilesVisited: 0, parsedPackageManifests: 0, reusedPackageArtifacts: 0,
     packageManifests: state.packages.length, packageNodes: state.packages.length,
     packageDependencies: count("package-dependency"), packageMemberships: count("belongs-to-package"),
     buildEntrypoints: count("package-build-entrypoint"), contractEntrypoints: count("package-contract"), testRelations: count("tests"),
@@ -225,7 +229,7 @@ export function buildIncrementalIntelligence(options: RepositoryIntelligenceOpti
   });
   const configurationIdentity = `intelligence-config-${createHash("sha256").update(canonicalJsonUnknown({
     schema: CACHE_VERSION, graph: GRAPH_SCHEMA_VERSION, git: "0.0.1", tsjs: TSJS_EXTRACTOR, relationships: REPOSITORY_RELATIONSHIP_EXTRACTOR,
-    parser: ts.version, policy: options.policy ?? {}, pathRules: options.pathRules ?? [], discoverCodeowners: options.discoverCodeowners ?? true, tsconfigPath: options.tsconfigPath ?? "tsconfig.json",
+    parser: ts.version, jsonParser: process.versions.v8, policy: options.policy ?? {}, pathRules: options.pathRules ?? [], discoverCodeowners: options.discoverCodeowners ?? true, tsconfigPath: options.tsconfigPath ?? "tsconfig.json",
   })).digest("hex")}`;
   const reasons: string[] = [];
   const layouts = new Map<string, FragmentPack[]>();
@@ -281,6 +285,9 @@ export function buildIncrementalIntelligence(options: RepositoryIntelligenceOpti
   let parsedFiles = 0;
   let reusedSyntaxArtifacts = 0;
   let syntaxCacheIoMs = 0;
+  let parsedPackageManifests = 0;
+  let packageCacheIoMs = 0;
+  let membershipFilesVisited = 0;
   let changedPaths: string[] = [];
   let encodedFragments = 0;
   let writtenFragmentPacks = 0;
@@ -382,7 +389,10 @@ export function buildIncrementalIntelligence(options: RepositoryIntelligenceOpti
           for (const path of changedPackages) {
             const before = byPath.get(path);
             if (before !== undefined) dependents(before);
-            const after = files.has(path) ? parsePackageFacts(ingestion, path, packageDiagnostics.diagnostics) : undefined;
+            const loaded = files.has(path) ? getPackageFacts(ingestion, files.get(path)!, packageDiagnostics.diagnostics, options.store) : undefined;
+            if (loaded !== undefined && !loaded.reused) parsedPackageManifests++;
+            packageCacheIoMs += loaded?.cacheIoMs ?? 0;
+            const after = loaded?.facts;
             for (const candidate of previous.packageCandidates[path] ?? []) removeIndex(previous.packageDependents, candidate, path);
             delete previous.packageCandidates[path];
             byPath.delete(path);
@@ -431,6 +441,7 @@ export function buildIncrementalIntelligence(options: RepositoryIntelligenceOpti
           for (const path of packagePaths) delete previous.relationships[`package:${path}`];
           for (const path of testPaths) delete previous.relationships[`test:${path}`];
           const relation = timed("relationshipMaintenanceMs", () => extractRepositoryRelationshipInputs(ingestion, { packages: previous.packages, membershipPaths, testPaths, packagePaths, files }));
+          membershipFilesVisited += relation.metrics.membershipFilesVisited;
           relation.inputs.diagnostics = [...(relation.inputs.diagnostics ?? []), ...packageDiagnostics.diagnostics];
           const replacements = relationshipFragments(relation.inputs, new Map([...membershipPaths].filter((path) => files.has(path)).map((path) => [path, files.get(path)!])));
           Object.assign(previous.relationships, Object.fromEntries(Object.entries(replacements).map(([key, value]) => [key, pin(value, FACT_REF)])));
@@ -448,7 +459,10 @@ export function buildIncrementalIntelligence(options: RepositoryIntelligenceOpti
     const configDiagnostics = emptyGraph();
     const config = timed("extractionResolutionMs", () => readTsConfig(ingestion, new Set(files.keys()), options.tsconfigPath ?? "tsconfig.json", configDiagnostics.diagnostics));
     const extracted = timed("extractionResolutionMs", () => extractTypeScriptJavaScriptFragments(ingestion, options, undefined, config, files, sourceReader(resolved.root, files)));
-    const relation = timed("relationshipMaintenanceMs", () => extractRepositoryRelationshipInputs(ingestion));
+    const relation = timed("relationshipMaintenanceMs", () => extractRepositoryRelationshipInputs(ingestion, { ...(options.store === undefined ? {} : { store: options.store }) }));
+    parsedPackageManifests += relation.metrics.parsedPackageManifests;
+    packageCacheIoMs += relation.metrics.packageCacheIoMs ?? 0;
+    membershipFilesVisited += relation.metrics.membershipFilesVisited;
     const gitFragments = splitGit(pin(ingestion.graph, FACT_REF));
     state = {
       schema: CACHE_VERSION, entries: Object.fromEntries(entries.map((entry) => [entry.path, entry])), git: gitFragments,
@@ -496,6 +510,7 @@ export function buildIncrementalIntelligence(options: RepositoryIntelligenceOpti
       const additions = [...remaining].sort();
       for (let i = 0; i < additions.length; i += PACK_SIZE) savePack(additions.slice(i, i + PACK_SIZE));
       const index = { ...state, tsjs: { ...state.tsjs, parsedFiles: 0, reusedSyntaxArtifacts: 0, syntaxCacheIoMs: 0 } } as Partial<IntelligenceState>;
+      index.relationshipMetrics = { ...state.relationshipMetrics, parsedPackageManifests: 0, reusedPackageArtifacts: 0, membershipFilesVisited: 0, packageCacheIoMs: 0 };
       delete index.git; delete index.sources; delete index.relationships;
       const saved = save("intelligence-index", index);
       refs.push({ logicalKey: "$intelligence", artifactKey: saved.key });
@@ -503,8 +518,9 @@ export function buildIncrementalIntelligence(options: RepositoryIntelligenceOpti
     });
   }
   const graph = timed("graphMaterializationMs", () => pin(assembleGraphFragments([...Object.values(state.git), ...Object.values(state.sources), ...Object.values(state.relationships), state.configDiagnostics]), options.ref, resolved.commit));
-  timings.cacheIoMs += syntaxCacheIoMs;
+  timings.cacheIoMs += syntaxCacheIoMs + packageCacheIoMs;
   timings.extractionResolutionMs -= syntaxCacheIoMs;
+  timings.relationshipMaintenanceMs -= packageCacheIoMs;
   const totalFragments = Object.keys(state.sources).length + Object.keys(state.relationships).length;
   const baseNodes = Object.values(state.git).reduce((n, fragment) => n + fragment.nodes.length, 0);
   const baseEdges = Object.values(state.git).reduce((n, fragment) => n + fragment.edges.length, 0);
@@ -514,7 +530,7 @@ export function buildIncrementalIntelligence(options: RepositoryIntelligenceOpti
     repositoryRoot: resolved.root, repository: resolved.repository, requestedRef: options.ref, commit: resolved.commit, graph,
     metrics: {
       files: graph.nodes.filter((node) => node.identity.kind === "file").length, nodes: graph.nodes.length, edges: graph.edges.length, diagnostics: graph.diagnostics.length,
-      tsjs: { ...state.tsjs, parsedFiles, reusedSyntaxArtifacts, syntaxCacheIoMs }, relationships: state.relationshipMetrics,
+      tsjs: { ...state.tsjs, parsedFiles, reusedSyntaxArtifacts, syntaxCacheIoMs }, relationships: { ...state.relationshipMetrics, parsedPackageManifests, reusedPackageArtifacts: Math.max(0, state.relationshipMetrics.packageManifestCandidates - parsedPackageManifests), membershipFilesVisited, packageCacheIoMs },
       composition: { baseNodes, baseEdges, relationshipOnlyNodes, relationshipOnlyEdges, skippedDuplicateRelationshipNodes: baseNodes, skippedDuplicateRelationshipEdges: baseEdges, mode, ...(baseCommit === undefined ? {} : { baseCommit }), invalidationReasons: reasons, changedPaths, inspectedPaths, inspectedBlobs, resolvedSourceFragments, recomposedRelationshipFragments, reusedFragments: Math.max(0, totalFragments - resolvedSourceFragments - recomposedRelationshipFragments), encodedFragments, writtenFragmentPacks, reusedFragmentPacks, materializedNodes: graph.nodes.length, materializedEdges: graph.edges.length },
       timings: { ...timings, totalMs: performance.now() - started },
     },
