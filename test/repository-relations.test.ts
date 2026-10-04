@@ -368,6 +368,39 @@ test("emits test-to-source edges only for an unambiguous filename convention", (
   assert.equal(result.metrics.testRelations, 2);
 });
 
+test("indexes relationship candidates once and limits test work to test-shaped paths", () => {
+  const root = repository();
+
+  file(
+    root,
+    "package.json",
+    JSON.stringify({
+      name: "@fixture/root",
+      version: "1.0.0",
+    }),
+  );
+  for (let index = 0; index < 40; index += 1) {
+    file(
+      root,
+      `src/plain-${index}.ts`,
+      `export const value${index} = ${index};\n`,
+    );
+  }
+  file(root, "src/math.ts", "export const math = 1;\n");
+  file(root, "src/math.test.ts", "export const testCase = true;\n");
+  file(root, "src/parser.ts", "export const parser = 1;\n");
+  file(root, "src/__tests__/parser.spec.ts", "export const testCase = true;\n");
+
+  const ref = commit(root, "candidate indexing");
+  const result = extract(root, ref);
+
+  assert.equal(result.metrics.indexedFiles, 45);
+  assert.equal(result.metrics.packageManifestCandidates, 1);
+  assert.equal(result.metrics.testFileCandidates, 2);
+  assert.equal(result.metrics.membershipFilesVisited, 45);
+  assert.equal(result.metrics.testRelations, 2);
+});
+
 test("unresolved explicit relationships become diagnostics instead of invented edges", () => {
   const root = repository();
 
