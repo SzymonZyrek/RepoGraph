@@ -25,14 +25,22 @@
     "test": "npm run build && node --test --experimental-test-coverage --test-coverage-lines=80 --test-coverage-functions=80 --test-coverage-branches=70 dist/test/*.test.js",
     "ci": "npm run lint && npm run typecheck && npm test",
     "eval:incremental": "npm run build && node scripts/eval-incremental.mjs",
-    "eval:intelligence": "npm run build && node scripts/eval-intelligence.mjs"
+    "eval:intelligence": "npm run build && node scripts/eval-intelligence.mjs",
+    "providers:proof": "node scripts/prove-providers.mjs --cargo",
+    "eval:index": "npm run build && node scripts/eval-index.mjs",
+    "consumer:install": "node scripts/prove-consumer-install.mjs"
   },
   "devDependencies": {
+    "@sourcegraph/scip-typescript": "0.4.0",
     "@types/node": "^22.10.0",
     "eslint": "^9.17.0",
     "typescript-eslint": "^8.18.0"
   },
   "dependencies": {
-    "typescript": "5.7.2"
+    "@ladybugdb/core": "0.21.2",
+    "fast-xml-parser": "5.11.2",
+    "protobufjs": "8.8.0",
+    "typescript": "5.7.2",
+    "yaml": "2.9.1"
   }
 }
