@@ -91,12 +91,18 @@ export function cargoFacts(value: unknown, knownPaths: Set<string>, owner = "car
   const packages = list(input.packages).map(object).filter(pkg => members.has(text(pkg.id)));
   if (sourceRoot) artifact(sourceRoot);
   const ids = new Map<string, string>();
+  const directories = new Map<string, string>();
   for (const pkg of packages) {
     const manifest = text(pkg.manifest_path).replaceAll("\\", "/");
     if (!manifest.startsWith(`${root}/`)) { facts.partial("workspace member is outside indexed repository"); continue; }
     const relative = (sourceRoot ? `${sourceRoot}/` : "") + manifest.slice(root.length + 1); const directory = posix.dirname(relative);
     const id = facts.add(boundary("workspace", relative)); ids.set(text(pkg.id), id);
-    for (const path of [...knownPaths].filter(path => directory === "." || path.startsWith(`${directory}/`))) facts.edge(id, facts.add(artifact(path)), "CONTAINS");
+    directories.set(directory, id);
+  }
+  const membership = [...directories].sort(([a], [b]) => (b === "." ? -1 : b.length) - (a === "." ? -1 : a.length));
+  for (const path of knownPaths) {
+    const owner = membership.find(([directory]) => directory === "." || path.startsWith(`${directory}/`));
+    if (owner) facts.edge(owner[1], facts.add(artifact(path)), "CONTAINS");
   }
   const resolve = input.resolve ? object(input.resolve) : {};
   for (const node of list(resolve.nodes).map(object)) {

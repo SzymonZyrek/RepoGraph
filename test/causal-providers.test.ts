@@ -23,6 +23,12 @@ test("Cargo consumes a native resolved workspace and excludes registry-only coor
   }, new Set(["web/Cargo.toml", "web/src/lib.rs", "domain/Cargo.toml", "domain/src/lib.rs"]));
   assert.ok(facts.edges.some(edge => edge.kind === "DEPENDS_ON" && edge.from === "boundary:workspace:web/Cargo.toml"));
   assert.equal(facts.nodes.some(node => node.id.includes("registry")), false);
+  const nested = cargoFacts({ workspace_root: "/repo", workspace_members: ["root", "a"],
+    packages: [{ id: "root", manifest_path: "/repo/Cargo.toml" }, { id: "a", manifest_path: "/repo/a/Cargo.toml" }],
+    resolve: { nodes: [] },
+  }, new Set(["Cargo.toml", "src/lib.rs", "a/Cargo.toml", "a/src/lib.rs"]));
+  assert.ok(nested.edges.some(edge => edge.from === "boundary:workspace:a/Cargo.toml" && edge.to === "artifact:a/src/lib.rs"));
+  assert.equal(nested.edges.some(edge => edge.from === "boundary:workspace:Cargo.toml" && edge.to === "artifact:a/src/lib.rs"), false);
 });
 
 test("documentation dependency direction and explicit capability overlays use only the core schema", () => {
