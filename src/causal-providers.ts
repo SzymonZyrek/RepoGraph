@@ -49,10 +49,14 @@ message ToolInfo { string name=1; string version=2; }
 message Metadata { ToolInfo tool_info=2; }
 message Index { Metadata metadata=1; repeated Document documents=2; }`).root.lookupType("Index");
 
-export function scipFacts(bytes: Uint8Array, knownPaths: Set<string>, owner = "scip"): ProviderFacts {
+export function scipFacts(bytes: Uint8Array, knownPaths: Set<string>, owner = "scip", sourceRoot = ""): ProviderFacts {
   const index = object(scipIndexType.toObject(scipIndexType.decode(bytes), { defaults: true }));
   const facts = new FactCollector(owner, bytes, "precise-index");
-  const docs = list(index.documents).map(object);
+  if (sourceRoot) artifact(sourceRoot);
+  const docs: Record<string, unknown>[] = list(index.documents).map(raw => {
+    const doc = object(raw); const relative = text(doc.relativePath); artifact(relative);
+    return { ...doc, relativePath: sourceRoot ? `${sourceRoot}/${relative}` : relative };
+  });
   const definitions = new Map<string, Set<string>>();
   for (const doc of docs) {
     const path = text(doc.relativePath);
@@ -79,17 +83,18 @@ export function scipFacts(bytes: Uint8Array, knownPaths: Set<string>, owner = "s
 }
 
 /** Consumes cargo metadata output; does not resolve Cargo manifests itself. */
-export function cargoFacts(value: unknown, knownPaths: Set<string>, owner = "cargo"): ProviderFacts {
+export function cargoFacts(value: unknown, knownPaths: Set<string>, owner = "cargo", sourceRoot = ""): ProviderFacts {
   const input = object(value);
   const facts = new FactCollector(owner, JSON.stringify(value), "native-build");
   const root = text(input.workspace_root).replaceAll("\\", "/").replace(/\/$/, "");
   const members = new Set(list(input.workspace_members).map(String));
   const packages = list(input.packages).map(object).filter(pkg => members.has(text(pkg.id)));
+  if (sourceRoot) artifact(sourceRoot);
   const ids = new Map<string, string>();
   for (const pkg of packages) {
     const manifest = text(pkg.manifest_path).replaceAll("\\", "/");
     if (!manifest.startsWith(`${root}/`)) { facts.partial("workspace member is outside indexed repository"); continue; }
-    const relative = manifest.slice(root.length + 1); const directory = posix.dirname(relative);
+    const relative = (sourceRoot ? `${sourceRoot}/` : "") + manifest.slice(root.length + 1); const directory = posix.dirname(relative);
     const id = facts.add(boundary("workspace", relative)); ids.set(text(pkg.id), id);
     for (const path of [...knownPaths].filter(path => directory === "." || path.startsWith(`${directory}/`))) facts.edge(id, facts.add(artifact(path)), "CONTAINS");
   }

@@ -136,11 +136,12 @@ async function indexed<T>(options: RepositoryQueryOptions, root: string, reposit
       const identity = fingerprint(`${JSON.stringify(input)}:${tree.get(path) ?? "missing"}:${[...paths].sort().join("\n")}:${JSON.stringify(sourceIdentity)}`);
       await add(owner, identity, () => {
         if (type === "scip" || type === "cargo") {
-          const facts = type === "scip" ? scipFacts(read(path), paths, owner) : cargoFacts(JSON.parse(read(path).toString()) as unknown, paths, owner);
+          const sourceRoot = typeof input.root === "string" ? input.root : "";
+          const facts = type === "scip" ? scipFacts(read(path), paths, owner, sourceRoot) : cargoFacts(JSON.parse(read(path).toString()) as unknown, paths, owner, sourceRoot);
           const validSnapshot = sourceKeys.length > 0 && sourceKeys.every(path => tree.has(path) && snapshot[path] === fingerprint(read(path)));
           const covered = type === "scip" ? facts.nodes.every(node => node.type !== "artifact" || Object.hasOwn(snapshot, node.path)) :
             facts.nodes.filter(node => node.type === "boundary" && node.kind === "workspace").every(node => node.type === "boundary" && Object.hasOwn(snapshot, node.key)) &&
-            ["Cargo.toml", "Cargo.lock"].filter(path => paths.has(path)).every(path => Object.hasOwn(snapshot, path));
+            ["Cargo.toml", "Cargo.lock"].map(path => sourceRoot ? `${sourceRoot}/${path}` : path).filter(path => paths.has(path)).every(path => Object.hasOwn(snapshot, path));
           if (!validSnapshot || !covered) {
             facts.partial = true; facts.edges = [];
             facts.evidence.forEach(evidence => { evidence.state = "partial"; });

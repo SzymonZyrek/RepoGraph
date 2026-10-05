@@ -56,6 +56,8 @@ Markdown local links create `documentation DEPENDS_ON referenced artifact` edges
 
 ## Persistence and updates
 
+SCIP/Cargo descriptors may set `root` to a canonical repository-relative project directory. Provider-relative paths are prefixed with it before matching committed artifacts; source hash keys remain repository-relative. This supports nested projects without treating machine-specific absolute producer roots as public identity.
+
 The disposable index defaults to `.cache/repograph/<repository-key>.lbdb`. Revision/config metadata is checked before answers. Provider-owned node claims, causal edges and compact evidence are refreshed in one transaction with the revision update; a failure rolls back all changes. Converging facts retain independent provider attribution. Source payloads are read from Git blobs, never from a checked-out working tree. On a narrow change unchanged provider fingerprints are reused, while whole-project providers may replace their normalized fact set. Warm queries read only selected facts; cold/incremental maintenance may scan repository/provider manifests. No changed-files-only total indexing cost is claimed.
 
 Deleting the cache rebuilds equivalent bounded answers from Git/providers. Existing `GraphDocument`, `buildRepositoryIntelligence`, `build-intelligence`, `--graph`, and `repograph.protocol/v1` graph-bearing requests remain migration/debug interchange only. They are not the new consumer path and must not be frozen as the 1.0 contract. `repograph.causal/v1` is the experimental compact result schema; public freeze remains #68, after #70 consumer proof.
