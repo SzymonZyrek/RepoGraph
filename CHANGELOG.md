@@ -2,6 +2,15 @@
 
 ## 0.0.6 — 2026-10-04
 
+Architecture correction (#61, #76, #77, #78, #80, #81):
+
+- Primary `indexRepository`/`affected`/`slice`/`explain` library and repo/ref CLI use a disk-backed embedded graph index; ordinary queries return bounded causal evidence without GraphDocument materialization.
+- A closed language-neutral model persists artifacts, boundaries, causal dependencies and containment only. Readable public identities and compact deduplicated provider evidence replace verbose per-fact revision provenance on this path.
+- Provider-first ingestion consumes SCIP protobuf indexes, Cargo metadata, Markdown links, OpenAPI, WSDL and AsyncAPI with explicit bindings/overlays. Source snapshots are checked; stale/unavailable indexes degrade explicitly without speculative dependencies. No toolchain is installed or executed implicitly.
+- Transactional provider refresh includes exact revision/config metadata, independent ownership claims, rollback and orphan cleanup. Blob-based Markdown reuse survives renames; deleting the index rebuilds equivalent answers.
+- Raw evaluation JSON is removed from docs. New opt-in economics measures cold indexing, narrow updates, bounded query/open latency, disk size and returned slice size.
+- Historical whole-graph/library/protocol utilities remain deprecated migration/debug interchange. Public freeze and real application adoption remain 0.0.7 work; this release does not claim that either consumer shipped an upgrade.
+
 Pre-public incremental composed-intelligence engineering slice (#61).
 
 - Exact-commit intelligence manifests reuse Git facts, resolved source fragments, package memberships, entrypoints and test conventions across first-parent builds and process restarts.

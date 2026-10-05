@@ -1,5 +1,7 @@
 # External protocol v1
 
+The graph-bearing v1 request below is transitional/debug interchange. New 0.0.6 consumers use [bounded repo/ref queries](bounded-queries.md) and the compact `repograph.causal/v1` result. The historical whole-graph request is not the contract to freeze for 1.0.
+
 RepoGraph 0.0.4 exposes a versioned JSON protocol for consumers that should not depend on internal TypeScript object shapes or convenience CLI commands.
 
 The stable wire version is:

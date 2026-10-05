@@ -1,5 +1,7 @@
 # Building the built-in repository intelligence graph
 
+This full-graph surface is deprecated for normal consumers as of 0.0.6. Retain it only for migration/debug interchange. Use [bounded repo/ref queries](bounded-queries.md) for indexing, impact, slices and explanations.
+
 RepoGraph has two intentionally different build surfaces.
 
 ## `build`: raw pinned Git facts
