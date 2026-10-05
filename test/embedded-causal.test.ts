@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { artifact, boundary } from "../src/causal-model.js";
-import { FactCollector } from "../src/causal-providers.js";
+import { FactCollector, interfaceFacts } from "../src/causal-providers.js";
 import { EmbeddedCausalStore } from "../src/embedded-store.js";
 
 test("Ladybug persists the minimal graph and traverses causal interfaces without provider/consumer coupling", async () => {
@@ -72,5 +72,33 @@ test("converging providers retain independent attribution and remove only releas
     assert.equal((await store.query("fixture", "b", ["artifact:a.py"], {}, "artifact:not-reachable.py")).nodes.length, 0);
     await store.rows("MATCH (m:Metadata) SET m.schema='incompatible'");
     await assert.rejects(store.open(), /Unsupported causal index schema/);
+  } finally { await store.close(); }
+});
+
+test("normalized REST, SOAP and messaging contracts share causal traversal without implementation coupling", async () => {
+  const store = new EmbeddedCausalStore(":memory:");
+  const paths = new Set(["api.yaml", "api.wsdl", "events.yaml", "client.ts", "server.py", "producer.py", "consumer.ts"]);
+  const cases = [
+    ["openapi", "api.yaml", "openapi: 3.1.0\npaths:\n  /orders:\n    get: {}", "rest:orders:get:/orders", ["client.ts", "server.py"]],
+    ["wsdl", "api.wsdl", '<definitions targetNamespace="urn:orders"><portType name="Orders"><operation name="GetOrder"/></portType></definitions>', "soap:urn:orders:Orders:GetOrder", ["client.ts", "server.py"]],
+    ["asyncapi", "events.yaml", "asyncapi: 3.0.0\nchannels:\n  orders:\n    address: orders.created", "message:orders:orders.created", ["producer.py", "consumer.ts"]],
+  ] as const;
+  try {
+    await store.open();
+    await store.replace("protocols", "revision", "config", cases.map(([family, path, source, key, implementations]) =>
+      interfaceFacts(family, path, source, paths, [{ interface: key, artifacts: [...implementations] }], "orders")));
+    for (const [family, path, , key, implementations] of cases) {
+      const answer = await store.query("protocols", "revision", [`artifact:${path}`]);
+      assert.deepEqual(answer.nodes.map(node => node.id), [`artifact:${path}`, `boundary:interface:${key}`, ...implementations.map(path => `artifact:${path}`)].sort());
+      assert.equal(answer.partial, false);
+      assert.equal(answer.evidence.length, 1);
+      assert.equal(answer.evidence[0]!.provider, `${family}:${path}`);
+      for (const implementation of implementations) {
+        const changed = await store.query("protocols", "revision", [`artifact:${implementation}`]);
+        assert.deepEqual(changed.nodes.map(node => node.id), [`artifact:${implementation}`]);
+        const why = await store.query("protocols", "revision", [`artifact:${path}`], {}, `artifact:${implementation}`);
+        assert.equal(why.nodes.length, 3); assert.equal(why.edges.length, 2);
+      }
+    }
   } finally { await store.close(); }
 });
