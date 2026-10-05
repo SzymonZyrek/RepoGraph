@@ -11,7 +11,7 @@ RepoGraph turns a pinned repository revision into a small causal graph of useful
 
 It is designed as shared infrastructure for products that need repository understanding without making the graph itself a source of policy.
 
-> **Status:** pre-public development. 0.0.x versions are engineering milestones; **1.0.0 is the first public release**. **0.0.6 is an architecture correction:** move from whole-graph JSON builds toward provider-first ingestion, a minimal language-agnostic causal model, protocol/interface boundaries and bounded queries over an embedded graph store. Existing full-graph commands remain transitional until this work lands.
+> **Status:** pre-public development. **0.0.6** uses provider-first ingestion and bounded repo/ref queries over an embedded graph store. Existing full-graph APIs are migration/debug interchange. **1.0.0 is the first public release**; its public contract freeze and real application migration remain separate acceptance work.
 
 ## The boundary
 
@@ -40,25 +40,22 @@ impact / review              task context / validation
 ## Quick start
 
 ```bash
-npm install
+npm ci
 npm run ci
 npm run build
 
 node dist/src/cli.js version
-node dist/src/cli.js build --repo . --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --out graph.json
-node dist/src/cli.js build-intelligence --repo . --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --cache-dir .repograph-cache --out intelligence.json
-
-# incremental snapshot/update path
-node dist/src/cli.js snapshot --repo . --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --cache-dir .repograph-cache
-node dist/src/cli.js update --repo . --base HEAD~1 --ref HEAD --repository github.com/SzymonZyrek/RepoGraph --cache-dir .repograph-cache
+node dist/src/cli.js index --repo . --ref HEAD
+node dist/src/cli.js affected --repo . --ref HEAD --changed src/model.py
+node dist/src/cli.js slice --repo . --ref HEAD --start artifact:src/model.py --direction in
+node dist/src/cli.js explain --repo . --ref HEAD --from artifact:src/model.py --to artifact:docs/api.md
 ```
 
-Query by stable node ID:
+Indexing is implicit for queries. Configure source/build/contract providers in `.repograph.json`; absent or stale provider evidence is explicitly partial. See [bounded queries](docs/bounded-queries.md).
 
-```bash
-node dist/src/cli.js neighbors --graph graph.json --node NODE_ID --direction in
-node dist/src/cli.js affected --graph graph.json --node NODE_ID --edge depends-on
-node dist/src/cli.js explain --graph graph.json --from NODE_ID --to OTHER_NODE_ID
+```ts
+import { affected } from '@repograph/core';
+const answer = await affected({ repositoryPath: '.', ref: commitSha }, ['src/model.py']);
 ```
 
 All CLI output is deterministic JSON. Invalid input exits non-zero and writes a structured JSON error to stderr.
@@ -80,6 +77,7 @@ The dependency-linked roadmap lives in [GitHub issue #1](https://github.com/Szym
 ## Documentation
 
 - [Architecture and invariants](docs/architecture.md)
+- [Bounded repo/ref API, CLI and provider configuration](docs/bounded-queries.md)
 - [Provider-first dependency ingestion](docs/providers.md)
 - [Protocol and interface dependencies](docs/interfaces.md)
 - [Graph contract](docs/graph-contract.md)

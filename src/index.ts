@@ -260,3 +260,10 @@ export {
   type RepositoryIntelligenceOptions,
   type RepositoryIntelligenceResult,
 } from "./intelligence.js";
+
+// Primary repo/ref interface. Historical GraphDocument APIs above are migration/debug only.
+export { affected, explain, indexRepository, slice,
+  type RepositoryQueryOptions, type IndexResult, type IndexDiagnostics, type GraphProvider, type ProviderContext } from "./repository-query.js";
+export { CAUSAL_SCHEMA, artifact, boundary,
+  type ArtifactRole, type CausalAnswer, type CausalNode, type CausalEdge, type CausalEvidence, type CausalEdgeKind, type ProviderFacts, type QueryPolicy } from "./causal-model.js";
+export { scipFacts, cargoFacts, interfaceFacts, markdownFacts, overlayFacts, FactCollector, type InterfaceBinding } from "./causal-providers.js";

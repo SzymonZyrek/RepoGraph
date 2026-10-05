@@ -2,6 +2,10 @@
 
 RepoGraph is shared infrastructure, not a replacement for its consumers.
 
+## 0.0.6 bounded migration boundary
+
+Consumers call `affected`, `slice` or `explain` with repository/ref and compact policy. Index maintenance is implicit. No GraphDocument is passed between consumer and RepoGraph. `test/bounded-consumers.test.ts` proves VibeGuard-shaped capability overlays and Hacka-shaped implementation/validation/contracts/docs selection on the same persisted causal graph. These are consumer-contract fixtures, not claims that either product has shipped this adapter upgrade; real application migration remains #70 and Hacka's own integration work. Older fixtures retain evidence of the transitional graph/protocol contract only.
+
 ## VibeGuard
 
 VibeGuard is the product interface for Founders and Owners: it understands capabilities, confirmed configuration, ownership and review routing.

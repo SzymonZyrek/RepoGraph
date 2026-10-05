@@ -1,5 +1,7 @@
 # Graph contract (0.0.1)
 
+This is the legacy interchange model. The primary 0.0.6 persisted/query model is [Artifact / Boundary / DEPENDS_ON / CONTAINS](bounded-queries.md), with revision metadata once and deduplicated compact evidence. This older model remains for migration/debug utilities.
+
 RepoGraph graph state is deterministic, derived and disposable.
 
 ## Identity

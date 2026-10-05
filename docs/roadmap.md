@@ -64,6 +64,12 @@ Issues: [#5](https://github.com/SzymonZyrek/RepoGraph/issues/5), [#17](https://g
 This milestone was discovered from live HackaTeam/VibeGuard work after the planned 0.0.4 foundation had already completed. It does not turn RepoGraph into either consumer's product layer.
 
 
+## 0.0.6 — bounded embedded causal queries
+
+The architecture correction implements the minimal Artifact/Boundary model, provider-first normalized evidence, REST/SOAP/messaging interface boundaries, transactional embedded graph persistence and primary repo/ref CLI/library queries. Historical whole-graph utilities remain migration/debug interchange. See [bounded queries](bounded-queries.md) and [index/query evaluation](evals/0.0.6-bounded-index.md).
+
+Acceptance is tracked by #76, #77, #78, #80 and #81 under #61. RepoGraph-level consumer-contract fixtures share this path; actual application rollout and public compatibility freeze are separate 0.0.7 acceptance work (#70/#68). Native Linux/Windows install and query proof must pass before claiming completion.
+
 ## 1.0.0 — first public release
 
 The planned 0.0.1–0.0.4 foundation plus the consumer-discovered 0.0.5 integration layer are complete. 1.0.0 remains intentionally evidence-driven rather than cosmetic: release criteria should now be cut from real VibeGuard/Hacka integrations, upgrade behavior, protocol compatibility and the usefulness of bounded explanations.

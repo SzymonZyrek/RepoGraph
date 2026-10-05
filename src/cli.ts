@@ -19,6 +19,8 @@ import {
   type TraversalDirection,
 } from "./traversal.js";
 import { VERSION } from "./generated-version.js";
+import { affected, explain, indexRepository, slice } from "./repository-query.js";
+import type { CausalEdgeKind, QueryPolicy } from "./causal-model.js";
 
 class CliError extends Error {
   constructor(
@@ -107,6 +109,10 @@ function usage(): never {
       "repograph version",
       "repograph protocol-info",
       "repograph protocol --request FILE|- [--out FILE]",
+      "repograph index --repo PATH --ref REF [--cache-dir DIR]",
+      "repograph affected --repo PATH --ref REF --changed PATH [--max-depth N] [--max-nodes N]",
+      "repograph slice --repo PATH --ref REF --start ID [--direction in|out|both] [--edge DEPENDS_ON|CONTAINS]",
+      "repograph explain --repo PATH --ref REF --from ID --to ID [--max-depth N]",
       "repograph build --repo PATH --ref REF [--repository NAME] [--out FILE]",
       "repograph build-intelligence --repo PATH --ref REF [--repository NAME] [--cache-dir DIR] [--metrics-out FILE] [--out FILE]",
       "repograph snapshot --repo PATH --ref REF --cache-dir DIR [--repository NAME] [--out FILE] [--graph-out FILE]",
@@ -120,11 +126,29 @@ function usage(): never {
   );
 }
 
-function run(argv: readonly string[]): void {
+async function run(argv: readonly string[]): Promise<void> {
   const command = argv[0];
   if (command === undefined) usage();
 
   const args = parseArgs(argv.slice(1));
+
+  if (command === "index" || command === "slice" || ((command === "affected" || command === "explain") && args.values.has("repo"))) {
+    const options = { repositoryPath: one(args, "repo", true)!, ref: one(args, "ref", true)!,
+      ...(one(args, "repository") === undefined ? {} : { repository: one(args, "repository")! }),
+      ...(one(args, "cache-dir") === undefined ? {} : { cacheDirectory: one(args, "cache-dir")! }) };
+    const direction = directionOption(args);
+    const maxDepth = integerOption(args, "max-depth");
+    const maxNodes = integerOption(args, "max-nodes");
+    const maxEdges = integerOption(args, "max-edges");
+    const relations = many(args, "edge");
+    const policy: QueryPolicy = { ...(direction === undefined ? {} : { direction }),
+      ...(maxDepth === undefined ? {} : { maxDepth }), ...(maxNodes === undefined ? {} : { maxNodes }),
+      ...(maxEdges === undefined ? {} : { maxEdges }), ...(relations.length ? { relations: relations as CausalEdgeKind[] } : {}) };
+    const starts = many(args, command === "affected" ? "changed" : "start");
+    if ((command === "affected" || command === "slice") && !starts.length) throw new CliError("usage", `Missing --${command === "affected" ? "changed" : "start"}`);
+    const result = command === "index" ? await indexRepository(options) : command === "affected" ? await affected(options, starts, policy) : command === "slice" ? await slice(options, starts, policy) : await explain(options, one(args, "from", true)!, one(args, "to", true)!, policy);
+    output(result, one(args, "out")); return;
+  }
 
   if (command === "version") {
     output({ version: VERSION });
@@ -354,7 +378,7 @@ function run(argv: readonly string[]): void {
 }
 
 try {
-  run(process.argv.slice(2));
+  await run(process.argv.slice(2));
 } catch (error) {
   const code = error instanceof CliError ? error.code : "repograph-error";
   const message = error instanceof Error ? error.message : String(error);
