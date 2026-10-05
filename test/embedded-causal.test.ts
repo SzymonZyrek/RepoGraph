@@ -51,3 +51,26 @@ test("Ladybug persists the minimal graph and traverses causal interfaces without
     assert.equal((await store.query("fixture/repo", "b", [contract])).nodes.length, 0);
   } finally { await store.close(); rmSync(dir, { recursive: true, force: true }); }
 });
+
+test("converging providers retain independent attribution and remove only released facts/roles", async () => {
+  const store = new EmbeddedCausalStore(":memory:");
+  try {
+    await store.open();
+    const p = new FactCollector("p", "one", "precise-index");
+    p.edge(p.add(artifact("a.py", ["validation"])), p.add(artifact("b.py")));
+    const q = new FactCollector("q", "two", "deterministic-repo");
+    q.edge(q.add(artifact("a.py", ["documentation"])), q.add(artifact("b.py")));
+    await store.replace("fixture", "a", "config", [p.finish(), q.finish()]);
+    const answer = await store.query("fixture", "a", ["artifact:b.py"]);
+    assert.equal(answer.edges.length, 1); assert.equal(answer.edges[0]!.evidence.length, 2);
+    assert.equal(answer.evidence.length, 2);
+    assert.deepEqual(answer.nodes.find(node => node.id === "artifact:a.py"), artifact("a.py", ["documentation", "validation"]));
+    await store.replace("fixture", "b", "config", [], ["p"]);
+    const retained = await store.query("fixture", "b", ["artifact:b.py"], { direction: "both" });
+    assert.equal(retained.edges.length, 1); assert.equal(retained.evidence.length, 1);
+    assert.deepEqual(retained.nodes.find(node => node.id === "artifact:a.py"), artifact("a.py", ["documentation"]));
+    assert.equal((await store.query("fixture", "b", ["artifact:a.py"], {}, "artifact:not-reachable.py")).nodes.length, 0);
+    await store.rows("MATCH (m:Metadata) SET m.schema='incompatible'");
+    await assert.rejects(store.open(), /Unsupported causal index schema/);
+  } finally { await store.close(); }
+});
