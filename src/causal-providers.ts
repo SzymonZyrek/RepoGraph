@@ -125,12 +125,21 @@ export function interfaceFacts(family: "openapi" | "wsdl" | "asyncapi", path: st
     if (/<!DOCTYPE|<!ENTITY/i.test(source) || XMLValidator.validate(source) !== true) throw new Error("Invalid/unsafe WSDL XML");
     const parsed = object(new XMLParser({ ignoreAttributes: false, removeNSPrefix: true, isArray: (name: string) => ["portType", "interface", "operation"].includes(name) }).parse(source));
     const root = object(parsed.definitions ?? parsed.description);
+    if (list(root.import).length) facts.partial("external WSDL imports require resolved provider output");
     const namespace = text(root["@_targetNamespace"]);
     for (const port of [...list(root.portType), ...list(root.interface)].map(object)) {
       for (const operation of list(port.operation).map(object)) operations.add(`soap:${namespace}:${text(port["@_name"])}:${text(operation["@_name"])}`);
     }
   } else {
     const document = object(parseYaml(source) as unknown);
+    const seen = new Set<object>();
+    const unresolvedReferences = (value: unknown): boolean => {
+      if (!value || typeof value !== "object" || seen.has(value)) return false;
+      seen.add(value);
+      if (!Array.isArray(value) && typeof (value as Record<string, unknown>).$ref === "string" && !(value as Record<string, string>).$ref!.startsWith("#")) return true;
+      return Object.values(value).some(unresolvedReferences);
+    };
+    if (unresolvedReferences(document)) facts.partial("external contract references require resolved provider output");
     if (family === "openapi") {
       if (typeof document.openapi !== "string") throw new Error("Expected OpenAPI contract");
       for (const [route, raw] of Object.entries(object(document.paths ?? {}))) {

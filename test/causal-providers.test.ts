@@ -54,6 +54,8 @@ test("REST, SOAP and messaging normalize into interface boundaries with exact sc
   assert.throws(() => interfaceFacts("wsdl", "api.wsdl", '<!DOCTYPE x><definitions/>', paths), /unsafe/);
   assert.equal(interfaceFacts("openapi", "api.yaml", "openapi: 3.1.0\npaths: {}", paths).partial, true);
   assert.equal(interfaceFacts("asyncapi", "events.yaml", "asyncapi: 3.0.0\nchannels: {}", paths).partial, true);
+  assert.equal(interfaceFacts("openapi", "api.yaml", "openapi: 3.1.0\npaths:\n  /orders:\n    get:\n      responses:\n        '200':\n          $ref: external.yaml#/response", paths).partial, true);
+  assert.equal(interfaceFacts("wsdl", "api.wsdl", '<definitions targetNamespace="urn:orders"><import location="other.wsdl"/><portType name="Orders"><operation name="GetOrder"/></portType></definitions>', paths).partial, true);
 });
 
 test("closed model rejects invalid nodes, identities, roles and provider relations", () => {
