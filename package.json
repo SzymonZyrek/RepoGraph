@@ -1,6 +1,10 @@
 {
   "name": "@repograph/core",
   "private": true,
+  "description": "Bounded causal repository intelligence from exact Git revisions",
+  "license": "UNLICENSED",
+  "repository": { "type": "git", "url": "https://github.com/SzymonZyrek/RepoGraph.git" },
+  "engines": { "node": "^22.0.0 || ^24.0.0" },
   "type": "module",
   "bin": {
     "repograph": "./dist/src/cli.js"
@@ -8,39 +12,39 @@
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
-      "import": "./dist/src/index.js"
+      "default": "./dist/src/index.js"
     },
     "./view": {
       "types": "./dist/src/view.d.ts",
-      "import": "./dist/src/view.js"
+      "default": "./dist/src/view.js"
+    },
+    "./providers": {
+      "types": "./dist/src/providers.d.ts",
+      "default": "./dist/src/providers.js"
     }
   },
   "scripts": {
-    "generate:version": "node scripts/generate-version.mjs",
-    "prebuild": "npm run generate:version",
     "build": "tsc -p tsconfig.json",
-    "pretypecheck": "npm run generate:version",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "npm run generate:version && eslint src test eslint.config.js",
+    "lint": "eslint src test eslint.config.js",
     "test": "npm run build && node --test --experimental-test-coverage --test-coverage-lines=80 --test-coverage-functions=80 --test-coverage-branches=70 dist/test/*.test.js",
     "ci": "npm run lint && npm run typecheck && npm test",
-    "eval:incremental": "npm run build && node scripts/eval-incremental.mjs",
-    "eval:intelligence": "npm run build && node scripts/eval-intelligence.mjs",
     "providers:proof": "node scripts/prove-providers.mjs --cargo",
     "eval:index": "npm run build && node scripts/eval-index.mjs",
-    "consumer:install": "node scripts/prove-consumer-install.mjs"
+    "package:pack": "npm run build && node scripts/pack.mjs",
+    "package:proof": "npm run package:pack && node scripts/prove-consumer-install.mjs"
   },
   "devDependencies": {
     "@sourcegraph/scip-typescript": "0.4.0",
     "@types/node": "^22.10.0",
     "eslint": "^9.17.0",
-    "typescript-eslint": "^8.18.0"
+    "typescript-eslint": "^8.18.0",
+    "typescript": "5.7.2"
   },
   "dependencies": {
     "@ladybugdb/core": "0.21.2",
     "fast-xml-parser": "5.11.2",
     "protobufjs": "8.8.0",
-    "typescript": "5.7.2",
     "yaml": "2.9.1"
   }
 }

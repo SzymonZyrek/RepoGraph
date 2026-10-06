@@ -4,7 +4,8 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { affected, artifact, boundary, explain, FactCollector, type GraphProvider } from "../src/index.js";
+import { affected, artifact, boundary, explain, type GraphProvider } from "../src/index.js";
+import { FactCollector } from "../src/causal-providers.js";
 
 test("Hacka context and VibeGuard capability impact share bounded repo/ref queries", async () => {
   const root = mkdtempSync(join(tmpdir(), "repograph-consumer-"));

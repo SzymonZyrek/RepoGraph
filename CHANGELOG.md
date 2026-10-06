@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.0.7 — 2026-10-06
+
+- One bounded repo/ref API and CLI. Removed the superseded whole-graph, snapshot, parser, protocol, store lifecycle and migration implementations and their tests/docs.
+- Minimal root exports with explicit providers/view subpaths. Runtime version reads VERSION.txt; distribution metadata derives from that file.
+- Packed external TypeScript/library/CLI and native DB proof runs on the Node 22/24 Linux/Windows matrix.
+- Pre-release rule at the top of AGENTS.md: one implementation through 1.0.0, with no backwards-compatibility layers.
+
 ## 0.0.6 — 2026-10-04
 
 Architecture correction (#61, #76, #77, #78, #80, #81):

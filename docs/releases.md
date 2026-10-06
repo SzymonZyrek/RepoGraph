@@ -1,43 +1,20 @@
-# Releases and versioning
+# Distribution and release gates
 
-## Version source of truth
+VERSION.txt is the only edited version. Runtime reads that file; packaging derives the npm manifest version from it into a temporary distribution directory. The root package remains private and contains no version field. No generated version source exists.
 
-`VERSION.txt` is the only hand-edited semantic version.
+Through 1.0.0 there is one current implementation. Delete superseded contracts and update consumers directly. Do not add deprecation windows, old schema handlers, data migrations or compatibility aliases.
 
-Build, typecheck and lint workflows generate `src/generated-version.ts` from that file. The generated file is ignored by Git and must never be edited or treated as a second version source.
+Supported runtime matrix: Node 22 and 24, Linux x64 and Windows x64. PR CI must pass lint, strict TypeScript, behavioral tests with unchanged 80% lines/functions and 70% branches, real SCIP/Cargo normalization and packed external package installation/library/CLI queries on all four combinations. Native package installation uses the upstream Ladybug install script and its platform binary; disabling scripts is not a supported install flow.
 
-The CLI reports the generated value through `repograph version`.
+Public entry points:
 
-## Release notes contract
+- Root: VERSION, CAUSAL_SCHEMA, artifact, boundary, indexRepository, affected, slice, explain and their types.
+- /providers: normalization helpers and FactCollector. Providers may emit only the closed causal model.
+- /view: createGraphViewModel and its current model types; read-only presentation of a bounded answer.
+- CLI: version, index, affected, slice, explain. Repeated changed/start/edge flags are supported; singular options reject duplicates. Invalid inputs fail with nonzero exit and compact JSON errors.
 
-Every released version must have a `CHANGELOG.md` entry containing:
+Performance evaluation is opt-in (`npm run eval:index`), with raw output under .cache. It is not a permanent PR tax.
 
-- the version;
-- the release date;
-- user-visible additions and behavior changes;
-- compatibility or schema notes;
-- migration/deprecation notes when relevant;
-- the GitHub issues or pull requests that provide implementation evidence.
+Before a public release: all four CI jobs must pass the exact release head, real VibeGuard/Hacka consumer proofs must be recorded, the generated tarball version/library/CLI must equal VERSION.txt, the release tag must be v<VERSION.txt>, and package licensing/publication must be explicitly decided by the repository Owner. Current package metadata is UNLICENSED; building a tarball does not grant a public license or publish to npm.
 
-A release note must distinguish graph/schema compatibility from consumer-product behavior. RepoGraph release notes do not claim VibeGuard or Hacka policy changes unless those consumers explicitly ship them.
-
-## Public release policy
-
-All 0.0.x versions are pre-public engineering milestones. They exist to prove contracts and economics quickly; they are not public-launch candidates.
-
-The first public release is **1.0.0**. Its criteria are evidence-driven and should be derived from consumer proofs, compatibility requirements and operational behavior after the pre-1.0 roadmap has stabilized.
-
-## 0.0.x rule
-
-A 0.0.x release may change experimental APIs, but persisted/exported schema changes still require an explicit schema-version change or migration note. Silent reinterpretation of an existing schema version is not allowed.
-
-
-## External protocol compatibility
-
-The versioned JSON wire contract is independent from the package semantic version.
-
-Within a protocol major such as `repograph.protocol/v1`, changes are additive: existing required fields and stable feature semantics keep their meaning, while new optional fields or advertised features may be added. Breaking wire changes require a new protocol major and must be discoverable through `protocol-info`.
-
-A protocol feature marked `deprecated` remains discoverable for at least one pre-1.0 engineering milestone before removal unless keeping it would preserve a security or correctness defect.
-
-Release artifacts consumed by external callers must expose the same `VERSION.txt`-derived release version through both the TypeScript library and CLI protocol metadata. The stable protocol is the supported cross-process boundary; convenience CLI command output outside that protocol remains pre-1.0 experimental unless separately documented.
+Desired main protection: require pull requests, all four `test (ubuntu-latest, 22/24)` and `test (windows-latest, 22/24)` checks, and an up-to-date branch; disallow force pushes/deletion. Repository administration policy is verified separately from ordinary write access.

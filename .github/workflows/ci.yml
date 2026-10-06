@@ -29,5 +29,9 @@ jobs:
       - run: npm ci
       - run: npm run ci
       - run: node scripts/prove-providers.mjs --cargo
-      - name: Clean external native binding install
-        run: npm run consumer:install
+      - name: Packed external consumer install and queries
+        run: npm run package:proof
+      - uses: actions/upload-artifact@v4
+        with:
+          name: repograph-${{ matrix.os }}-node-${{ matrix.node }}
+          path: .cache/package/*.tgz

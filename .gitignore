@@ -1,7 +1,6 @@
 # Dependencies and build output
 node_modules/
 dist/
-src/generated-version.ts
 *.tsbuildinfo
 
 # Test reports and tool caches
